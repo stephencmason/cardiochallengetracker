@@ -25,7 +25,14 @@ button,input,select{font:inherit}
 .auth-btn{background:white;color:var(--navy);border:0;border-radius:10px;padding:9px 15px;font-weight:750;cursor:pointer;display:flex;align-items:center;gap:8px}
 .auth-btn:hover{background:#eef3f6}
 .user-info{display:none;align-items:center;gap:10px;color:white;font-size:.9rem;font-weight:600}
-.user-avatar{width:32px;height:32px;border-radius:50%;border:2px solid white}
+.user-avatar{width:32px;height:32px;border-radius:50%;border:2px solid white;object-fit:cover}
+
+/* Nav Tabs */
+.tabs{display:flex;gap:10px;margin:18px 0 6px}
+.tab-btn{background:var(--paper);border:1px solid rgba(220,229,234,.8);border-radius:12px;padding:10px 18px;font-weight:700;color:var(--muted);cursor:pointer;transition:.15s}
+.tab-btn:hover{color:var(--ink)}
+.tab-btn.active{background:var(--navy);color:white;border-color:var(--navy)}
+
 .summary{display:grid;grid-template-columns:repeat(5,1fr);gap:13px;margin:18px 0}
 .card,.panel{background:var(--paper);border:1px solid rgba(220,229,234,.8);border-radius:18px;box-shadow:var(--shadow)}
 .metric{padding:17px}.metric .label{color:var(--muted);font-size:.81rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em}.metric .value{font-size:1.55rem;font-weight:800;margin-top:6px}.metric .sub{color:var(--muted);font-size:.78rem;margin-top:3px}
@@ -35,6 +42,18 @@ button,input,select{font:inherit}
 .today-form{display:grid;gap:13px}.field label{display:block;font-weight:750;font-size:.85rem;margin-bottom:6px}.field input[type=number]{width:100%;padding:11px;border:1px solid var(--line);border-radius:10px;background:#fbfcfd}.check{display:flex;align-items:center;gap:9px;padding:11px;background:#f5f8f9;border-radius:10px}.check input{width:18px;height:18px}.btns{display:grid;grid-template-columns:1fr 1fr;gap:9px}.btn{border:0;border-radius:11px;padding:11px 13px;font-weight:800;cursor:pointer}.primary{background:var(--blue);color:white}.secondary{background:#eaf1f4;color:var(--ink)}.danger{background:#fff0f0;color:#a52d2d;width:100%}.btn:hover{filter:brightness(.96)}
 .status{padding:13px;border-radius:12px;background:#eef7f8;line-height:1.45;font-size:.9rem}.legend{display:flex;flex-wrap:wrap;gap:12px;color:var(--muted);font-size:.76rem}.dot{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:5px}.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(70px);background:#173b57;color:white;padding:11px 18px;border-radius:99px;opacity:0;transition:.25s;z-index:20}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .notice{font-size:.79rem;color:var(--muted);line-height:1.45}.hidden{display:none}
+
+/* Leaderboard Specific Styles */
+.table-wrap{overflow-x:auto}
+.leader-table{width:100%;border-collapse:collapse;text-align:left;font-size:.9rem}
+.leader-table th{background:#f4f7f9;color:var(--muted);font-size:.78rem;font-weight:750;text-transform:uppercase;padding:12px 14px;border-bottom:1px solid var(--line)}
+.leader-table td{padding:14px;border-bottom:1px solid #edf2f5}
+.leader-user{display:flex;align-items:center;gap:10px}
+.leader-rank{font-weight:800;font-size:1.1rem;color:var(--muted);width:26px}
+.rank-1{color:#d99521}.rank-2{color:#8b9ba5}.rank-3{color:#b37648}
+.tag{display:inline-block;padding:3px 8px;border-radius:6px;font-size:.76rem;font-weight:700}
+.tag-good{background:#e8f6ee;color:#2b9a66}.tag-warn{background:#fff7e7;color:#d99521}
+
 @media(max-width:900px){.summary{grid-template-columns:repeat(2,1fr)}.layout{grid-template-columns:1fr}.summary .metric:last-child{grid-column:span 2}}
 @media(max-width:620px){.app{padding:12px}.hero{border-radius:17px;padding:19px}.hero-top{display:block}.hero-actions{margin-top:12px;flex-wrap:wrap}.calendar{gap:4px}.day{min-height:69px;padding:6px;border-radius:9px}.day-min{font-size:.76rem;margin-top:8px}.day-note{font-size:.59rem}.blank{min-height:69px}.panel{padding:13px}.metric{padding:13px}.metric .value{font-size:1.28rem}}
 </style>
@@ -59,59 +78,92 @@ button,input,select{font:inherit}
     </div>
   </header>
 
-  <section class="summary">
-    <div class="card metric"><div class="label">Counted cardio</div><div class="value" id="completed">0 min</div><div class="sub" id="actualMinutes">0 actual minutes</div></div>
-    <div class="card metric"><div class="label">Adjusted target</div><div class="value" id="target">900 min</div><div class="sub">Base: 900 minutes</div></div>
-    <div class="card metric"><div class="label">Remaining</div><div class="value" id="remaining">900 min</div><div class="sub" id="remainingHours">15 hours</div></div>
-    <div class="card metric"><div class="label">Drinks</div><div class="value" id="drinksTotal">0</div><div class="sub" id="drinkPenalty">+0 min</div></div>
-    <div class="card metric"><div class="label">Missed days</div><div class="value" id="missedTotal">0</div><div class="sub" id="missPenalty">+0 min</div></div>
-  </section>
+  <nav class="tabs">
+    <button id="tabDashboard" class="tab-btn active">My Dashboard</button>
+    <button id="tabLeaderboard" class="tab-btn">Group Leaderboard</button>
+  </nav>
 
-  <div class="layout">
-    <main>
-      <section class="panel">
-        <h2>Challenge progress</h2>
-        <div class="progress-shell"><div id="progressBar" class="progress-bar"></div></div>
-        <div class="progress-copy"><span id="progressText">0% complete</span><span id="paceText">Ready to begin</span></div>
-      </section>
-      <section class="panel">
-        <h2>September calendar</h2>
-        <div class="calendar" id="calendar"></div>
-        <div class="legend" style="margin-top:14px">
-          <span><i class="dot" style="background:#7bc99d"></i>30+ min</span>
-          <span><i class="dot" style="background:#ebbd5f"></i>1–29 min</span>
-          <span><i class="dot" style="background:#dd7777"></i>Missed</span>
-          <span>Tap any day to edit</span>
-        </div>
-      </section>
-    </main>
+  <!-- DASHBOARD VIEW -->
+  <div id="dashboardView">
+    <section class="summary">
+      <div class="card metric"><div class="label">Counted cardio</div><div class="value" id="completed">0 min</div><div class="sub" id="actualMinutes">0 actual minutes</div></div>
+      <div class="card metric"><div class="label">Adjusted target</div><div class="value" id="target">900 min</div><div class="sub">Base: 900 minutes</div></div>
+      <div class="card metric"><div class="label">Remaining</div><div class="value" id="remaining">900 min</div><div class="sub" id="remainingHours">15 hours</div></div>
+      <div class="card metric"><div class="label">Drinks</div><div class="value" id="drinksTotal">0</div><div class="sub" id="drinkPenalty">+0 min</div></div>
+      <div class="card metric"><div class="label">Missed days</div><div class="value" id="missedTotal">0</div><div class="sub" id="missPenalty">+0 min</div></div>
+    </section>
 
-    <aside>
-      <section class="panel">
-        <h2 id="entryTitle">Today's entry</h2>
-        <div class="today-form">
-          <div class="field"><label for="minutes">Cardio minutes completed</label><input id="minutes" type="number" min="0" step="1" inputmode="numeric"><div class="notice">A maximum of 120 minutes counts toward the challenge per day.</div></div>
-          <div class="field"><label for="drinks">Number of drinks</label><input id="drinks" type="number" min="0" step="1" inputmode="numeric"></div>
-          <label class="check"><input id="missed" type="checkbox"> Mark this as a missed day</label>
-          <button class="btn primary" id="saveEntry">Save entry</button>
-          <div class="notice" id="syncStatus">Saved in browser only. Sign in to sync across devices.</div>
-        </div>
-      </section>
-      <section class="panel">
-        <h2>Pace and forecast</h2>
-        <div class="status" id="forecast">Your forecast will appear as you enter activity.</div>
-      </section>
-      <section class="panel">
-        <h2>Backup and restore</h2>
-        <div class="btns">
-          <button class="btn secondary" id="exportBtn">Export backup</button>
-          <button class="btn secondary" id="importBtn">Import backup</button>
-        </div>
-        <input class="hidden" id="fileInput" type="file" accept="application/json,.json">
-        <p class="notice">Backup exports a JSON file copy to your local machine.</p>
-      </section>
-      <section class="panel"><button class="btn danger" id="resetBtn">Reset this year's challenge</button></section>
-    </aside>
+    <div class="layout">
+      <main>
+        <section class="panel">
+          <h2>Challenge progress</h2>
+          <div class="progress-shell"><div id="progressBar" class="progress-bar"></div></div>
+          <div class="progress-copy"><span id="progressText">0% complete</span><span id="paceText">Ready to begin</span></div>
+        </section>
+        <section class="panel">
+          <h2>September calendar</h2>
+          <div class="calendar" id="calendar"></div>
+          <div class="legend" style="margin-top:14px">
+            <span><i class="dot" style="background:#7bc99d"></i>30+ min</span>
+            <span><i class="dot" style="background:#ebbd5f"></i>1–29 min</span>
+            <span><i class="dot" style="background:#dd7777"></i>Missed</span>
+            <span>Tap any day to edit</span>
+          </div>
+        </section>
+      </main>
+
+      <aside>
+        <section class="panel">
+          <h2 id="entryTitle">Today's entry</h2>
+          <div class="today-form">
+            <div class="field"><label for="minutes">Cardio minutes completed</label><input id="minutes" type="number" min="0" step="1" inputmode="numeric"><div class="notice">A maximum of 120 minutes counts toward the challenge per day.</div></div>
+            <div class="field"><label for="drinks">Number of drinks</label><input id="drinks" type="number" min="0" step="1" inputmode="numeric"></div>
+            <label class="check"><input id="missed" type="checkbox"> Mark this as a missed day</label>
+            <button class="btn primary" id="saveEntry">Save entry</button>
+            <div class="notice" id="syncStatus">Saved in browser only. Sign in to sync across devices.</div>
+          </div>
+        </section>
+        <section class="panel">
+          <h2>Pace and forecast</h2>
+          <div class="status" id="forecast">Your forecast will appear as you enter activity.</div>
+        </section>
+        <section class="panel">
+          <h2>Backup and restore</h2>
+          <div class="btns">
+            <button class="btn secondary" id="exportBtn">Export backup</button>
+            <button class="btn secondary" id="importBtn">Import backup</button>
+          </div>
+          <input class="hidden" id="fileInput" type="file" accept="application/json,.json">
+          <p class="notice">Backup exports a JSON file copy to your local machine.</p>
+        </section>
+        <section class="panel"><button class="btn danger" id="resetBtn">Reset this year's challenge</button></section>
+      </aside>
+    </div>
+  </div>
+
+  <!-- LEADERBOARD VIEW -->
+  <div id="leaderboardView" class="hidden">
+    <section class="panel" style="margin-top:18px">
+      <h2>Group Standings (<span id="leaderboardYear">2026</span>)</h2>
+      <div class="table-wrap">
+        <table class="leader-table">
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>Participant</th>
+              <th>Progress</th>
+              <th>Counted</th>
+              <th>Target</th>
+              <th>Remaining</th>
+              <th>Penalties</th>
+            </tr>
+          </thead>
+          <tbody id="leaderboardBody">
+            <tr><td colspan="7" style="text-align:center;color:var(--muted)">Sign in or wait for standings to load...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
   </div>
 </div>
 <div class="toast" id="toast"></div>
@@ -121,7 +173,7 @@ button,input,select{font:inherit}
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
   import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-analytics.js";
   import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
-  import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+  import { getFirestore, doc, getDoc, setDoc, collectionGroup, query, getDocs } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
   // Your Firebase configuration
   const firebaseConfig = {
@@ -154,6 +206,19 @@ button,input,select{font:inherit}
   
   let data = emptyData();
 
+  function calculateUserTotals(daysArray) {
+    let counted = 0, actual = 0, drinks = 0, missed = 0;
+    daysArray.forEach(d => {
+      actual += (d.minutes || 0);
+      counted += Math.min(d.minutes || 0, CAP);
+      drinks += (d.drinks || 0);
+      if (d.missed) missed++;
+    });
+    const target = BASE + (drinks + missed) * 30;
+    const pct = target ? Math.min(100, (counted / target) * 100) : 0;
+    return { counted, actual, drinks, missed, target, remaining: Math.max(0, target - counted), pct };
+  }
+
   async function loadData() {
     if (currentUser) {
       try {
@@ -162,10 +227,9 @@ button,input,select{font:inherit}
         if (docSnap.exists() && Array.isArray(docSnap.data().days)) {
           data = docSnap.data().days;
         } else {
-          // If no cloud record yet, migrate from localStorage if available
           const saved = JSON.parse(localStorage.getItem(localKey()));
           data = Array.isArray(saved) && saved.length === DAYS ? saved : emptyData();
-          if (Array.isArray(saved)) persist(); // Sync initial local cache up to cloud
+          if (Array.isArray(saved)) persist();
         }
       } catch (err) {
         console.error("Error loading cloud data:", err);
@@ -183,16 +247,17 @@ button,input,select{font:inherit}
   }
 
   async function persist() {
-    // Keep local storage copy
     localStorage.setItem(localKey(), JSON.stringify(data));
     
-    // Save to Firestore if signed in
     if (currentUser) {
       try {
         const docRef = doc(db, "users", currentUser.uid, "challenges", String(year));
         await setDoc(docRef, {
-          displayName: currentUser.displayName,
-          email: currentUser.email,
+          userId: currentUser.uid,
+          displayName: currentUser.displayName || 'Anonymous',
+          photoURL: currentUser.photoURL || '',
+          email: currentUser.email || '',
+          year: year,
           updatedAt: new Date().toISOString(),
           days: data
         });
@@ -205,18 +270,7 @@ button,input,select{font:inherit}
   }
 
   function clampInt(v) { return Math.max(0, Math.floor(Number(v) || 0)); }
-  
-  function totals() {
-    let counted = 0, actual = 0, drinks = 0, missed = 0;
-    data.forEach(d => {
-      actual += d.minutes;
-      counted += Math.min(d.minutes, CAP);
-      drinks += d.drinks;
-      if (d.missed) missed++;
-    });
-    const target = BASE + (drinks + missed) * 30;
-    return { counted, actual, drinks, missed, target, remaining: Math.max(0, target - counted) };
-  }
+  function totals() { return calculateUserTotals(data); }
 
   function daysElapsed() {
     if (year < now.getFullYear() || (year === now.getFullYear() && now.getMonth() > 8)) return 30;
@@ -228,7 +282,7 @@ button,input,select{font:inherit}
   function toast(msg) { $('toast').textContent = msg; $('toast').classList.add('show'); setTimeout(() => $('toast').classList.remove('show'), 1800); }
 
   function render() {
-    const t = totals(), pct = t.target ? Math.min(100, t.counted / t.target * 100) : 0, elapsed = daysElapsed();
+    const t = totals(), elapsed = daysElapsed();
     $('completed').textContent = `${t.counted} min`;
     $('actualMinutes').textContent = `${t.actual} actual minutes`;
     $('target').textContent = `${t.target} min`;
@@ -238,8 +292,8 @@ button,input,select{font:inherit}
     $('drinkPenalty').textContent = `+${t.drinks * 30} min`;
     $('missedTotal').textContent = t.missed;
     $('missPenalty').textContent = `+${t.missed * 30} min`;
-    $('progressBar').style.width = `${pct}%`;
-    $('progressText').textContent = `${pct.toFixed(1)}% complete`;
+    $('progressBar').style.width = `${t.pct}%`;
+    $('progressText').textContent = `${t.pct.toFixed(1)}% complete`;
     
     const expected = elapsed * DAILY;
     const diff = t.counted - expected;
@@ -304,6 +358,88 @@ button,input,select{font:inherit}
     d.edited = true;
     await persist();
     if (show) toast(`September ${selectedDay} saved`);
+  }
+
+  // Navigation Tabs
+  $('tabDashboard').onclick = () => {
+    $('tabDashboard').classList.add('active');
+    $('tabLeaderboard').classList.remove('active');
+    $('dashboardView').classList.remove('hidden');
+    $('leaderboardView').classList.add('hidden');
+  };
+
+  $('tabLeaderboard').onclick = () => {
+    $('tabLeaderboard').classList.add('active');
+    $('tabDashboard').classList.remove('active');
+    $('leaderboardView').classList.remove('hidden');
+    $('dashboardView').classList.add('hidden');
+    loadLeaderboard();
+  };
+
+  async function loadLeaderboard() {
+    $('leaderboardYear').textContent = year;
+    const tbody = $('leaderboardBody');
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:20px">Loading standings...</td></tr>`;
+    
+    try {
+      // Query all challenge documents across all users for the current year
+      const q = query(collectionGroup(db, 'challenges'));
+      const querySnapshot = await getDocs(q);
+      const rows = [];
+
+      querySnapshot.forEach(docSnap => {
+        // Filter by document ID (year) or year field
+        if (docSnap.id === String(year)) {
+          const uData = docSnap.data();
+          if (Array.isArray(uData.days)) {
+            const stats = calculateUserTotals(uData.days);
+            rows.push({
+              name: uData.displayName || 'Participant',
+              photoURL: uData.photoURL || 'https://via.placeholder.com/32',
+              ...stats
+            });
+          }
+        }
+      });
+
+      // Sort by completion % descending, then total counted minutes
+      rows.sort((a, b) => b.pct - a.pct || b.counted - a.counted);
+
+      if (rows.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:20px">No participant entries found for September ${year}.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = '';
+      rows.forEach((r, idx) => {
+        const tr = document.createElement('tr');
+        const rankClass = idx === 0 ? 'rank-1' : idx === 1 ? 'rank-2' : idx === 2 ? 'rank-3' : '';
+        tr.innerHTML = `
+          <td><span class="leader-rank ${rankClass}">#${idx + 1}</span></td>
+          <td>
+            <div class="leader-user">
+              <img class="user-avatar" src="${r.photoURL}" alt="">
+              <strong>${r.name}</strong>
+            </div>
+          </td>
+          <td>
+            <div style="font-weight:800;font-size:1rem">${r.pct.toFixed(1)}%</div>
+            <div style="font-size:0.75rem;color:var(--muted)">${r.counted} / ${r.target} min</div>
+          </td>
+          <td><strong>${r.counted} min</strong></td>
+          <td>${r.target} min</td>
+          <td>${r.remaining} min</td>
+          <td>
+            <span class="tag ${r.drinks > 0 ? 'tag-warn' : 'tag-good'}">${r.drinks} drink${r.drinks === 1 ? '' : 's'}</span>
+            <span class="tag ${r.missed > 0 ? 'tag-warn' : 'tag-good'}">${r.missed} missed</span>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    } catch (err) {
+      console.error("Error loading leaderboard:", err);
+      tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--red);padding:20px">Error loading standings. Check Firestore security rules.</td></tr>`;
+    }
   }
 
   ['minutes', 'drinks', 'missed'].forEach(id => $(id).addEventListener('change', () => saveForm(false)));
@@ -398,6 +534,9 @@ button,input,select{font:inherit}
     year = Number(ys.value);
     loadData();
     selectedDay = (year === now.getFullYear() && now.getMonth() === 8 ? Math.min(now.getDate(), 30) : 1);
+    if (!$('leaderboardView').classList.contains('hidden')) {
+      loadLeaderboard();
+    }
   };
 
   loadData();
@@ -405,3 +544,9 @@ button,input,select{font:inherit}
 </body>
 </html>
 ```[cite: 2]
+
+---
+
+### Step to Deploy
+1. Open your repository on [GitHub](https://github.com/), edit `index.html`, replace all text with the snippet above, and commit changes[cite: 2].
+2. Wait 30 to 60 seconds, refresh your site, and click the **Group Leaderboard** tab to view live rankings.
