@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#173b57">
+<title>September Cardio Challenge</title>
+<style>
+:root {
+  --navy:#173b57; --blue:#2674a8; --cyan:#24a7b6; --green:#2b9a66;
+  --amber:#d99521; --red:#c94d4d; --ink:#183042; --muted:#6b7c88;
+  --paper:#ffffff; --bg:#eef3f6; --line:#dce5ea; --shadow:0 12px 32px rgba(24,48,66,.10);
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:linear-gradient(145deg,#eaf2f5,#f7f9fa);color:var(--ink)}
+button,input{font:inherit}
+.app{max-width:1180px;margin:auto;padding:22px}
+.hero{background:linear-gradient(125deg,var(--navy),#235d7c 62%,#258b96);color:white;border-radius:24px;padding:25px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.hero:after{content:"";position:absolute;width:260px;height:260px;border:40px solid rgba(255,255,255,.07);border-radius:50%;right:-90px;top:-110px}
+.hero h1{margin:0 0 7px;font-size:clamp(1.65rem,4vw,2.5rem)}
+.hero p{margin:0;opacity:.87}.hero-top{display:flex;justify-content:space-between;gap:15px;align-items:flex-start;position:relative;z-index:1}
+.year-select{border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.12);color:white;border-radius:10px;padding:9px}
+.summary{display:grid;grid-template-columns:repeat(5,1fr);gap:13px;margin:18px 0}
+.card,.panel{background:var(--paper);border:1px solid rgba(220,229,234,.8);border-radius:18px;box-shadow:var(--shadow)}
+.metric{padding:17px}.metric .label{color:var(--muted);font-size:.81rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em}.metric .value{font-size:1.55rem;font-weight:800;margin-top:6px}.metric .sub{color:var(--muted);font-size:.78rem;margin-top:3px}
+.layout{display:grid;grid-template-columns:1.55fr .9fr;gap:16px}.panel{padding:19px;margin-bottom:16px}.panel h2{margin:0 0 15px;font-size:1.1rem}
+.progress-shell{height:17px;background:#e7eef1;border-radius:99px;overflow:hidden}.progress-bar{height:100%;width:0;background:linear-gradient(90deg,var(--cyan),var(--green));transition:width .3s}.progress-copy{display:flex;justify-content:space-between;gap:10px;margin-top:9px;color:var(--muted);font-size:.85rem}
+.calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}.dow{text-align:center;color:var(--muted);font-size:.72rem;font-weight:800;padding-bottom:2px}.blank{min-height:85px}.day{min-height:85px;padding:9px;border:1px solid var(--line);border-radius:13px;background:#fbfcfd;cursor:pointer;transition:.15s;text-align:left;color:var(--ink)}.day:hover,.day:focus{transform:translateY(-2px);box-shadow:0 7px 16px rgba(24,48,66,.1);outline:none}.day.today{box-shadow:0 0 0 2px var(--blue)}.day.complete{background:#e8f6ee;border-color:#a8d9be}.day.partial{background:#fff7e7;border-color:#efcf91}.day.missed{background:#fdecec;border-color:#edb2b2}.day.future{opacity:.65}.day-num{font-weight:800}.day-min{font-size:.9rem;margin-top:12px;font-weight:750}.day-note{font-size:.69rem;color:var(--muted);margin-top:4px}
+.today-form{display:grid;gap:13px}.field label{display:block;font-weight:750;font-size:.85rem;margin-bottom:6px}.field input[type=number]{width:100%;padding:11px;border:1px solid var(--line);border-radius:10px;background:#fbfcfd}.check{display:flex;align-items:center;gap:9px;padding:11px;background:#f5f8f9;border-radius:10px}.check input{width:18px;height:18px}.btns{display:grid;grid-template-columns:1fr 1fr;gap:9px}.btn{border:0;border-radius:11px;padding:11px 13px;font-weight:800;cursor:pointer}.primary{background:var(--blue);color:white}.secondary{background:#eaf1f4;color:var(--ink)}.danger{background:#fff0f0;color:#a52d2d;width:100%}.btn:hover{filter:brightness(.96)}
+.status{padding:13px;border-radius:12px;background:#eef7f8;line-height:1.45;font-size:.9rem}.legend{display:flex;flex-wrap:wrap;gap:12px;color:var(--muted);font-size:.76rem}.dot{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:5px}.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(70px);background:#173b57;color:white;padding:11px 18px;border-radius:99px;opacity:0;transition:.25s;z-index:20}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.notice{font-size:.79rem;color:var(--muted);line-height:1.45}.hidden{display:none}
+@media(max-width:900px){.summary{grid-template-columns:repeat(2,1fr)}.layout{grid-template-columns:1fr}.summary .metric:last-child{grid-column:span 2}}
+@media(max-width:620px){.app{padding:12px}.hero{border-radius:17px;padding:19px}.hero-top{display:block}.year-select{margin-top:12px}.calendar{gap:4px}.day{min-height:69px;padding:6px;border-radius:9px}.day-min{font-size:.76rem;margin-top:8px}.day-note{font-size:.59rem}.blank{min-height:69px}.panel{padding:13px}.metric{padding:13px}.metric .value{font-size:1.28rem}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="hero">
+    <div class="hero-top">
+      <div><h1>September Cardio Challenge</h1><p>30 minutes every day. Build consistency, track penalties, finish strong.</p></div>
+      <select id="year" class="year-select" aria-label="Challenge year"></select>
+    </div>
+  </header>
+
+  <section class="summary">
+    <div class="card metric"><div class="label">Counted cardio</div><div class="value" id="completed">0 min</div><div class="sub" id="actualMinutes">0 actual minutes</div></div>
+    <div class="card metric"><div class="label">Adjusted target</div><div class="value" id="target">900 min</div><div class="sub">Base: 900 minutes</div></div>
+    <div class="card metric"><div class="label">Remaining</div><div class="value" id="remaining">900 min</div><div class="sub" id="remainingHours">15 hours</div></div>
+    <div class="card metric"><div class="label">Drinks</div><div class="value" id="drinksTotal">0</div><div class="sub" id="drinkPenalty">+0 min</div></div>
+    <div class="card metric"><div class="label">Missed days</div><div class="value" id="missedTotal">0</div><div class="sub" id="missPenalty">+0 min</div></div>
+  </section>
+
+  <div class="layout">
+    <main>
+      <section class="panel">
+        <h2>Challenge progress</h2>
+        <div class="progress-shell"><div id="progressBar" class="progress-bar"></div></div>
+        <div class="progress-copy"><span id="progressText">0% complete</span><span id="paceText">Ready to begin</span></div>
+      </section>
+      <section class="panel">
+        <h2>September calendar</h2>
+        <div class="calendar" id="calendar"></div>
+        <div class="legend" style="margin-top:14px">
+          <span><i class="dot" style="background:#7bc99d"></i>30+ min</span>
+          <span><i class="dot" style="background:#ebbd5f"></i>1–29 min</span>
+          <span><i class="dot" style="background:#dd7777"></i>Missed</span>
+          <span>Tap any day to edit</span>
+        </div>
+      </section>
+    </main>
+
+    <aside>
+      <section class="panel">
+        <h2 id="entryTitle">Today's entry</h2>
+        <div class="today-form">
+          <div class="field"><label for="minutes">Cardio minutes completed</label><input id="minutes" type="number" min="0" step="1" inputmode="numeric"><div class="notice">A maximum of 120 minutes counts toward the challenge per day.</div></div>
+          <div class="field"><label for="drinks">Number of drinks</label><input id="drinks" type="number" min="0" step="1" inputmode="numeric"></div>
+          <label class="check"><input id="missed" type="checkbox"> Mark this as a missed day</label>
+          <button class="btn primary" id="saveEntry">Save entry</button>
+          <div class="notice">Entries save automatically in this browser. The Save button gives visual confirmation.</div>
+        </div>
+      </section>
+      <section class="panel">
+        <h2>Pace and forecast</h2>
+        <div class="status" id="forecast">Your forecast will appear as you enter activity.</div>
+      </section>
+      <section class="panel">
+        <h2>Backup and restore</h2>
+        <div class="btns">
+          <button class="btn secondary" id="exportBtn">Export backup</button>
+          <button class="btn secondary" id="importBtn">Import backup</button>
+        </div>
+        <input class="hidden" id="fileInput" type="file" accept="application/json,.json">
+        <p class="notice">Keep the exported JSON file in OneDrive if you want a durable backup or need to move your data to another browser or device. Opening the HTML itself from OneDrive does not sync browser storage.</p>
+      </section>
+      <section class="panel"><button class="btn danger" id="resetBtn">Reset this year's challenge</button></section>
+    </aside>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<script type="module">
+  // Import Firebase SDKs
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-analytics.js";
+
+  // Your Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyCbxoN1DLvMqxZb7FD4qu8p7k6lnD5ENP4",
+    authDomain: "fitness-challenge-smason.firebaseapp.com",
+    projectId: "fitness-challenge-smason",
+    storageBucket: "fitness-challenge-smason.firebasestorage.app",
+    messagingSenderId: "913152392975",
+    appId: "1:913152392975:web:293669fb86f2e0dd03487a",
+    measurementId: "G-PP4QLCW7Q4"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+
+  // App Logic
+  const DAYS = 30, BASE = 900, DAILY = 30, CAP = 120;
+  const $ = id => document.getElementById(id);
+  const now = new Date();
+  let selectedDay = (now.getMonth() === 8 ? now.getDate() : 1);
+  let year = now.getFullYear();
+
+  function key() { return `septCardioChallenge_v3_${year}`; }
+  function emptyData() { return Array.from({ length: DAYS }, () => ({ minutes: 0, drinks: 0, missed: false, edited: false })); }
+  
+  function load() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(key()));
+      return Array.isArray(saved) && saved.length === DAYS ? saved : emptyData();
+    } catch {
+      return emptyData();
+    }
+  }
+
+  let data = load();
+
+  function persist() {
+    localStorage.setItem(key(), JSON.stringify(data));
+    render();
+  }
+
+  function clampInt(v) { return Math.max(0, Math.floor(Number(v) || 0)); }
+  
+  function totals() {
+    let counted = 0, actual = 0, drinks = 0, missed = 0;
+    data.forEach(d => {
+      actual += d.minutes;
+      counted += Math.min(d.minutes, CAP);
+      drinks += d.drinks;
+      if (d.missed) missed++;
+    });
+    const target = BASE + (drinks + missed) * 30;
+    return { counted, actual, drinks, missed, target, remaining: Math.max(0, target - counted) };
+  }
+
+  function daysElapsed() {
+    if (year < now.getFullYear() || (year === now.getFullYear() && now.getMonth() > 8)) return 30;
+    if (year > now.getFullYear() || (year === now.getFullYear() && now.getMonth() < 8)) return 0;
+    return Math.min(30, now.getDate());
+  }
+
+  function fmtHours(m) { const h = m / 60; return `${Number.isInteger(h) ? h : h.toFixed(1)} hours`; }
+  function toast(msg) { $('toast').textContent = msg; $('toast').classList.add('show'); setTimeout(() => $('toast').classList.remove('show'), 1800); }
+
+  function render() {
+    const t = totals(), pct = t.target ? Math.min(100, t.counted / t.target * 100) : 0, elapsed = daysElapsed();
+    $('completed').textContent = `${t.counted} min`;
+    $('actualMinutes').textContent = `${t.actual} actual minutes`;
+    $('target').textContent = `${t.target} min`;
+    $('remaining').textContent = `${t.remaining} min`;
+    $('remainingHours').textContent = fmtHours(t.remaining);
+    $('drinksTotal').textContent = t.drinks;
+    $('drinkPenalty').textContent = `+${t.drinks * 30} min`;
+    $('missedTotal').textContent = t.missed;
+    $('missPenalty').textContent = `+${t.missed * 30} min`;
+    $('progressBar').style.width = `${pct}%`;
+    $('progressText').textContent = `${pct.toFixed(1)}% complete`;
+    
+    const expected = elapsed * DAILY;
+    const diff = t.counted - expected;
+    $('paceText').textContent = elapsed === 0 ? 'Challenge has not started' : diff >= 0 ? `${diff} min ahead of base pace` : `${Math.abs(diff)} min behind base pace`;
+    
+    const daysLeft = Math.max(0, 30 - elapsed), dailyNeeded = daysLeft ? t.remaining / daysLeft : t.remaining;
+    let forecast;
+    if (t.remaining === 0) forecast = 'Challenge complete. You have met your adjusted target.';
+    else if (elapsed === 0) forecast = `Your adjusted target is ${t.target} minutes. The base pace is 30 minutes per day.`;
+    else if (daysLeft === 0) forecast = `September is complete. You finished ${t.remaining} minutes short of the adjusted target.`;
+    else forecast = `You need an average of ${dailyNeeded.toFixed(1)} counted minutes per remaining day to reach the adjusted target. ${dailyNeeded > CAP ? 'This is above the 120-minute daily counting cap, so the current target is no longer reachable within September.' : ''}`;
+    
+    $('forecast').textContent = forecast;
+    buildCalendar();
+    loadForm();
+  }
+
+  function buildCalendar() {
+    const cal = $('calendar');
+    cal.innerHTML = '';
+    ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].forEach(x => {
+      const e = document.createElement('div');
+      e.className = 'dow';
+      e.textContent = x;
+      cal.appendChild(e);
+    });
+    const first = new Date(year, 8, 1).getDay();
+    for (let i = 0; i < first; i++) {
+      const b = document.createElement('div');
+      b.className = 'blank';
+      cal.appendChild(b);
+    }
+    data.forEach((d, i) => {
+      const day = i + 1, b = document.createElement('button');
+      b.className = 'day';
+      if (d.missed) b.classList.add('missed');
+      else if (d.minutes >= 30) b.classList.add('complete');
+      else if (d.minutes > 0) b.classList.add('partial');
+      
+      if (year === now.getFullYear() && now.getMonth() === 8 && day === now.getDate()) b.classList.add('today');
+      if (new Date(year, 8, day) > now) b.classList.add('future');
+      
+      b.innerHTML = `<div class="day-num">${day}</div><div class="day-min">${Math.min(d.minutes, CAP)} min</div><div class="day-note">${d.drinks ? `${d.drinks} drink${d.drinks === 1 ? '' : 's'}` : d.missed ? 'Missed' : d.edited ? 'Saved' : 'No entry'}</div>`;
+      b.onclick = () => { selectedDay = day; loadForm(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+      cal.appendChild(b);
+    });
+  }
+
+  function loadForm() {
+    const d = data[selectedDay - 1];
+    $('entryTitle').textContent = `September ${selectedDay} entry`;
+    $('minutes').value = d.minutes;
+    $('drinks').value = d.drinks;
+    $('missed').checked = d.missed;
+  }
+
+  function saveForm(show = false) {
+    const d = data[selectedDay - 1];
+    d.minutes = clampInt($('minutes').value);
+    d.drinks = clampInt($('drinks').value);
+    d.missed = $('missed').checked;
+    d.edited = true;
+    persist();
+    if (show) toast(`September ${selectedDay} saved`);
+  }
+
+  ['minutes', 'drinks', 'missed'].forEach(id => $(id).addEventListener('change', () => saveForm(false)));
+  $('saveEntry').onclick = () => saveForm(true);
+  
+  $('exportBtn').onclick = () => {
+    const payload = {
+      app: 'September Cardio Challenge',
+      version: 3,
+      year,
+      exportedAt: new Date().toISOString(),
+      rules: { baseTargetMinutes: 900, dailyGoalMinutes: 30, dailyCountingCapMinutes: 120, missedDayPenaltyMinutes: 30, drinkPenaltyMinutes: 30 },
+      data
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `September-Cardio-${year}-Backup.json`;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 500);
+    toast('Backup exported');
+  };
+
+  $('importBtn').onclick = () => $('fileInput').click();
+  $('fileInput').onchange = e => {
+    const f = e.target.files[0];
+    if (!f) return;
+    const r = new FileReader();
+    r.onload = () => {
+      try {
+        const p = JSON.parse(r.result), incoming = Array.isArray(p) ? p : p.data;
+        if (!Array.isArray(incoming) || incoming.length !== 30) throw Error();
+        data = incoming.map(d => ({ minutes: clampInt(d.minutes), drinks: clampInt(d.drinks), missed: !!d.missed, edited: d.edited !== false }));
+        persist();
+        toast('Backup restored');
+      } catch {
+        alert('This does not appear to be a valid September Cardio backup file.');
+      }
+    };
+    r.readAsText(f);
+    e.target.value = '';
+  };
+
+  $('resetBtn').onclick = () => {
+    if (confirm(`Reset all entries for September ${year}? This cannot be undone unless you exported a backup.`)) {
+      data = emptyData();
+      persist();
+      toast('Challenge reset');
+    }
+  };
+
+  const ys = $('year');
+  for (let y = now.getFullYear() - 1; y <= now.getFullYear() + 2; y++) {
+    const o = document.createElement('option');
+    o.value = y;
+    o.textContent = y;
+    if (y === year) o.selected = true;
+    ys.appendChild(o);
+  }
+  ys.onchange = () => {
+    year = Number(ys.value);
+    data = load();
+    selectedDay = (year === now.getFullYear() && now.getMonth() === 8 ? Math.min(now.getDate(), 30) : 1);
+    render();
+  };
+
+  render();
+</script>
+</body>
+</html>
