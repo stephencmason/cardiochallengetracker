@@ -40,7 +40,7 @@ button,input,select{font:inherit}
 .progress-shell{height:17px;background:#e7eef1;border-radius:99px;overflow:hidden}.progress-bar{height:100%;width:0;background:linear-gradient(90deg,var(--cyan),var(--green));transition:width .3s}.progress-copy{display:flex;justify-content:space-between;gap:10px;margin-top:9px;color:var(--muted);font-size:.85rem}
 .calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}.dow{text-align:center;color:var(--muted);font-size:.72rem;font-weight:800;padding-bottom:2px}.blank{min-height:85px}.day{min-height:85px;padding:9px;border:1px solid var(--line);border-radius:13px;background:#fbfcfd;cursor:pointer;transition:.15s;text-align:left;color:var(--ink)}.day:hover,.day:focus{transform:translateY(-2px);box-shadow:0 7px 16px rgba(24,48,66,.1);outline:none}.day.today{box-shadow:0 0 0 2px var(--blue)}.day.complete{background:#e8f6ee;border-color:#a8d9be}.day.partial{background:#fff7e7;border-color:#efcf91}.day.missed{background:#fdecec;border-color:#edb2b2}.day.future{opacity:.65}.day-num{font-weight:800}.day-min{font-size:.9rem;margin-top:12px;font-weight:750}.day-note{font-size:.69rem;color:var(--muted);margin-top:4px}
 .today-form{display:grid;gap:13px}.field label{display:block;font-weight:750;font-size:.85rem;margin-bottom:6px}.field input[type=number]{width:100%;padding:11px;border:1px solid var(--line);border-radius:10px;background:#fbfcfd}.check{display:flex;align-items:center;gap:9px;padding:11px;background:#f5f8f9;border-radius:10px}.check input{width:18px;height:18px}
-.btn{border:0;border-radius:11px;padding:11px 13px;font-weight:800;cursor:pointer;width:100%}.primary{background:var(--blue);color:white}.danger{background:#fff0f0;color:#a52d2d}.btn:hover{filter:brightness(.96)}
+.btn{border:0;border-radius:11px;padding:11px 13px;font-weight:800;cursor:pointer;width:100%}.primary{background:var(--blue);color:white}.btn:hover{filter:brightness(.96)}
 .status{padding:13px;border-radius:12px;background:#eef7f8;line-height:1.45;font-size:.9rem}.legend{display:flex;flex-wrap:wrap;gap:12px;color:var(--muted);font-size:.76rem}.dot{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:5px}.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(70px);background:#173b57;color:white;padding:11px 18px;border-radius:99px;opacity:0;transition:.25s;z-index:20}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .notice{font-size:.79rem;color:var(--muted);line-height:1.45}
 .hidden{display:none}
@@ -129,7 +129,6 @@ button,input,select{font:inherit}
           <h2>Pace and forecast</h2>
           <div class="status" id="forecast">Your forecast will appear as you enter activity.</div>
         </section>
-        <section class="panel"><button class="btn danger" id="resetBtn">Reset this year's challenge</button></section>
       </aside>
     </div>
   </div>
@@ -464,14 +463,6 @@ button,input,select{font:inherit}
     }
     loadData();
   });
-
-  $('resetBtn').onclick = async () => {
-    if (confirm(`Reset all entries for September ${year}? This cannot be undone.`)) {
-      data = emptyData();
-      await persist();
-      toast('Challenge reset');
-    }
-  };
 
   const ys = $('year');
   for (let y = now.getFullYear() - 1; y <= now.getFullYear() + 2; y++) {
