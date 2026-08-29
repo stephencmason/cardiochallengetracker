@@ -13,13 +13,19 @@
 }
 *{box-sizing:border-box}
 body{margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:linear-gradient(145deg,#eaf2f5,#f7f9fa);color:var(--ink)}
-button,input{font:inherit}
+button,input,select{font:inherit}
 .app{max-width:1180px;margin:auto;padding:22px}
 .hero{background:linear-gradient(125deg,var(--navy),#235d7c 62%,#258b96);color:white;border-radius:24px;padding:25px;box-shadow:var(--shadow);position:relative;overflow:hidden}
 .hero:after{content:"";position:absolute;width:260px;height:260px;border:40px solid rgba(255,255,255,.07);border-radius:50%;right:-90px;top:-110px}
 .hero h1{margin:0 0 7px;font-size:clamp(1.65rem,4vw,2.5rem)}
-.hero p{margin:0;opacity:.87}.hero-top{display:flex;justify-content:space-between;gap:15px;align-items:flex-start;position:relative;z-index:1}
-.year-select{border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.12);color:white;border-radius:10px;padding:9px}
+.hero p{margin:0;opacity:.87}
+.hero-top{display:flex;justify-content:space-between;gap:15px;align-items:flex-start;position:relative;z-index:1}
+.hero-actions{display:flex;gap:10px;align-items:center}
+.year-select{border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.12);color:white;border-radius:10px;padding:9px;outline:none}
+.auth-btn{background:white;color:var(--navy);border:0;border-radius:10px;padding:9px 15px;font-weight:750;cursor:pointer;display:flex;align-items:center;gap:8px}
+.auth-btn:hover{background:#eef3f6}
+.user-info{display:none;align-items:center;gap:10px;color:white;font-size:.9rem;font-weight:600}
+.user-avatar{width:32px;height:32px;border-radius:50%;border:2px solid white}
 .summary{display:grid;grid-template-columns:repeat(5,1fr);gap:13px;margin:18px 0}
 .card,.panel{background:var(--paper);border:1px solid rgba(220,229,234,.8);border-radius:18px;box-shadow:var(--shadow)}
 .metric{padding:17px}.metric .label{color:var(--muted);font-size:.81rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em}.metric .value{font-size:1.55rem;font-weight:800;margin-top:6px}.metric .sub{color:var(--muted);font-size:.78rem;margin-top:3px}
@@ -30,15 +36,26 @@ button,input{font:inherit}
 .status{padding:13px;border-radius:12px;background:#eef7f8;line-height:1.45;font-size:.9rem}.legend{display:flex;flex-wrap:wrap;gap:12px;color:var(--muted);font-size:.76rem}.dot{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:5px}.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(70px);background:#173b57;color:white;padding:11px 18px;border-radius:99px;opacity:0;transition:.25s;z-index:20}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .notice{font-size:.79rem;color:var(--muted);line-height:1.45}.hidden{display:none}
 @media(max-width:900px){.summary{grid-template-columns:repeat(2,1fr)}.layout{grid-template-columns:1fr}.summary .metric:last-child{grid-column:span 2}}
-@media(max-width:620px){.app{padding:12px}.hero{border-radius:17px;padding:19px}.hero-top{display:block}.year-select{margin-top:12px}.calendar{gap:4px}.day{min-height:69px;padding:6px;border-radius:9px}.day-min{font-size:.76rem;margin-top:8px}.day-note{font-size:.59rem}.blank{min-height:69px}.panel{padding:13px}.metric{padding:13px}.metric .value{font-size:1.28rem}}
+@media(max-width:620px){.app{padding:12px}.hero{border-radius:17px;padding:19px}.hero-top{display:block}.hero-actions{margin-top:12px;flex-wrap:wrap}.calendar{gap:4px}.day{min-height:69px;padding:6px;border-radius:9px}.day-min{font-size:.76rem;margin-top:8px}.day-note{font-size:.59rem}.blank{min-height:69px}.panel{padding:13px}.metric{padding:13px}.metric .value{font-size:1.28rem}}
 </style>
 </head>
 <body>
 <div class="app">
   <header class="hero">
     <div class="hero-top">
-      <div><h1>September Cardio Challenge</h1><p>30 minutes every day. Build consistency, track penalties, finish strong.</p></div>
-      <select id="year" class="year-select" aria-label="Challenge year"></select>
+      <div>
+        <h1>September Cardio Challenge</h1>
+        <p>30 minutes every day. Build consistency, track penalties, finish strong.</p>
+      </div>
+      <div class="hero-actions">
+        <select id="year" class="year-select" aria-label="Challenge year"></select>
+        <button id="authBtn" class="auth-btn">Sign in with Google</button>
+        <div id="userProfile" class="user-info">
+          <img id="userImg" class="user-avatar" alt="Avatar">
+          <span id="userName"></span>
+          <button id="signOutBtn" style="background:none;border:0;color:#ffd1d1;cursor:pointer;font-size:0.8rem;text-decoration:underline;">Logout</button>
+        </div>
+      </div>
     </div>
   </header>
 
@@ -77,7 +94,7 @@ button,input{font:inherit}
           <div class="field"><label for="drinks">Number of drinks</label><input id="drinks" type="number" min="0" step="1" inputmode="numeric"></div>
           <label class="check"><input id="missed" type="checkbox"> Mark this as a missed day</label>
           <button class="btn primary" id="saveEntry">Save entry</button>
-          <div class="notice">Entries save automatically in this browser. The Save button gives visual confirmation.</div>
+          <div class="notice" id="syncStatus">Saved in browser only. Sign in to sync across devices.</div>
         </div>
       </section>
       <section class="panel">
@@ -91,17 +108,20 @@ button,input{font:inherit}
           <button class="btn secondary" id="importBtn">Import backup</button>
         </div>
         <input class="hidden" id="fileInput" type="file" accept="application/json,.json">
-        <p class="notice">Keep the exported JSON file in OneDrive if you want a durable backup or need to move your data to another browser or device. Opening the HTML itself from OneDrive does not sync browser storage.</p>
+        <p class="notice">Backup exports a JSON file copy to your local machine.</p>
       </section>
       <section class="panel"><button class="btn danger" id="resetBtn">Reset this year's challenge</button></section>
     </aside>
   </div>
 </div>
 <div class="toast" id="toast"></div>
+
 <script type="module">
   // Import Firebase SDKs
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
   import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-analytics.js";
+  import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
+  import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
   // Your Firebase configuration
   const firebaseConfig = {
@@ -117,6 +137,9 @@ button,input{font:inherit}
   // Initialize Firebase
   const app = initializeApp(firebaseConfig);
   const analytics = getAnalytics(app);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+  const provider = new GoogleAuthProvider();
 
   // App Logic
   const DAYS = 30, BASE = 900, DAILY = 30, CAP = 120;
@@ -124,23 +147,60 @@ button,input{font:inherit}
   const now = new Date();
   let selectedDay = (now.getMonth() === 8 ? now.getDate() : 1);
   let year = now.getFullYear();
+  let currentUser = null;
 
-  function key() { return `septCardioChallenge_v3_${year}`; }
+  function localKey() { return `septCardioChallenge_v3_${year}`; }
   function emptyData() { return Array.from({ length: DAYS }, () => ({ minutes: 0, drinks: 0, missed: false, edited: false })); }
   
-  function load() {
-    try {
-      const saved = JSON.parse(localStorage.getItem(key()));
-      return Array.isArray(saved) && saved.length === DAYS ? saved : emptyData();
-    } catch {
-      return emptyData();
+  let data = emptyData();
+
+  async function loadData() {
+    if (currentUser) {
+      try {
+        const docRef = doc(db, "users", currentUser.uid, "challenges", String(year));
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists() && Array.isArray(docSnap.data().days)) {
+          data = docSnap.data().days;
+        } else {
+          // If no cloud record yet, migrate from localStorage if available
+          const saved = JSON.parse(localStorage.getItem(localKey()));
+          data = Array.isArray(saved) && saved.length === DAYS ? saved : emptyData();
+          if (Array.isArray(saved)) persist(); // Sync initial local cache up to cloud
+        }
+      } catch (err) {
+        console.error("Error loading cloud data:", err);
+        data = emptyData();
+      }
+    } else {
+      try {
+        const saved = JSON.parse(localStorage.getItem(localKey()));
+        data = Array.isArray(saved) && saved.length === DAYS ? saved : emptyData();
+      } catch {
+        data = emptyData();
+      }
     }
+    render();
   }
 
-  let data = load();
-
-  function persist() {
-    localStorage.setItem(key(), JSON.stringify(data));
+  async function persist() {
+    // Keep local storage copy
+    localStorage.setItem(localKey(), JSON.stringify(data));
+    
+    // Save to Firestore if signed in
+    if (currentUser) {
+      try {
+        const docRef = doc(db, "users", currentUser.uid, "challenges", String(year));
+        await setDoc(docRef, {
+          displayName: currentUser.displayName,
+          email: currentUser.email,
+          updatedAt: new Date().toISOString(),
+          days: data
+        });
+      } catch (err) {
+        console.error("Error saving to cloud:", err);
+        toast("Saved locally (cloud sync error)");
+      }
+    }
     render();
   }
 
@@ -236,19 +296,50 @@ button,input{font:inherit}
     $('missed').checked = d.missed;
   }
 
-  function saveForm(show = false) {
+  async function saveForm(show = false) {
     const d = data[selectedDay - 1];
     d.minutes = clampInt($('minutes').value);
     d.drinks = clampInt($('drinks').value);
     d.missed = $('missed').checked;
     d.edited = true;
-    persist();
+    await persist();
     if (show) toast(`September ${selectedDay} saved`);
   }
 
   ['minutes', 'drinks', 'missed'].forEach(id => $(id).addEventListener('change', () => saveForm(false)));
   $('saveEntry').onclick = () => saveForm(true);
-  
+
+  // Auth Handling
+  $('authBtn').onclick = async () => {
+    try {
+      await signInWithPopup(auth, provider);
+    } catch (err) {
+      console.error(err);
+      alert("Could not sign in with Google: " + err.message);
+    }
+  };
+
+  $('signOutBtn').onclick = async () => {
+    await signOut(auth);
+  };
+
+  onAuthStateChanged(auth, user => {
+    currentUser = user;
+    if (user) {
+      $('authBtn').style.display = 'none';
+      $('userProfile').style.display = 'flex';
+      $('userName').textContent = user.displayName ? user.displayName.split(' ')[0] : 'User';
+      $('userImg').src = user.photoURL || 'https://via.placeholder.com/32';
+      $('syncStatus').textContent = `Syncing directly to account: ${user.email}`;
+    } else {
+      $('authBtn').style.display = 'block';
+      $('userProfile').style.display = 'none';
+      $('syncStatus').textContent = 'Saved in browser only. Sign in to sync across devices.';
+    }
+    loadData();
+  });
+
+  // Export / Import / Reset
   $('exportBtn').onclick = () => {
     const payload = {
       app: 'September Cardio Challenge',
@@ -287,10 +378,10 @@ button,input{font:inherit}
     e.target.value = '';
   };
 
-  $('resetBtn').onclick = () => {
+  $('resetBtn').onclick = async () => {
     if (confirm(`Reset all entries for September ${year}? This cannot be undone unless you exported a backup.`)) {
       data = emptyData();
-      persist();
+      await persist();
       toast('Challenge reset');
     }
   };
@@ -305,12 +396,12 @@ button,input{font:inherit}
   }
   ys.onchange = () => {
     year = Number(ys.value);
-    data = load();
+    loadData();
     selectedDay = (year === now.getFullYear() && now.getMonth() === 8 ? Math.min(now.getDate(), 30) : 1);
-    render();
   };
 
-  render();
+  loadData();
 </script>
 </body>
 </html>
+```[cite: 2]
