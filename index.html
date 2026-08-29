@@ -56,6 +56,12 @@ button,input,select{font:inherit}
 .tag{display:inline-block;padding:3px 8px;border-radius:6px;font-size:.76rem;font-weight:700}
 .tag-good{background:#e8f6ee;color:#2b9a66}.tag-warn{background:#fff7e7;color:#d99521}
 
+/* Rules Styles */
+.rules-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-top:14px}
+.rule-card{padding:16px;background:#fbfcfd;border:1px solid var(--line);border-radius:14px}
+.rule-card h3{margin:0 0 8px;font-size:1rem;color:var(--navy);display:flex;align-items:center;gap:8px}
+.rule-card p{margin:0;font-size:.88rem;color:var(--ink);line-height:1.45}
+
 @media(max-width:900px){.summary{grid-template-columns:repeat(2,1fr)}.layout{grid-template-columns:1fr}.summary .metric:last-child{grid-column:span 2}}
 @media(max-width:620px){.app{padding:12px}.hero{border-radius:17px;padding:19px}.hero-top{display:block}.hero-actions{margin-top:12px;flex-wrap:wrap}.calendar{gap:4px}.day{min-height:69px;padding:6px;border-radius:9px}.day-min{font-size:.76rem;margin-top:8px}.day-note{font-size:.59rem}.blank{min-height:69px}.panel{padding:13px}.metric{padding:13px}.metric .value{font-size:1.28rem}}
 </style>
@@ -83,6 +89,7 @@ button,input,select{font:inherit}
   <nav class="tabs">
     <button id="tabDashboard" class="tab-btn active">My Dashboard</button>
     <button id="tabLeaderboard" class="tab-btn">Group Leaderboard</button>
+    <button id="tabRules" class="tab-btn">Challenge Rules</button>
   </nav>
 
   <!-- DASHBOARD VIEW -->
@@ -154,6 +161,46 @@ button,input,select{font:inherit}
             <tr><td colspan="7" style="text-align:center;color:var(--muted)">Sign in or wait for standings to load...</td></tr>
           </tbody>
         </table>
+      </div>
+    </section>
+  </div>
+
+  <!-- RULES VIEW -->
+  <div id="rulesView" class="hidden">
+    <section class="panel" style="margin-top:18px">
+      <h2>Challenge Rules & Guidelines</h2>
+      <p style="margin-top:0;color:var(--muted);font-size:0.92rem">The goal of the September Cardio Challenge is building sustained daily discipline and consistency.</p>
+      
+      <div class="rules-grid">
+        <div class="rule-card">
+          <h3>⏱️ The Daily Baseline</h3>
+          <p>The core objective is <strong>30 minutes of intentional cardio per day</strong> throughout September (30 days &times; 30 min = <strong>900 minutes base target</strong>).</p>
+        </div>
+
+        <div class="rule-card">
+          <h3>🚫 The Daily Counting Cap</h3>
+          <p>A maximum of <strong>120 minutes</strong> can count toward your challenge total on any single calendar day. You can exercise longer, but excess minutes won't bank ahead beyond the 120-minute cap.</p>
+        </div>
+
+        <div class="rule-card">
+          <h3>🍺 Drink Penalty</h3>
+          <p>Every alcoholic drink consumed adds a <strong>+30 minute penalty</strong> to your overall September target. Drinks directly raise the total minutes needed to finish.</p>
+        </div>
+
+        <div class="rule-card">
+          <h3>❌ Missed Day Penalty</h3>
+          <p>If you fail to get your workout in or mark a day as missed, a <strong>+30 minute penalty</strong> is added to your target, and you'll need to make up the volume on other days.</p>
+        </div>
+
+        <div class="rule-card">
+          <h3>🎯 Adjusted Target Formula</h3>
+          <p><strong>Total Target = 900 min + (Total Drinks &times; 30 min) + (Missed Days &times; 30 min)</strong>. Standings are ranked by percentage progress against each participant's adjusted target.</p>
+        </div>
+
+        <div class="rule-card">
+          <h3>☁️ Cloud Sync</h3>
+          <p>Sign in with your Google account in the top bar to save your entries to the live cloud database and have your progress automatically displayed on the group leaderboard.</p>
+        </div>
       </div>
     </section>
   </div>
@@ -352,21 +399,22 @@ button,input,select{font:inherit}
     if (show) toast(`September ${selectedDay} saved`);
   }
 
-  // Navigation Tabs
-  $('tabDashboard').onclick = () => {
-    $('tabDashboard').classList.add('active');
-    $('tabLeaderboard').classList.remove('active');
-    $('dashboardView').classList.remove('hidden');
-    $('leaderboardView').classList.add('hidden');
-  };
+  // Navigation Tabs Switching Logic
+  function showTab(activeBtnId, activeViewId) {
+    ['tabDashboard', 'tabLeaderboard', 'tabRules'].forEach(id => {
+      $(id).classList.toggle('active', id === activeBtnId);
+    });
+    ['dashboardView', 'leaderboardView', 'rulesView'].forEach(id => {
+      $(id).classList.toggle('hidden', id !== activeViewId);
+    });
+  }
 
+  $('tabDashboard').onclick = () => showTab('tabDashboard', 'dashboardView');
   $('tabLeaderboard').onclick = () => {
-    $('tabLeaderboard').classList.add('active');
-    $('tabDashboard').classList.remove('active');
-    $('leaderboardView').classList.remove('hidden');
-    $('dashboardView').classList.add('hidden');
+    showTab('tabLeaderboard', 'leaderboardView');
     loadLeaderboard();
   };
+  $('tabRules').onclick = () => showTab('tabRules', 'rulesView');
 
   async function loadLeaderboard() {
     $('leaderboardYear').textContent = year;
@@ -485,4 +533,3 @@ button,input,select{font:inherit}
 </script>
 </body>
 </html>
-```[cite: 2]
