@@ -39,9 +39,11 @@ button,input,select{font:inherit}
 .layout{display:grid;grid-template-columns:1.55fr .9fr;gap:16px}.panel{padding:19px;margin-bottom:16px}.panel h2{margin:0 0 15px;font-size:1.1rem}
 .progress-shell{height:17px;background:#e7eef1;border-radius:99px;overflow:hidden}.progress-bar{height:100%;width:0;background:linear-gradient(90deg,var(--cyan),var(--green));transition:width .3s}.progress-copy{display:flex;justify-content:space-between;gap:10px;margin-top:9px;color:var(--muted);font-size:.85rem}
 .calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}.dow{text-align:center;color:var(--muted);font-size:.72rem;font-weight:800;padding-bottom:2px}.blank{min-height:85px}.day{min-height:85px;padding:9px;border:1px solid var(--line);border-radius:13px;background:#fbfcfd;cursor:pointer;transition:.15s;text-align:left;color:var(--ink)}.day:hover,.day:focus{transform:translateY(-2px);box-shadow:0 7px 16px rgba(24,48,66,.1);outline:none}.day.today{box-shadow:0 0 0 2px var(--blue)}.day.complete{background:#e8f6ee;border-color:#a8d9be}.day.partial{background:#fff7e7;border-color:#efcf91}.day.missed{background:#fdecec;border-color:#edb2b2}.day.future{opacity:.65}.day-num{font-weight:800}.day-min{font-size:.9rem;margin-top:12px;font-weight:750}.day-note{font-size:.69rem;color:var(--muted);margin-top:4px}
-.today-form{display:grid;gap:13px}.field label{display:block;font-weight:750;font-size:.85rem;margin-bottom:6px}.field input[type=number]{width:100%;padding:11px;border:1px solid var(--line);border-radius:10px;background:#fbfcfd}.check{display:flex;align-items:center;gap:9px;padding:11px;background:#f5f8f9;border-radius:10px}.check input{width:18px;height:18px}.btns{display:grid;grid-template-columns:1fr 1fr;gap:9px}.btn{border:0;border-radius:11px;padding:11px 13px;font-weight:800;cursor:pointer}.primary{background:var(--blue);color:white}.secondary{background:#eaf1f4;color:var(--ink)}.danger{background:#fff0f0;color:#a52d2d;width:100%}.btn:hover{filter:brightness(.96)}
+.today-form{display:grid;gap:13px}.field label{display:block;font-weight:750;font-size:.85rem;margin-bottom:6px}.field input[type=number]{width:100%;padding:11px;border:1px solid var(--line);border-radius:10px;background:#fbfcfd}.check{display:flex;align-items:center;gap:9px;padding:11px;background:#f5f8f9;border-radius:10px}.check input{width:18px;height:18px}
+.btn{border:0;border-radius:11px;padding:11px 13px;font-weight:800;cursor:pointer;width:100%}.primary{background:var(--blue);color:white}.danger{background:#fff0f0;color:#a52d2d}.btn:hover{filter:brightness(.96)}
 .status{padding:13px;border-radius:12px;background:#eef7f8;line-height:1.45;font-size:.9rem}.legend{display:flex;flex-wrap:wrap;gap:12px;color:var(--muted);font-size:.76rem}.dot{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:5px}.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(70px);background:#173b57;color:white;padding:11px 18px;border-radius:99px;opacity:0;transition:.25s;z-index:20}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-.notice{font-size:.79rem;color:var(--muted);line-height:1.45}.hidden{display:none}
+.notice{font-size:.79rem;color:var(--muted);line-height:1.45}
+.hidden{display:none}
 
 /* Leaderboard Specific Styles */
 .table-wrap{overflow-x:auto}
@@ -126,15 +128,6 @@ button,input,select{font:inherit}
         <section class="panel">
           <h2>Pace and forecast</h2>
           <div class="status" id="forecast">Your forecast will appear as you enter activity.</div>
-        </section>
-        <section class="panel">
-          <h2>Backup and restore</h2>
-          <div class="btns">
-            <button class="btn secondary" id="exportBtn">Export backup</button>
-            <button class="btn secondary" id="importBtn">Import backup</button>
-          </div>
-          <input class="hidden" id="fileInput" type="file" accept="application/json,.json">
-          <p class="notice">Backup exports a JSON file copy to your local machine.</p>
         </section>
         <section class="panel"><button class="btn danger" id="resetBtn">Reset this year's challenge</button></section>
       </aside>
@@ -382,13 +375,11 @@ button,input,select{font:inherit}
     tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:20px">Loading standings...</td></tr>`;
     
     try {
-      // Query all challenge documents across all users for the current year
       const q = query(collectionGroup(db, 'challenges'));
       const querySnapshot = await getDocs(q);
       const rows = [];
 
       querySnapshot.forEach(docSnap => {
-        // Filter by document ID (year) or year field
         if (docSnap.id === String(year)) {
           const uData = docSnap.data();
           if (Array.isArray(uData.days)) {
@@ -402,7 +393,6 @@ button,input,select{font:inherit}
         }
       });
 
-      // Sort by completion % descending, then total counted minutes
       rows.sort((a, b) => b.pct - a.pct || b.counted - a.counted);
 
       if (rows.length === 0) {
@@ -475,47 +465,8 @@ button,input,select{font:inherit}
     loadData();
   });
 
-  // Export / Import / Reset
-  $('exportBtn').onclick = () => {
-    const payload = {
-      app: 'September Cardio Challenge',
-      version: 3,
-      year,
-      exportedAt: new Date().toISOString(),
-      rules: { baseTargetMinutes: 900, dailyGoalMinutes: 30, dailyCountingCapMinutes: 120, missedDayPenaltyMinutes: 30, drinkPenaltyMinutes: 30 },
-      data
-    };
-    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = `September-Cardio-${year}-Backup.json`;
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(a.href), 500);
-    toast('Backup exported');
-  };
-
-  $('importBtn').onclick = () => $('fileInput').click();
-  $('fileInput').onchange = e => {
-    const f = e.target.files[0];
-    if (!f) return;
-    const r = new FileReader();
-    r.onload = () => {
-      try {
-        const p = JSON.parse(r.result), incoming = Array.isArray(p) ? p : p.data;
-        if (!Array.isArray(incoming) || incoming.length !== 30) throw Error();
-        data = incoming.map(d => ({ minutes: clampInt(d.minutes), drinks: clampInt(d.drinks), missed: !!d.missed, edited: d.edited !== false }));
-        persist();
-        toast('Backup restored');
-      } catch {
-        alert('This does not appear to be a valid September Cardio backup file.');
-      }
-    };
-    r.readAsText(f);
-    e.target.value = '';
-  };
-
   $('resetBtn').onclick = async () => {
-    if (confirm(`Reset all entries for September ${year}? This cannot be undone unless you exported a backup.`)) {
+    if (confirm(`Reset all entries for September ${year}? This cannot be undone.`)) {
       data = emptyData();
       await persist();
       toast('Challenge reset');
@@ -543,3 +494,4 @@ button,input,select{font:inherit}
 </script>
 </body>
 </html>
+```[cite: 2]
