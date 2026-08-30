@@ -43,7 +43,9 @@ button,input,select{font:inherit}
 .tab-btn{background:var(--paper);border:1px solid rgba(220,229,234,.8);border-radius:12px;padding:10px 18px;font-weight:700;color:var(--muted);cursor:pointer;transition:.15s}
 .tab-btn:hover{color:var(--ink)}
 .tab-btn.active{background:var(--navy);color:white;border-color:var(--navy)}
-.options-pill{background:var(--paper);border:1px solid rgba(220,229,234,.8);border-radius:12px;padding:9px 16px}
+.options-pill{background:var(--paper);border:1px solid rgba(220,229,234,.8);border-radius:12px;padding:8px 14px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.opt-field{display:flex;align-items:center;gap:7px;font-size:0.85rem;font-weight:750;color:var(--muted)}
+.opt-field input[type=number]{width:58px;padding:5px 8px;border:1px solid var(--line);border-radius:8px;background:#fbfcfd;color:var(--ink);font-weight:750;text-align:center}
 
 /* ==========================================================================
    Dashboard Metrics & Layout
@@ -103,7 +105,7 @@ button,input,select{font:inherit}
     <div class="hero-top">
       <div>
         <h1>September Fitness Challenge</h1>
-        <p>30 minutes of intentional activity every day with some extras</p>
+        <p>Daily intentional activity. Build consistency, track progress, finish strong.</p>
       </div>
       <div class="hero-actions">
         <select id="year" class="year-select" aria-label="Challenge year"></select>
@@ -115,7 +117,7 @@ button,input,select{font:inherit}
         </div>
       </div>
     </div>
-    <div class="version-tag">v4.2</div>
+    <div class="version-tag">v4.3</div>
   </header>
 
   <!-- Top Navigation Tabs & Options Toolbar -->
@@ -126,9 +128,14 @@ button,input,select{font:inherit}
       <button id="tabRules" class="tab-btn">Challenge Rules</button>
     </nav>
     <div class="options-pill">
-      <label class="check" style="background:transparent;padding:0;gap:8px" title="Uncheck to track drinks without adding penalty minutes to your target.">
+      <div class="opt-field" title="Set your daily activity goal in minutes. Default is 30m. Missed days will match this penalty.">
+        <label for="dailyGoalInput">Daily Goal:</label>
+        <input id="dailyGoalInput" type="number" min="15" max="180" step="5" value="30">
+        <span>min</span>
+      </div>
+      <label class="check" style="background:transparent;padding:0;gap:7px" title="Uncheck to track drinks without adding penalty minutes to your target.">
         <input id="enableDrinkPenalty" type="checkbox" checked>
-        <span style="font-weight:750;font-size:0.85rem;color:var(--muted)">Include Drink Penalty (+30m)</span>
+        <span style="font-weight:750;font-size:0.85rem;color:var(--muted)">Drink Penalty (+30m)</span>
       </label>
     </div>
   </div>
@@ -137,7 +144,7 @@ button,input,select{font:inherit}
   <div id="dashboardView">
     <section class="summary">
       <div class="card metric"><div class="label">Counted activity</div><div class="value" id="completed">0 min</div><div class="sub" id="actualMinutes">0 actual minutes</div></div>
-      <div class="card metric"><div class="label">Adjusted target</div><div class="value" id="target">900 min</div><div class="sub">Base: 900 minutes</div></div>
+      <div class="card metric"><div class="label">Adjusted target</div><div class="value" id="target">900 min</div><div class="sub" id="baseTargetSub">Base: 900 minutes (30m/day)</div></div>
       <div class="card metric"><div class="label">Remaining</div><div class="value" id="remaining">900 min</div><div class="sub" id="remainingHours">15 hours</div></div>
       <div class="card metric"><div class="label">Drinks logged</div><div class="value" id="drinksTotal">0</div><div class="sub" id="drinkPenalty">+0 min</div></div>
       <div class="card metric"><div class="label">Missed days</div><div class="value" id="missedTotal">0</div><div class="sub" id="missPenalty">+0 min</div></div>
@@ -155,8 +162,8 @@ button,input,select{font:inherit}
           <h2>September calendar</h2>
           <div class="calendar" id="calendar"></div>
           <div class="legend" style="margin-top:14px">
-            <span><i class="dot" style="background:#7bc99d"></i>30+ min</span>
-            <span><i class="dot" style="background:#ebbd5f"></i>1–29 min</span>
+            <span id="legendComplete"><i class="dot" style="background:#7bc99d"></i>30+ min</span>
+            <span id="legendPartial"><i class="dot" style="background:#ebbd5f"></i>1–29 min</span>
             <span><i class="dot" style="background:#dd7777"></i>Missed</span>
             <span>Tap any day to edit</span>
           </div>
@@ -168,7 +175,7 @@ button,input,select{font:inherit}
         <section class="panel">
           <h2 id="entryTitle">Today's entry</h2>
           <div class="today-form">
-            <div class="field"><label for="minutes">Activity minutes completed</label><input id="minutes" type="number" min="0" step="1" inputmode="numeric"><div class="notice">A maximum of 120 minutes counts toward the challenge per day.</div></div>
+            <div class="field"><label for="minutes">Activity minutes completed</label><input id="minutes" type="number" min="0" step="1" inputmode="numeric"><div class="notice" id="capNotice">A maximum of 120 minutes counts toward the challenge per day.</div></div>
             <div class="field"><label for="drinks">Number of drinks</label><input id="drinks" type="number" min="0" step="1" inputmode="numeric"></div>
             <label class="check"><input id="missed" type="checkbox"> Mark this as a missed day</label>
             <button class="btn primary" id="saveEntry">Save entry</button>
@@ -194,7 +201,7 @@ button,input,select{font:inherit}
             <tr>
               <th>Rank</th>
               <th>Participant</th>
-              <th>Mode</th>
+              <th>Goal / Mode</th>
               <th>Progress</th>
               <th>Counted</th>
               <th>Target</th>
@@ -219,32 +226,32 @@ button,input,select{font:inherit}
       <div class="rules-grid">
         <div class="rule-card">
           <h3>👟 Your Activity, Your Baseline</h3>
-          <p>Activity is relative to your personal starting point. For some, it might be a dedicated brisk walk or hiking; for others, an indoor trainer ride, gym circuit, gravel spin, or run. Any sustained, intentional effort that gets you moving counts.</p>
+          <p>Activity is relative to your starting point. For some, it might be a dedicated brisk walk or hiking; for others, a trainer ride, gym circuit, gravel spin, or run. Any sustained, intentional effort that gets you moving counts.</p>
         </div>
 
         <div class="rule-card">
-          <h3>⏱️ The Daily Baseline</h3>
-          <p>The core objective is <strong>30 minutes of intentional activity per day</strong> throughout September (30 days &times; 30 min = <strong>900 minutes base target</strong>).</p>
+          <h3>⏱️ Customizable Daily Baseline</h3>
+          <p>The standard baseline is <strong>30 minutes per day</strong> (30 days &times; 30 min = <strong>900 min base</strong>). You can increase your daily target (e.g., 45m or 60m) in the top toolbar to match your personal goal.</p>
         </div>
 
         <div class="rule-card">
           <h3>🚫 The Daily Counting Cap</h3>
-          <p>A maximum of <strong>120 minutes</strong> can count toward your challenge total on any single calendar day. You can exercise longer, but excess minutes won't bank ahead beyond the 120-minute cap.</p>
+          <p>A daily cap (default <strong>120 minutes</strong> or higher if your goal exceeds it) limits how much can bank toward the challenge on a single day to encourage steady daily habits.</p>
         </div>
 
         <div class="rule-card">
           <h3>🍺 Optional Drink Penalty</h3>
-          <p>Participants can choose whether to include drink penalties. When enabled, each alcoholic drink adds a <strong>+30 minute penalty</strong> to your overall September target. You can toggle this setting in your dashboard.</p>
+          <p>When enabled, each alcoholic drink adds a <strong>+30 minute penalty</strong> to your overall September target. You can toggle this setting in the top toolbar.</p>
         </div>
 
         <div class="rule-card">
           <h3>❌ Missed Day Penalty</h3>
-          <p>If you fail to get your activity in or mark a day as missed, a <strong>+30 minute penalty</strong> is added to your target, and you will need to make up the volume on other days.</p>
+          <p>Marking a day as missed adds a penalty equal to <strong>your selected daily target</strong> (+30 min by default, or your custom goal), which must be made up on other days.</p>
         </div>
 
         <div class="rule-card">
           <h3>🎯 Adjusted Target Formula</h3>
-          <p><strong>Total Target = 900 min + (Drink Penalty if enabled) + (Missed Days &times; 30 min)</strong>. Standings are ranked by percentage progress against each participant's target.</p>
+          <p><strong>Total Target = (30 &times; Daily Goal) + (Drink Penalty if enabled) + (Missed Days &times; Daily Goal)</strong>. Standings are ranked by percentage completion against each participant's target.</p>
         </div>
 
         <div class="rule-card">
@@ -286,16 +293,17 @@ button,input,select{font:inherit}
   const provider = new GoogleAuthProvider();
 
   // 4. Core Constants & App Version
-  const APP_VERSION = "4.2";
-  const DAYS = 30, BASE = 900, DAILY = 30, CAP = 120;
+  const APP_VERSION = "4.3";
+  const DAYS = 30;
   const $ = id => document.getElementById(id);
   const now = new Date();
   let selectedDay = (now.getMonth() === 8 ? now.getDate() : 1);
   let year = now.getFullYear();
   let currentUser = null;
   let enableDrinkPenalty = true;
+  let dailyGoal = 30;
 
-  // 5. Data Structures & Helper Keys
+  // 5. Data Structures & Storage Keys
   function localDataKey() { return `septFitnessChallenge_v4_${year}_days`; }
   function localOptionsKey() { return `septFitnessChallenge_v4_${year}_options`; }
   function emptyData() { return Array.from({ length: DAYS }, () => ({ minutes: 0, drinks: 0, missed: false, edited: false })); }
@@ -303,19 +311,39 @@ button,input,select{font:inherit}
   let data = emptyData();
 
   // 6. Calculation Utility for User Statistics
-  function calculateUserTotals(daysArray, hasDrinkPenalty = true) {
+  function calculateUserTotals(daysArray, hasDrinkPenalty = true, userDailyGoal = 30) {
+    const goal = Math.max(10, userDailyGoal || 30);
+    const cap = Math.max(120, goal);
+    const baseTarget = DAYS * goal;
     let counted = 0, actual = 0, drinks = 0, missed = 0;
+    
     daysArray.forEach(d => {
       actual += (d.minutes || 0);
-      counted += Math.min(d.minutes || 0, CAP);
+      counted += Math.min(d.minutes || 0, cap);
       drinks += (d.drinks || 0);
       if (d.missed) missed++;
     });
+
     const drinkPenaltyMinutes = hasDrinkPenalty ? (drinks * 30) : 0;
-    const missedPenaltyMinutes = missed * 30;
-    const target = BASE + drinkPenaltyMinutes + missedPenaltyMinutes;
+    const missedPenaltyMinutes = missed * goal; // Miss penalty equals selected daily goal
+    const target = baseTarget + drinkPenaltyMinutes + missedPenaltyMinutes;
     const pct = target ? Math.min(100, (counted / target) * 100) : 0;
-    return { counted, actual, drinks, missed, target, drinkPenaltyMinutes, remaining: Math.max(0, target - counted), pct, hasDrinkPenalty };
+
+    return {
+      counted,
+      actual,
+      drinks,
+      missed,
+      dailyGoal: goal,
+      baseTarget,
+      cap,
+      target,
+      drinkPenaltyMinutes,
+      missedPenaltyMinutes,
+      remaining: Math.max(0, target - counted),
+      pct,
+      hasDrinkPenalty
+    };
   }
 
   // 7. Data Loading (Local & Firestore Cloud Sync)
@@ -328,11 +356,14 @@ button,input,select{font:inherit}
           const cloudData = docSnap.data();
           if (Array.isArray(cloudData.days)) data = cloudData.days;
           enableDrinkPenalty = cloudData.enableDrinkPenalty !== undefined ? cloudData.enableDrinkPenalty : true;
+          dailyGoal = cloudData.dailyGoal !== undefined ? Number(cloudData.dailyGoal) : 30;
         } else {
-          // Fallback / initial migration from localStorage
+          // Fallback / migration from localStorage
           const saved = JSON.parse(localStorage.getItem(localDataKey()));
           data = Array.isArray(saved) && saved.length === DAYS ? saved : emptyData();
-          enableDrinkPenalty = localStorage.getItem(localOptionsKey()) !== 'false';
+          const savedOpts = JSON.parse(localStorage.getItem(localOptionsKey()) || '{}');
+          enableDrinkPenalty = savedOpts.enableDrinkPenalty !== false;
+          dailyGoal = Number(savedOpts.dailyGoal) || 30;
           if (Array.isArray(saved)) persist();
         }
       } catch (err) {
@@ -343,19 +374,22 @@ button,input,select{font:inherit}
       try {
         const saved = JSON.parse(localStorage.getItem(localDataKey()));
         data = Array.isArray(saved) && saved.length === DAYS ? saved : emptyData();
-        enableDrinkPenalty = localStorage.getItem(localOptionsKey()) !== 'false';
+        const savedOpts = JSON.parse(localStorage.getItem(localOptionsKey()) || '{}');
+        enableDrinkPenalty = savedOpts.enableDrinkPenalty !== false;
+        dailyGoal = Number(savedOpts.dailyGoal) || 30;
       } catch {
         data = emptyData();
       }
     }
     $('enableDrinkPenalty').checked = enableDrinkPenalty;
+    $('dailyGoalInput').value = dailyGoal;
     render();
   }
 
   // 8. Data Persistence (Local & Firestore Cloud Sync)
   async function persist() {
     localStorage.setItem(localDataKey(), JSON.stringify(data));
-    localStorage.setItem(localOptionsKey(), String(enableDrinkPenalty));
+    localStorage.setItem(localOptionsKey(), JSON.stringify({ enableDrinkPenalty, dailyGoal }));
     
     if (currentUser) {
       try {
@@ -367,6 +401,7 @@ button,input,select{font:inherit}
           email: currentUser.email || '',
           year: year,
           version: APP_VERSION,
+          dailyGoal: dailyGoal,
           enableDrinkPenalty: enableDrinkPenalty,
           updatedAt: new Date().toISOString(),
           days: data
@@ -380,7 +415,7 @@ button,input,select{font:inherit}
   }
 
   function clampInt(v) { return Math.max(0, Math.floor(Number(v) || 0)); }
-  function totals() { return calculateUserTotals(data, enableDrinkPenalty); }
+  function totals() { return calculateUserTotals(data, enableDrinkPenalty, dailyGoal); }
 
   function daysElapsed() {
     if (year < now.getFullYear() || (year === now.getFullYear() && now.getMonth() > 8)) return 30;
@@ -397,33 +432,38 @@ button,input,select{font:inherit}
     $('completed').textContent = `${t.counted} min`;
     $('actualMinutes').textContent = `${t.actual} actual minutes`;
     $('target').textContent = `${t.target} min`;
+    $('baseTargetSub').textContent = `Base: ${t.baseTarget} min (${t.dailyGoal}m/day)`;
     $('remaining').textContent = `${t.remaining} min`;
     $('remainingHours').textContent = fmtHours(t.remaining);
     $('drinksTotal').textContent = t.drinks;
     $('drinkPenalty').textContent = enableDrinkPenalty ? `+${t.drinkPenaltyMinutes} min` : 'Penalty off';
     $('missedTotal').textContent = t.missed;
-    $('missPenalty').textContent = `+${t.missed * 30} min`;
+    $('missPenalty').textContent = `+${t.missedPenaltyMinutes} min (+${t.dailyGoal}m/ea)`;
     $('progressBar').style.width = `${t.pct}%`;
     $('progressText').textContent = `${t.pct.toFixed(1)}% complete`;
     
-    const expected = elapsed * DAILY;
+    $('legendComplete').innerHTML = `<i class="dot" style="background:#7bc99d"></i>${t.dailyGoal}+ min`;
+    $('legendPartial').innerHTML = `<i class="dot" style="background:#ebbd5f"></i>1–${t.dailyGoal - 1} min`;
+    $('capNotice').textContent = `A maximum of ${t.cap} minutes counts toward the challenge per day.`;
+
+    const expected = elapsed * t.dailyGoal;
     const diff = t.counted - expected;
     $('paceText').textContent = elapsed === 0 ? 'Challenge has not started' : diff >= 0 ? `${diff} min ahead of base pace` : `${Math.abs(diff)} min behind base pace`;
     
     const daysLeft = Math.max(0, 30 - elapsed), dailyNeeded = daysLeft ? t.remaining / daysLeft : t.remaining;
     let forecast;
     if (t.remaining === 0) forecast = 'Challenge complete. You have met your adjusted target.';
-    else if (elapsed === 0) forecast = `Your adjusted target is ${t.target} minutes. The base pace is 30 minutes per day.`;
+    else if (elapsed === 0) forecast = `Your adjusted target is ${t.target} minutes. Base pace is ${t.dailyGoal} minutes per day.`;
     else if (daysLeft === 0) forecast = `September is complete. You finished ${t.remaining} minutes short of the adjusted target.`;
-    else forecast = `You need an average of ${dailyNeeded.toFixed(1)} counted minutes per remaining day to reach the adjusted target. ${dailyNeeded > CAP ? 'This is above the 120-minute daily counting cap, so the current target is no longer reachable within September.' : ''}`;
+    else forecast = `You need an average of ${dailyNeeded.toFixed(1)} counted minutes per remaining day to reach the adjusted target. ${dailyNeeded > t.cap ? `This is above the ${t.cap}-minute daily counting cap, so the target is no longer reachable within September.` : ''}`;
     
     $('forecast').textContent = forecast;
-    buildCalendar();
+    buildCalendar(t);
     loadForm();
   }
 
   // 10. Calendar Generation
-  function buildCalendar() {
+  function buildCalendar(t) {
     const cal = $('calendar');
     cal.innerHTML = '';
     ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].forEach(x => {
@@ -442,13 +482,13 @@ button,input,select{font:inherit}
       const day = i + 1, b = document.createElement('button');
       b.className = 'day';
       if (d.missed) b.classList.add('missed');
-      else if (d.minutes >= 30) b.classList.add('complete');
+      else if (d.minutes >= t.dailyGoal) b.classList.add('complete');
       else if (d.minutes > 0) b.classList.add('partial');
       
       if (year === now.getFullYear() && now.getMonth() === 8 && day === now.getDate()) b.classList.add('today');
       if (new Date(year, 8, day) > now) b.classList.add('future');
       
-      b.innerHTML = `<div class="day-num">${day}</div><div class="day-min">${Math.min(d.minutes, CAP)} min</div><div class="day-note">${d.drinks ? `${d.drinks} drink${d.drinks === 1 ? '' : 's'}` : d.missed ? 'Missed' : d.edited ? 'Saved' : 'No entry'}</div>`;
+      b.innerHTML = `<div class="day-num">${day}</div><div class="day-min">${Math.min(d.minutes, t.cap)} min</div><div class="day-note">${d.drinks ? `${d.drinks} drink${d.drinks === 1 ? '' : 's'}` : d.missed ? 'Missed' : d.edited ? 'Saved' : 'No entry'}</div>`;
       b.onclick = () => { selectedDay = day; loadForm(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
       cal.appendChild(b);
     });
@@ -473,11 +513,19 @@ button,input,select{font:inherit}
     if (show) toast(`September ${selectedDay} saved`);
   }
 
-  // 12. Option Toggles & Real-Time Sync
+  // 12. Option Toggles & Handlers
   $('enableDrinkPenalty').onchange = async () => {
     enableDrinkPenalty = $('enableDrinkPenalty').checked;
     await persist();
     toast(enableDrinkPenalty ? 'Drink penalties enabled' : 'Drink penalties disabled');
+  };
+
+  $('dailyGoalInput').onchange = async () => {
+    const val = clampInt($('dailyGoalInput').value);
+    dailyGoal = Math.max(15, Math.min(180, val || 30));
+    $('dailyGoalInput').value = dailyGoal;
+    await persist();
+    toast(`Daily goal set to ${dailyGoal} min/day`);
   };
 
   // 13. Navigation View Switching
@@ -513,7 +561,8 @@ button,input,select{font:inherit}
           const uData = docSnap.data();
           if (Array.isArray(uData.days)) {
             const hasPenaltyOption = uData.enableDrinkPenalty !== undefined ? uData.enableDrinkPenalty : true;
-            const stats = calculateUserTotals(uData.days, hasPenaltyOption);
+            const userGoal = uData.dailyGoal !== undefined ? Number(uData.dailyGoal) : 30;
+            const stats = calculateUserTotals(uData.days, hasPenaltyOption, userGoal);
             rows.push({
               name: uData.displayName || 'Participant',
               photoURL: uData.photoURL || 'https://via.placeholder.com/32',
@@ -535,9 +584,10 @@ button,input,select{font:inherit}
       rows.forEach((r, idx) => {
         const tr = document.createElement('tr');
         const rankClass = idx === 0 ? 'rank-1' : idx === 1 ? 'rank-2' : idx === 2 ? 'rank-3' : '';
-        const modeBadge = r.hasDrinkPenalty 
-          ? `<span class="tag tag-warn" title="Drink penalties active">🎯 +Drinks</span>` 
-          : `<span class="tag tag-neutral" title="Standard tracking without drink penalties">⚡ Standard</span>`;
+        const goalBadge = `<span class="tag tag-neutral" title="Daily Goal">${r.dailyGoal}m/d</span>`;
+        const penaltyBadge = r.hasDrinkPenalty 
+          ? `<span class="tag tag-warn" title="Drink penalties active">+Drinks</span>` 
+          : '';
 
         tr.innerHTML = `
           <td><span class="leader-rank ${rankClass}">#${idx + 1}</span></td>
@@ -547,7 +597,7 @@ button,input,select{font:inherit}
               <strong>${r.name}</strong>
             </div>
           </td>
-          <td>${modeBadge}</td>
+          <td>${goalBadge} ${penaltyBadge}</td>
           <td>
             <div style="font-weight:800;font-size:1rem">${r.pct.toFixed(1)}%</div>
             <div style="font-size:0.75rem;color:var(--muted)">${r.counted} / ${r.target} min</div>
