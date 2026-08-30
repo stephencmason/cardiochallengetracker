@@ -97,8 +97,25 @@ button,input,select{font:inherit}
 .tag{display:inline-block;padding:3px 8px;border-radius:6px;font-size:.76rem;font-weight:700}
 .tag-good{background:#e8f6ee;color:#2b9a66}.tag-warn{background:#fff7e7;color:#d99521}.tag-neutral{background:#eef3f6;color:var(--muted)}
 
-.leader-charts{display:flex;align-items:center;gap:10px}
-.mini-chart-box{width:46px;height:46px;position:relative}
+.leader-charts{display:flex;align-items:center;gap:12px}
+.mini-chart-box{width:48px;height:48px;position:relative}
+
+/* Custom Floating Popover Tooltip */
+.chart-custom-tooltip{
+  position:fixed;
+  pointer-events:none;
+  background:#173b57;
+  color:white;
+  padding:7px 11px;
+  border-radius:9px;
+  font-size:0.8rem;
+  font-weight:600;
+  box-shadow:0 8px 24px rgba(23,59,87,0.28);
+  z-index:9999;
+  white-space:nowrap;
+  transform:translate(-50%, -125%);
+  transition:opacity 0.15s ease;
+}
 
 /* ==========================================================================
    Rules & Guidelines Styles
@@ -134,7 +151,7 @@ button,input,select{font:inherit}
         </div>
       </div>
     </div>
-    <div class="version-tag">v4.7</div>
+    <div class="version-tag">v4.8</div>
   </header>
 
   <!-- Top Navigation Tabs & Options Toolbar -->
@@ -328,7 +345,7 @@ button,input,select{font:inherit}
   const provider = new GoogleAuthProvider();
 
   // 4. Core Constants & App Version
-  const APP_VERSION = "4.7";
+  const APP_VERSION = "4.8";
   const DAYS = 30;
   const ACTIVITY_TYPES = ["Cardio", "Cross Fit", "Weights", "Other"];
   const $ = id => document.getElementById(id);
@@ -339,6 +356,41 @@ button,input,select{font:inherit}
   let enableDrinkPenalty = true;
   let dailyGoal = 30;
   let leaderboardChartInstances = [];
+
+  // Floating Popover Tooltip Helper
+  let customTooltipEl = null;
+  function getOrCreateTooltip() {
+    if (!customTooltipEl) {
+      customTooltipEl = document.createElement('div');
+      customTooltipEl.className = 'chart-custom-tooltip';
+      customTooltipEl.style.opacity = '0';
+      document.body.appendChild(customTooltipEl);
+    }
+    return customTooltipEl;
+  }
+
+  function externalTooltipHandler(context, unitLabel) {
+    const { chart, tooltip } = context;
+    const tooltipEl = getOrCreateTooltip();
+
+    if (tooltip.opacity === 0) {
+      tooltipEl.style.opacity = '0';
+      return;
+    }
+
+    if (tooltip.body) {
+      const titleLines = tooltip.title || [];
+      const bodyLines = tooltip.body.map(b => b.lines);
+      const label = bodyLines[0] ? bodyLines[0][0] : '';
+
+      tooltipEl.innerHTML = `<div><strong>${label}</strong></div>`;
+    }
+
+    const position = chart.canvas.getBoundingClientRect();
+    tooltipEl.style.opacity = '1';
+    tooltipEl.style.left = position.left + window.pageXOffset + tooltip.caretX + 'px';
+    tooltipEl.style.top = position.top + window.pageYOffset + tooltip.caretY + 'px';
+  }
 
   // 5. Data Structures & Normalization
   function localDataKey() { return `septFitnessChallenge_v4_${year}_days`; }
@@ -734,7 +786,7 @@ button,input,select{font:inherit}
   };
   $('tabRules').onclick = () => showTab('tabRules', 'rulesView');
 
-  // 14. Leaderboard Cloud Fetch & Rendering with Mini Doughnut Charts
+  // 14. Leaderboard Cloud Fetch & Rendering with Floating Mini Charts
   async function loadLeaderboard() {
     $('leaderboardYear').textContent = year;
     const tbody = $('leaderboardBody');
@@ -802,8 +854,8 @@ button,input,select{font:inherit}
           </td>
           <td>
             <div class="leader-charts">
-              <div class="mini-chart-box" title="Sessions by Activity"><canvas id="${countCanvasId}"></canvas></div>
-              <div class="mini-chart-box" title="Minutes by Activity"><canvas id="${minCanvasId}"></canvas></div>
+              <div class="mini-chart-box" title="Sessions"><canvas id="${countCanvasId}"></canvas></div>
+              <div class="mini-chart-box" title="Minutes"><canvas id="${minCanvasId}"></canvas></div>
             </div>
           </td>
           <td><strong>${r.counted} min</strong></td>
@@ -816,7 +868,7 @@ button,input,select{font:inherit}
         `;
         tbody.appendChild(tr);
 
-        // Render Sessions Mini Doughnut
+        // Render Sessions Mini Doughnut with Custom HTML Tooltip
         const countData = ACTIVITY_TYPES.map(t => r.counts[t] || 0);
         const totalSessions = countData.reduce((a, b) => a + b, 0);
         const countChart = new Chart($(countCanvasId).getContext('2d'), {
@@ -836,18 +888,22 @@ button,input,select{font:inherit}
             plugins: {
               legend: { display: false },
               tooltip: {
-                enabled: totalSessions > 0,
+                enabled: false,
+                external: function(ctx) {
+                  if (totalSessions === 0) return;
+                  externalTooltipHandler(ctx, 'sessions');
+                },
                 callbacks: {
-                  label: ctx => ` ${ctx.label}: ${ctx.raw} sessions`
+                  label: ctx => `${ctx.label}: ${ctx.raw} session${ctx.raw === 1 ? '' : 's'}`
                 }
               }
             },
-            cutout: '62%'
+            cutout: '60%'
           }
         });
         leaderboardChartInstances.push(countChart);
 
-        // Render Minutes Mini Doughnut
+        // Render Minutes Mini Doughnut with Custom HTML Tooltip
         const minData = ACTIVITY_TYPES.map(t => r.minutes[t] || 0);
         const totalMinutes = minData.reduce((a, b) => a + b, 0);
         const minChart = new Chart($(minCanvasId).getContext('2d'), {
@@ -867,13 +923,17 @@ button,input,select{font:inherit}
             plugins: {
               legend: { display: false },
               tooltip: {
-                enabled: totalMinutes > 0,
+                enabled: false,
+                external: function(ctx) {
+                  if (totalMinutes === 0) return;
+                  externalTooltipHandler(ctx, 'min');
+                },
                 callbacks: {
-                  label: ctx => ` ${ctx.label}: ${ctx.raw} min`
+                  label: ctx => `${ctx.label}: ${ctx.raw} min`
                 }
               }
             },
-            cutout: '62%'
+            cutout: '60%'
           }
         });
         leaderboardChartInstances.push(minChart);
