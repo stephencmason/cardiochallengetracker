@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#173b57">
 <title>September Fitness Challenge</title>
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
 /* ==========================================================================
    Design System & Theme Variables
@@ -57,6 +59,14 @@ button,input,select{font:inherit}
 .progress-shell{height:17px;background:#e7eef1;border-radius:99px;overflow:hidden}.progress-bar{height:100%;width:0;background:linear-gradient(90deg,var(--cyan),var(--green));transition:width .3s}.progress-copy{display:flex;justify-content:space-between;gap:10px;margin-top:9px;color:var(--muted);font-size:.85rem}
 
 /* ==========================================================================
+   Activity Charts Grid
+   ========================================================================== */
+.charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:8px}
+.chart-box{background:#fbfcfd;border:1px solid var(--line);border-radius:14px;padding:14px;text-align:center}
+.chart-box h3{margin:0 0 10px;font-size:.88rem;color:var(--navy);font-weight:750}
+.chart-wrap{position:relative;height:210px;width:100%}
+
+/* ==========================================================================
    Calendar Grid
    ========================================================================== */
 .calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}.dow{text-align:center;color:var(--muted);font-size:.72rem;font-weight:800;padding-bottom:2px}.blank{min-height:85px}.day{min-height:85px;padding:9px;border:1px solid var(--line);border-radius:13px;background:#fbfcfd;cursor:pointer;transition:.15s;text-align:left;color:var(--ink)}.day:hover,.day:focus{transform:translateY(-2px);box-shadow:0 7px 16px rgba(24,48,66,.1);outline:none}.day.today{box-shadow:0 0 0 2px var(--blue)}.day.complete{background:#e8f6ee;border-color:#a8d9be}.day.partial{background:#fff7e7;border-color:#efcf91}.day.missed{background:#fdecec;border-color:#edb2b2}.day.future{opacity:.65}.day-num{font-weight:800}.day-min{font-size:.9rem;margin-top:12px;font-weight:750}.day-note{font-size:.69rem;color:var(--muted);margin-top:4px}
@@ -107,7 +117,7 @@ button,input,select{font:inherit}
    Responsive Breakpoints
    ========================================================================== */
 @media(max-width:900px){.summary{grid-template-columns:repeat(2,1fr)}.layout{grid-template-columns:1fr}.summary .metric:last-child{grid-column:span 2}}
-@media(max-width:620px){.app{padding:12px}.hero{border-radius:17px;padding:19px}.hero-top{display:block}.hero-actions{margin-top:12px;flex-wrap:wrap}.calendar{gap:4px}.day{min-height:69px;padding:6px;border-radius:9px}.day-min{font-size:.76rem;margin-top:8px}.day-note{font-size:.59rem}.blank{min-height:69px}.panel{padding:13px}.metric{padding:13px}.metric .value{font-size:1.28rem}}
+@media(max-width:620px){.app{padding:12px}.hero{border-radius:17px;padding:19px}.hero-top{display:block}.hero-actions{margin-top:12px;flex-wrap:wrap}.charts-grid{grid-template-columns:1fr}.calendar{gap:4px}.day{min-height:69px;padding:6px;border-radius:9px}.day-min{font-size:.76rem;margin-top:8px}.day-note{font-size:.59rem}.blank{min-height:69px}.panel{padding:13px}.metric{padding:13px}.metric .value{font-size:1.28rem}}
 </style>
 </head>
 <body>
@@ -129,7 +139,7 @@ button,input,select{font:inherit}
         </div>
       </div>
     </div>
-    <div class="version-tag">v4.5</div>
+    <div class="version-tag">v4.6</div>
   </header>
 
   <!-- Top Navigation Tabs & Options Toolbar -->
@@ -163,13 +173,29 @@ button,input,select{font:inherit}
     </section>
 
     <div class="layout">
-      <!-- Main Content: Progress & Calendar Grid -->
+      <!-- Main Content: Progress, Breakdown Charts & Calendar Grid -->
       <main>
         <section class="panel">
           <h2>Challenge progress</h2>
           <div class="progress-shell"><div id="progressBar" class="progress-bar"></div></div>
           <div class="progress-copy"><span id="progressText">0% complete</span><span id="paceText">Ready to begin</span></div>
         </section>
+
+        <!-- Activity Breakdown Charts -->
+        <section class="panel">
+          <h2>Activity breakdown</h2>
+          <div class="charts-grid">
+            <div class="chart-box">
+              <h3>Sessions by Activity</h3>
+              <div class="chart-wrap"><canvas id="activityCountChart"></canvas></div>
+            </div>
+            <div class="chart-box">
+              <h3>Minutes by Activity</h3>
+              <div class="chart-wrap"><canvas id="activityMinutesChart"></canvas></div>
+            </div>
+          </div>
+        </section>
+
         <section class="panel">
           <h2>September calendar</h2>
           <div class="calendar" id="calendar"></div>
@@ -321,7 +347,7 @@ button,input,select{font:inherit}
   const provider = new GoogleAuthProvider();
 
   // 4. Core Constants & App Version
-  const APP_VERSION = "4.5";
+  const APP_VERSION = "4.6";
   const DAYS = 30;
   const ACTIVITY_TYPES = ["Cardio", "Cross Fit", "Weights", "Other"];
   const $ = id => document.getElementById(id);
@@ -331,6 +357,8 @@ button,input,select{font:inherit}
   let currentUser = null;
   let enableDrinkPenalty = true;
   let dailyGoal = 30;
+  let countChartInstance = null;
+  let minutesChartInstance = null;
 
   // 5. Data Structures & Normalization
   function localDataKey() { return `septFitnessChallenge_v4_${year}_days`; }
@@ -487,7 +515,106 @@ button,input,select{font:inherit}
   function fmtHours(m) { const h = m / 60; return `${Number.isInteger(h) ? h : h.toFixed(1)} hours`; }
   function toast(msg) { $('toast').textContent = msg; $('toast').classList.add('show'); setTimeout(() => $('toast').classList.remove('show'), 1800); }
 
-  // 9. Main UI Render Routine
+  // 9. Main UI Render Routine & Charts Render
+  function renderCharts() {
+    const counts = { "Cardio": 0, "Cross Fit": 0, "Weights": 0, "Other": 0 };
+    const minutes = { "Cardio": 0, "Cross Fit": 0, "Weights": 0, "Other": 0 };
+
+    data.forEach(d => {
+      if (Array.isArray(d.activities)) {
+        d.activities.forEach(a => {
+          const type = ACTIVITY_TYPES.includes(a.type) ? a.type : "Cardio";
+          const mins = Number(a.minutes) || 0;
+          if (mins > 0) {
+            counts[type] = (counts[type] || 0) + 1;
+            minutes[type] = (minutes[type] || 0) + mins;
+          }
+        });
+      }
+    });
+
+    const labels = ACTIVITY_TYPES;
+    const countData = labels.map(l => counts[l]);
+    const minData = labels.map(l => minutes[l]);
+    const palette = ['#2674a8', '#d99521', '#2b9a66', '#8b9ba5'];
+
+    const totalSessions = countData.reduce((a, b) => a + b, 0);
+    const totalMins = minData.reduce((a, b) => a + b, 0);
+
+    const emptyCount = totalSessions === 0 ? [1] : countData;
+    const emptyCountLabels = totalSessions === 0 ? ['No activities yet'] : labels;
+    const emptyCountColors = totalSessions === 0 ? ['#e7eef1'] : palette;
+
+    const emptyMin = totalMins === 0 ? [1] : minData;
+    const emptyMinLabels = totalMins === 0 ? ['No minutes yet'] : labels;
+    const emptyMinColors = totalMins === 0 ? ['#e7eef1'] : palette;
+
+    if (countChartInstance) countChartInstance.destroy();
+    if (minutesChartInstance) minutesChartInstance.destroy();
+
+    const countCtx = $('activityCountChart').getContext('2d');
+    countChartInstance = new Chart(countCtx, {
+      type: 'doughnut',
+      data: {
+        labels: emptyCountLabels,
+        datasets: [{
+          data: emptyCount,
+          backgroundColor: emptyCountColors,
+          borderWidth: 2,
+          borderColor: '#ffffff'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: { boxWidth: 11, padding: 12, font: { family: 'Inter, Segoe UI, sans-serif', size: 11, weight: '600' } }
+          },
+          tooltip: {
+            enabled: totalSessions > 0,
+            callbacks: {
+              label: function(ctx) { return ` ${ctx.label}: ${ctx.raw} session${ctx.raw === 1 ? '' : 's'}`; }
+            }
+          }
+        },
+        cutout: '62%'
+      }
+    });
+
+    const minCtx = $('activityMinutesChart').getContext('2d');
+    minutesChartInstance = new Chart(minCtx, {
+      type: 'doughnut',
+      data: {
+        labels: emptyMinLabels,
+        datasets: [{
+          data: emptyMin,
+          backgroundColor: emptyMinColors,
+          borderWidth: 2,
+          borderColor: '#ffffff'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: { boxWidth: 11, padding: 12, font: { family: 'Inter, Segoe UI, sans-serif', size: 11, weight: '600' } }
+          },
+          tooltip: {
+            enabled: totalMins > 0,
+            callbacks: {
+              label: function(ctx) { return ` ${ctx.label}: ${ctx.raw} min`; }
+            }
+          }
+        },
+        cutout: '62%'
+      }
+    });
+  }
+
   function render(fullReloadForm = false) {
     const t = totals(), elapsed = daysElapsed();
     $('completed').textContent = `${t.counted} min`;
@@ -520,6 +647,7 @@ button,input,select{font:inherit}
     
     $('forecast').textContent = forecast;
     buildCalendar(t);
+    renderCharts();
     if (fullReloadForm) {
       loadForm();
     }
@@ -641,7 +769,6 @@ button,input,select{font:inherit}
       const type = r.querySelector('select').value;
       const valStr = r.querySelector('input[type=number]').value;
       const mins = clampInt(valStr);
-      // Keep row in memory as long as the row exists in UI
       activities.push({ type, minutes: mins });
     });
 
@@ -703,6 +830,10 @@ button,input,select{font:inherit}
     ['dashboardView', 'leaderboardView', 'rulesView'].forEach(id => {
       $(id).classList.toggle('hidden', id !== activeViewId);
     });
+    if (activeViewId === 'dashboardView') {
+      if (countChartInstance) countChartInstance.resize();
+      if (minutesChartInstance) minutesChartInstance.resize();
+    }
   }
 
   $('tabDashboard').onclick = () => showTab('tabDashboard', 'dashboardView');
