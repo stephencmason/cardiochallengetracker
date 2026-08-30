@@ -59,14 +59,6 @@ button,input,select{font:inherit}
 .progress-shell{height:17px;background:#e7eef1;border-radius:99px;overflow:hidden}.progress-bar{height:100%;width:0;background:linear-gradient(90deg,var(--cyan),var(--green));transition:width .3s}.progress-copy{display:flex;justify-content:space-between;gap:10px;margin-top:9px;color:var(--muted);font-size:.85rem}
 
 /* ==========================================================================
-   Activity Charts Grid
-   ========================================================================== */
-.charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:8px}
-.chart-box{background:#fbfcfd;border:1px solid var(--line);border-radius:14px;padding:14px;text-align:center}
-.chart-box h3{margin:0 0 10px;font-size:.88rem;color:var(--navy);font-weight:750}
-.chart-wrap{position:relative;height:210px;width:100%}
-
-/* ==========================================================================
    Calendar Grid
    ========================================================================== */
 .calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}.dow{text-align:center;color:var(--muted);font-size:.72rem;font-weight:800;padding-bottom:2px}.blank{min-height:85px}.day{min-height:85px;padding:9px;border:1px solid var(--line);border-radius:13px;background:#fbfcfd;cursor:pointer;transition:.15s;text-align:left;color:var(--ink)}.day:hover,.day:focus{transform:translateY(-2px);box-shadow:0 7px 16px rgba(24,48,66,.1);outline:none}.day.today{box-shadow:0 0 0 2px var(--blue)}.day.complete{background:#e8f6ee;border-color:#a8d9be}.day.partial{background:#fff7e7;border-color:#efcf91}.day.missed{background:#fdecec;border-color:#edb2b2}.day.future{opacity:.65}.day-num{font-weight:800}.day-min{font-size:.9rem;margin-top:12px;font-weight:750}.day-note{font-size:.69rem;color:var(--muted);margin-top:4px}
@@ -93,17 +85,20 @@ button,input,select{font:inherit}
 .hidden{display:none}
 
 /* ==========================================================================
-   Leaderboard Table Styles
+   Leaderboard Table & Mini Chart Styles
    ========================================================================== */
 .table-wrap{overflow-x:auto}
 .leader-table{width:100%;border-collapse:collapse;text-align:left;font-size:.9rem}
 .leader-table th{background:#f4f7f9;color:var(--muted);font-size:.78rem;font-weight:750;text-transform:uppercase;padding:12px 14px;border-bottom:1px solid var(--line)}
-.leader-table td{padding:14px;border-bottom:1px solid #edf2f5}
+.leader-table td{padding:12px 14px;border-bottom:1px solid #edf2f5;vertical-align:middle}
 .leader-user{display:flex;align-items:center;gap:10px}
 .leader-rank{font-weight:800;font-size:1.1rem;color:var(--muted);width:26px}
 .rank-1{color:#d99521}.rank-2{color:#8b9ba5}.rank-3{color:#b37648}
 .tag{display:inline-block;padding:3px 8px;border-radius:6px;font-size:.76rem;font-weight:700}
 .tag-good{background:#e8f6ee;color:#2b9a66}.tag-warn{background:#fff7e7;color:#d99521}.tag-neutral{background:#eef3f6;color:var(--muted)}
+
+.leader-charts{display:flex;align-items:center;gap:10px}
+.mini-chart-box{width:46px;height:46px;position:relative}
 
 /* ==========================================================================
    Rules & Guidelines Styles
@@ -117,7 +112,7 @@ button,input,select{font:inherit}
    Responsive Breakpoints
    ========================================================================== */
 @media(max-width:900px){.summary{grid-template-columns:repeat(2,1fr)}.layout{grid-template-columns:1fr}.summary .metric:last-child{grid-column:span 2}}
-@media(max-width:620px){.app{padding:12px}.hero{border-radius:17px;padding:19px}.hero-top{display:block}.hero-actions{margin-top:12px;flex-wrap:wrap}.charts-grid{grid-template-columns:1fr}.calendar{gap:4px}.day{min-height:69px;padding:6px;border-radius:9px}.day-min{font-size:.76rem;margin-top:8px}.day-note{font-size:.59rem}.blank{min-height:69px}.panel{padding:13px}.metric{padding:13px}.metric .value{font-size:1.28rem}}
+@media(max-width:620px){.app{padding:12px}.hero{border-radius:17px;padding:19px}.hero-top{display:block}.hero-actions{margin-top:12px;flex-wrap:wrap}.calendar{gap:4px}.day{min-height:69px;padding:6px;border-radius:9px}.day-min{font-size:.76rem;margin-top:8px}.day-note{font-size:.59rem}.blank{min-height:69px}.panel{padding:13px}.metric{padding:13px}.metric .value{font-size:1.28rem}}
 </style>
 </head>
 <body>
@@ -139,7 +134,7 @@ button,input,select{font:inherit}
         </div>
       </div>
     </div>
-    <div class="version-tag">v4.6</div>
+    <div class="version-tag">v4.7</div>
   </header>
 
   <!-- Top Navigation Tabs & Options Toolbar -->
@@ -173,27 +168,12 @@ button,input,select{font:inherit}
     </section>
 
     <div class="layout">
-      <!-- Main Content: Progress, Breakdown Charts & Calendar Grid -->
+      <!-- Main Content: Progress & Calendar Grid -->
       <main>
         <section class="panel">
           <h2>Challenge progress</h2>
           <div class="progress-shell"><div id="progressBar" class="progress-bar"></div></div>
           <div class="progress-copy"><span id="progressText">0% complete</span><span id="paceText">Ready to begin</span></div>
-        </section>
-
-        <!-- Activity Breakdown Charts -->
-        <section class="panel">
-          <h2>Activity breakdown</h2>
-          <div class="charts-grid">
-            <div class="chart-box">
-              <h3>Sessions by Activity</h3>
-              <div class="chart-wrap"><canvas id="activityCountChart"></canvas></div>
-            </div>
-            <div class="chart-box">
-              <h3>Minutes by Activity</h3>
-              <div class="chart-wrap"><canvas id="activityMinutesChart"></canvas></div>
-            </div>
-          </div>
         </section>
 
         <section class="panel">
@@ -257,6 +237,7 @@ button,input,select{font:inherit}
               <th>Participant</th>
               <th>Goal / Mode</th>
               <th>Progress</th>
+              <th>Breakdown</th>
               <th>Counted</th>
               <th>Target</th>
               <th>Remaining</th>
@@ -264,7 +245,7 @@ button,input,select{font:inherit}
             </tr>
           </thead>
           <tbody id="leaderboardBody">
-            <tr><td colspan="8" style="text-align:center;color:var(--muted)">Sign in or wait for standings to load...</td></tr>
+            <tr><td colspan="9" style="text-align:center;color:var(--muted)">Sign in or wait for standings to load...</td></tr>
           </tbody>
         </table>
       </div>
@@ -347,7 +328,7 @@ button,input,select{font:inherit}
   const provider = new GoogleAuthProvider();
 
   // 4. Core Constants & App Version
-  const APP_VERSION = "4.6";
+  const APP_VERSION = "4.7";
   const DAYS = 30;
   const ACTIVITY_TYPES = ["Cardio", "Cross Fit", "Weights", "Other"];
   const $ = id => document.getElementById(id);
@@ -357,8 +338,7 @@ button,input,select{font:inherit}
   let currentUser = null;
   let enableDrinkPenalty = true;
   let dailyGoal = 30;
-  let countChartInstance = null;
-  let minutesChartInstance = null;
+  let leaderboardChartInstances = [];
 
   // 5. Data Structures & Normalization
   function localDataKey() { return `septFitnessChallenge_v4_${year}_days`; }
@@ -402,6 +382,8 @@ button,input,select{font:inherit}
     const cap = Math.max(120, goal);
     const baseTarget = DAYS * goal;
     let counted = 0, actual = 0, drinks = 0, missed = 0;
+    const counts = { "Cardio": 0, "Cross Fit": 0, "Weights": 0, "Other": 0 };
+    const minutes = { "Cardio": 0, "Cross Fit": 0, "Weights": 0, "Other": 0 };
     
     daysArray.forEach(d => {
       const dayTotal = getDayTotalMinutes(d);
@@ -409,6 +391,17 @@ button,input,select{font:inherit}
       counted += Math.min(dayTotal, cap);
       drinks += (d.drinks || 0);
       if (d.missed) missed++;
+
+      if (Array.isArray(d.activities)) {
+        d.activities.forEach(a => {
+          const type = ACTIVITY_TYPES.includes(a.type) ? a.type : "Cardio";
+          const m = Number(a.minutes) || 0;
+          if (m > 0) {
+            counts[type] = (counts[type] || 0) + 1;
+            minutes[type] = (minutes[type] || 0) + m;
+          }
+        });
+      }
     });
 
     const drinkPenaltyMinutes = hasDrinkPenalty ? (drinks * 30) : 0;
@@ -429,7 +422,9 @@ button,input,select{font:inherit}
       missedPenaltyMinutes,
       remaining: Math.max(0, target - counted),
       pct,
-      hasDrinkPenalty
+      hasDrinkPenalty,
+      counts,
+      minutes
     };
   }
 
@@ -515,106 +510,7 @@ button,input,select{font:inherit}
   function fmtHours(m) { const h = m / 60; return `${Number.isInteger(h) ? h : h.toFixed(1)} hours`; }
   function toast(msg) { $('toast').textContent = msg; $('toast').classList.add('show'); setTimeout(() => $('toast').classList.remove('show'), 1800); }
 
-  // 9. Main UI Render Routine & Charts Render
-  function renderCharts() {
-    const counts = { "Cardio": 0, "Cross Fit": 0, "Weights": 0, "Other": 0 };
-    const minutes = { "Cardio": 0, "Cross Fit": 0, "Weights": 0, "Other": 0 };
-
-    data.forEach(d => {
-      if (Array.isArray(d.activities)) {
-        d.activities.forEach(a => {
-          const type = ACTIVITY_TYPES.includes(a.type) ? a.type : "Cardio";
-          const mins = Number(a.minutes) || 0;
-          if (mins > 0) {
-            counts[type] = (counts[type] || 0) + 1;
-            minutes[type] = (minutes[type] || 0) + mins;
-          }
-        });
-      }
-    });
-
-    const labels = ACTIVITY_TYPES;
-    const countData = labels.map(l => counts[l]);
-    const minData = labels.map(l => minutes[l]);
-    const palette = ['#2674a8', '#d99521', '#2b9a66', '#8b9ba5'];
-
-    const totalSessions = countData.reduce((a, b) => a + b, 0);
-    const totalMins = minData.reduce((a, b) => a + b, 0);
-
-    const emptyCount = totalSessions === 0 ? [1] : countData;
-    const emptyCountLabels = totalSessions === 0 ? ['No activities yet'] : labels;
-    const emptyCountColors = totalSessions === 0 ? ['#e7eef1'] : palette;
-
-    const emptyMin = totalMins === 0 ? [1] : minData;
-    const emptyMinLabels = totalMins === 0 ? ['No minutes yet'] : labels;
-    const emptyMinColors = totalMins === 0 ? ['#e7eef1'] : palette;
-
-    if (countChartInstance) countChartInstance.destroy();
-    if (minutesChartInstance) minutesChartInstance.destroy();
-
-    const countCtx = $('activityCountChart').getContext('2d');
-    countChartInstance = new Chart(countCtx, {
-      type: 'doughnut',
-      data: {
-        labels: emptyCountLabels,
-        datasets: [{
-          data: emptyCount,
-          backgroundColor: emptyCountColors,
-          borderWidth: 2,
-          borderColor: '#ffffff'
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            position: 'bottom',
-            labels: { boxWidth: 11, padding: 12, font: { family: 'Inter, Segoe UI, sans-serif', size: 11, weight: '600' } }
-          },
-          tooltip: {
-            enabled: totalSessions > 0,
-            callbacks: {
-              label: function(ctx) { return ` ${ctx.label}: ${ctx.raw} session${ctx.raw === 1 ? '' : 's'}`; }
-            }
-          }
-        },
-        cutout: '62%'
-      }
-    });
-
-    const minCtx = $('activityMinutesChart').getContext('2d');
-    minutesChartInstance = new Chart(minCtx, {
-      type: 'doughnut',
-      data: {
-        labels: emptyMinLabels,
-        datasets: [{
-          data: emptyMin,
-          backgroundColor: emptyMinColors,
-          borderWidth: 2,
-          borderColor: '#ffffff'
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            position: 'bottom',
-            labels: { boxWidth: 11, padding: 12, font: { family: 'Inter, Segoe UI, sans-serif', size: 11, weight: '600' } }
-          },
-          tooltip: {
-            enabled: totalMins > 0,
-            callbacks: {
-              label: function(ctx) { return ` ${ctx.label}: ${ctx.raw} min`; }
-            }
-          }
-        },
-        cutout: '62%'
-      }
-    });
-  }
-
+  // 9. Main UI Render Routine
   function render(fullReloadForm = false) {
     const t = totals(), elapsed = daysElapsed();
     $('completed').textContent = `${t.counted} min`;
@@ -647,7 +543,6 @@ button,input,select{font:inherit}
     
     $('forecast').textContent = forecast;
     buildCalendar(t);
-    renderCharts();
     if (fullReloadForm) {
       loadForm();
     }
@@ -830,10 +725,6 @@ button,input,select{font:inherit}
     ['dashboardView', 'leaderboardView', 'rulesView'].forEach(id => {
       $(id).classList.toggle('hidden', id !== activeViewId);
     });
-    if (activeViewId === 'dashboardView') {
-      if (countChartInstance) countChartInstance.resize();
-      if (minutesChartInstance) minutesChartInstance.resize();
-    }
   }
 
   $('tabDashboard').onclick = () => showTab('tabDashboard', 'dashboardView');
@@ -843,12 +734,16 @@ button,input,select{font:inherit}
   };
   $('tabRules').onclick = () => showTab('tabRules', 'rulesView');
 
-  // 14. Leaderboard Cloud Fetch & Rendering
+  // 14. Leaderboard Cloud Fetch & Rendering with Mini Doughnut Charts
   async function loadLeaderboard() {
     $('leaderboardYear').textContent = year;
     const tbody = $('leaderboardBody');
-    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:20px">Loading standings...</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:20px">Loading standings...</td></tr>`;
     
+    // Cleanup previous chart instances
+    leaderboardChartInstances.forEach(c => c.destroy());
+    leaderboardChartInstances = [];
+
     try {
       const q = query(collectionGroup(db, 'challenges'));
       const querySnapshot = await getDocs(q);
@@ -874,11 +769,13 @@ button,input,select{font:inherit}
       rows.sort((a, b) => b.pct - a.pct || b.counted - a.counted);
 
       if (rows.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:20px">No participant entries found for September ${year}.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:20px">No participant entries found for September ${year}.</td></tr>`;
         return;
       }
 
       tbody.innerHTML = '';
+      const palette = ['#2674a8', '#d99521', '#2b9a66', '#8b9ba5'];
+
       rows.forEach((r, idx) => {
         const tr = document.createElement('tr');
         const rankClass = idx === 0 ? 'rank-1' : idx === 1 ? 'rank-2' : idx === 2 ? 'rank-3' : '';
@@ -886,6 +783,9 @@ button,input,select{font:inherit}
         const penaltyBadge = r.hasDrinkPenalty 
           ? `<span class="tag tag-warn" title="Drink penalties active">+Drinks</span>` 
           : '';
+
+        const countCanvasId = `leaderCountChart_${idx}`;
+        const minCanvasId = `leaderMinChart_${idx}`;
 
         tr.innerHTML = `
           <td><span class="leader-rank ${rankClass}">#${idx + 1}</span></td>
@@ -900,6 +800,12 @@ button,input,select{font:inherit}
             <div style="font-weight:800;font-size:1rem">${r.pct.toFixed(1)}%</div>
             <div style="font-size:0.75rem;color:var(--muted)">${r.counted} / ${r.target} min</div>
           </td>
+          <td>
+            <div class="leader-charts">
+              <div class="mini-chart-box" title="Sessions by Activity"><canvas id="${countCanvasId}"></canvas></div>
+              <div class="mini-chart-box" title="Minutes by Activity"><canvas id="${minCanvasId}"></canvas></div>
+            </div>
+          </td>
           <td><strong>${r.counted} min</strong></td>
           <td>${r.target} min</td>
           <td>${r.remaining} min</td>
@@ -909,10 +815,72 @@ button,input,select{font:inherit}
           </td>
         `;
         tbody.appendChild(tr);
+
+        // Render Sessions Mini Doughnut
+        const countData = ACTIVITY_TYPES.map(t => r.counts[t] || 0);
+        const totalSessions = countData.reduce((a, b) => a + b, 0);
+        const countChart = new Chart($(countCanvasId).getContext('2d'), {
+          type: 'doughnut',
+          data: {
+            labels: ACTIVITY_TYPES,
+            datasets: [{
+              data: totalSessions === 0 ? [1] : countData,
+              backgroundColor: totalSessions === 0 ? ['#e7eef1'] : palette,
+              borderWidth: 1,
+              borderColor: '#ffffff'
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                enabled: totalSessions > 0,
+                callbacks: {
+                  label: ctx => ` ${ctx.label}: ${ctx.raw} sessions`
+                }
+              }
+            },
+            cutout: '62%'
+          }
+        });
+        leaderboardChartInstances.push(countChart);
+
+        // Render Minutes Mini Doughnut
+        const minData = ACTIVITY_TYPES.map(t => r.minutes[t] || 0);
+        const totalMinutes = minData.reduce((a, b) => a + b, 0);
+        const minChart = new Chart($(minCanvasId).getContext('2d'), {
+          type: 'doughnut',
+          data: {
+            labels: ACTIVITY_TYPES,
+            datasets: [{
+              data: totalMinutes === 0 ? [1] : minData,
+              backgroundColor: totalMinutes === 0 ? ['#e7eef1'] : palette,
+              borderWidth: 1,
+              borderColor: '#ffffff'
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                enabled: totalMinutes > 0,
+                callbacks: {
+                  label: ctx => ` ${ctx.label}: ${ctx.raw} min`
+                }
+              }
+            },
+            cutout: '62%'
+          }
+        });
+        leaderboardChartInstances.push(minChart);
       });
     } catch (err) {
       console.error("Error loading leaderboard:", err);
-      tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--red);padding:20px">Error loading standings. Check Firestore security rules.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:var(--red);padding:20px">Error loading standings. Check Firestore security rules.</td></tr>`;
     }
   }
 
@@ -974,3 +942,4 @@ button,input,select{font:inherit}
 </script>
 </body>
 </html>
+```[cite: 2]
