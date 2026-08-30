@@ -33,6 +33,7 @@ button,input,select{font:inherit}
 .auth-btn:hover{background:#eef3f6}
 .user-info{display:none;align-items:center;gap:10px;color:white;font-size:.9rem;font-weight:600}
 .user-avatar{width:32px;height:32px;border-radius:50%;border:2px solid white;object-fit:cover}
+.version-tag{position:absolute;right:18px;bottom:10px;font-size:0.68rem;opacity:0.65;font-weight:700;letter-spacing:0.04em}
 
 /* ==========================================================================
    Navigation & Toolbar
@@ -114,6 +115,7 @@ button,input,select{font:inherit}
         </div>
       </div>
     </div>
+    <div class="version-tag">v4.2</div>
   </header>
 
   <!-- Top Navigation Tabs & Options Toolbar -->
@@ -283,7 +285,8 @@ button,input,select{font:inherit}
   const db = getFirestore(app);
   const provider = new GoogleAuthProvider();
 
-  // 4. Core Constants & State
+  // 4. Core Constants & App Version
+  const APP_VERSION = "4.2";
   const DAYS = 30, BASE = 900, DAILY = 30, CAP = 120;
   const $ = id => document.getElementById(id);
   const now = new Date();
@@ -363,6 +366,7 @@ button,input,select{font:inherit}
           photoURL: currentUser.photoURL || '',
           email: currentUser.email || '',
           year: year,
+          version: APP_VERSION,
           enableDrinkPenalty: enableDrinkPenalty,
           updatedAt: new Date().toISOString(),
           days: data
