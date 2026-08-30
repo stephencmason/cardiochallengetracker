@@ -62,9 +62,21 @@ button,input,select{font:inherit}
 .calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}.dow{text-align:center;color:var(--muted);font-size:.72rem;font-weight:800;padding-bottom:2px}.blank{min-height:85px}.day{min-height:85px;padding:9px;border:1px solid var(--line);border-radius:13px;background:#fbfcfd;cursor:pointer;transition:.15s;text-align:left;color:var(--ink)}.day:hover,.day:focus{transform:translateY(-2px);box-shadow:0 7px 16px rgba(24,48,66,.1);outline:none}.day.today{box-shadow:0 0 0 2px var(--blue)}.day.complete{background:#e8f6ee;border-color:#a8d9be}.day.partial{background:#fff7e7;border-color:#efcf91}.day.missed{background:#fdecec;border-color:#edb2b2}.day.future{opacity:.65}.day-num{font-weight:800}.day-min{font-size:.9rem;margin-top:12px;font-weight:750}.day-note{font-size:.69rem;color:var(--muted);margin-top:4px}
 
 /* ==========================================================================
-   Form Elements & Toggles
+   Form Elements, Activity Rows & Toggles
    ========================================================================== */
-.today-form{display:grid;gap:13px}.field label{display:block;font-weight:750;font-size:.85rem;margin-bottom:6px}.field input[type=number]{width:100%;padding:11px;border:1px solid var(--line);border-radius:10px;background:#fbfcfd}.check{display:flex;align-items:center;gap:9px;padding:11px;background:#f5f8f9;border-radius:10px;font-size:.88rem;cursor:pointer}.check input{width:18px;height:18px;cursor:pointer}
+.today-form{display:grid;gap:13px}
+.field label{display:block;font-weight:750;font-size:.85rem;margin-bottom:6px}
+.field input[type=number], .field select{width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;background:#fbfcfd}
+.activity-list{display:grid;gap:8px}
+.activity-row{display:grid;grid-template-columns:1.2fr 1fr 34px;gap:6px;align-items:center}
+.activity-row select{padding:8px;border:1px solid var(--line);border-radius:8px;background:#fff;font-size:.85rem}
+.activity-row input[type=number]{padding:8px;border:1px solid var(--line);border-radius:8px;background:#fff;font-size:.85rem}
+.btn-remove-row{background:#fff0f0;color:#c94d4d;border:1px solid #fedede;border-radius:8px;height:35px;cursor:pointer;font-weight:bold;font-size:1.1rem;display:flex;align-items:center;justify-content:center}
+.btn-remove-row:hover{background:#fedede}
+.btn-add-activity{background:#eef7f8;color:var(--blue);border:1px dashed var(--blue);border-radius:9px;padding:8px;font-size:.82rem;font-weight:750;cursor:pointer;width:100%;text-align:center;margin-top:4px}
+.btn-add-activity:hover{background:#e2f2f5}
+.day-total-banner{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:#f4f8fa;border-radius:8px;font-size:.86rem;font-weight:750}
+.check{display:flex;align-items:center;gap:9px;padding:11px;background:#f5f8f9;border-radius:10px;font-size:.88rem;cursor:pointer}.check input{width:18px;height:18px;cursor:pointer}
 .btn{border:0;border-radius:11px;padding:11px 13px;font-weight:800;cursor:pointer;width:100%}.primary{background:var(--blue);color:white}.btn:hover{filter:brightness(.96)}
 .status{padding:13px;border-radius:12px;background:#eef7f8;line-height:1.45;font-size:.9rem}.legend{display:flex;flex-wrap:wrap;gap:12px;color:var(--muted);font-size:.76rem}.dot{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:5px}.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(70px);background:#173b57;color:white;padding:11px 18px;border-radius:99px;opacity:0;transition:.25s;z-index:20}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .notice{font-size:.79rem;color:var(--muted);line-height:1.45}
@@ -117,7 +129,7 @@ button,input,select{font:inherit}
         </div>
       </div>
     </div>
-    <div class="version-tag">v4.3</div>
+    <div class="version-tag">v4.4</div>
   </header>
 
   <!-- Top Navigation Tabs & Options Toolbar -->
@@ -170,13 +182,29 @@ button,input,select{font:inherit}
         </section>
       </main>
 
-      <!-- Sidebar: Data Entry -->
+      <!-- Sidebar: Multi-Activity Data Entry -->
       <aside>
         <section class="panel">
           <h2 id="entryTitle">Today's entry</h2>
           <div class="today-form">
-            <div class="field"><label for="minutes">Activity minutes completed</label><input id="minutes" type="number" min="0" step="1" inputmode="numeric"><div class="notice" id="capNotice">A maximum of 120 minutes counts toward the challenge per day.</div></div>
-            <div class="field"><label for="drinks">Number of drinks</label><input id="drinks" type="number" min="0" step="1" inputmode="numeric"></div>
+            <div class="field">
+              <label>Activities completed</label>
+              <div id="activityContainer" class="activity-list"></div>
+              <button type="button" id="addActivityBtn" class="btn-add-activity">+ Add Activity Session</button>
+            </div>
+
+            <div class="day-total-banner">
+              <span>Day total:</span>
+              <span id="dayTotalDisplay">0 min</span>
+            </div>
+
+            <div class="notice" id="capNotice">A maximum of 120 minutes counts toward the challenge per day.</div>
+
+            <div class="field">
+              <label for="drinks">Number of drinks</label>
+              <input id="drinks" type="number" min="0" step="1" inputmode="numeric">
+            </div>
+
             <label class="check"><input id="missed" type="checkbox"> Mark this as a missed day</label>
             <button class="btn primary" id="saveEntry">Save entry</button>
             <div class="notice" id="syncStatus">Saved in browser only. Sign in to sync across devices.</div>
@@ -225,8 +253,8 @@ button,input,select{font:inherit}
       
       <div class="rules-grid">
         <div class="rule-card">
-          <h3>👟 Your Activity, Your Baseline</h3>
-          <p>Activity is relative to your starting point. For some, it might be a dedicated brisk walk or hiking; for others, a trainer ride, gym circuit, gravel spin, or run. Any sustained, intentional effort that gets you moving counts.</p>
+          <h3>👟 Multi-Activity Tracking</h3>
+          <p>You can log multiple activity sessions per day (Cardio, Cross Fit, Weights, Other). Minutes from all daily sessions are automatically totaled together.</p>
         </div>
 
         <div class="rule-card">
@@ -293,8 +321,9 @@ button,input,select{font:inherit}
   const provider = new GoogleAuthProvider();
 
   // 4. Core Constants & App Version
-  const APP_VERSION = "4.3";
+  const APP_VERSION = "4.4";
   const DAYS = 30;
+  const ACTIVITY_TYPES = ["Cardio", "Cross Fit", "Weights", "Other"];
   const $ = id => document.getElementById(id);
   const now = new Date();
   let selectedDay = (now.getMonth() === 8 ? now.getDate() : 1);
@@ -303,10 +332,39 @@ button,input,select{font:inherit}
   let enableDrinkPenalty = true;
   let dailyGoal = 30;
 
-  // 5. Data Structures & Storage Keys
+  // 5. Data Structures & Normalization
   function localDataKey() { return `septFitnessChallenge_v4_${year}_days`; }
   function localOptionsKey() { return `septFitnessChallenge_v4_${year}_options`; }
-  function emptyData() { return Array.from({ length: DAYS }, () => ({ minutes: 0, drinks: 0, missed: false, edited: false })); }
+  
+  function getDayTotalMinutes(dayObj) {
+    if (!dayObj) return 0;
+    if (Array.isArray(dayObj.activities) && dayObj.activities.length > 0) {
+      return dayObj.activities.reduce((sum, act) => sum + (Number(act.minutes) || 0), 0);
+    }
+    return Number(dayObj.minutes) || 0;
+  }
+
+  function normalizeDayData(d) {
+    let activities = [];
+    if (Array.isArray(d.activities)) {
+      activities = d.activities.map(a => ({
+        type: ACTIVITY_TYPES.includes(a.type) ? a.type : "Cardio",
+        minutes: clampInt(a.minutes)
+      }));
+    } else if (Number(d.minutes) > 0) {
+      activities = [{ type: "Cardio", minutes: clampInt(d.minutes) }];
+    }
+    return {
+      activities,
+      drinks: clampInt(d.drinks),
+      missed: !!d.missed,
+      edited: !!d.edited
+    };
+  }
+
+  function emptyData() { 
+    return Array.from({ length: DAYS }, () => ({ activities: [], drinks: 0, missed: false, edited: false })); 
+  }
   
   let data = emptyData();
 
@@ -318,14 +376,15 @@ button,input,select{font:inherit}
     let counted = 0, actual = 0, drinks = 0, missed = 0;
     
     daysArray.forEach(d => {
-      actual += (d.minutes || 0);
-      counted += Math.min(d.minutes || 0, cap);
+      const dayTotal = getDayTotalMinutes(d);
+      actual += dayTotal;
+      counted += Math.min(dayTotal, cap);
       drinks += (d.drinks || 0);
       if (d.missed) missed++;
     });
 
     const drinkPenaltyMinutes = hasDrinkPenalty ? (drinks * 30) : 0;
-    const missedPenaltyMinutes = missed * goal; // Miss penalty equals selected daily goal
+    const missedPenaltyMinutes = missed * goal;
     const target = baseTarget + drinkPenaltyMinutes + missedPenaltyMinutes;
     const pct = target ? Math.min(100, (counted / target) * 100) : 0;
 
@@ -354,13 +413,14 @@ button,input,select{font:inherit}
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
           const cloudData = docSnap.data();
-          if (Array.isArray(cloudData.days)) data = cloudData.days;
+          if (Array.isArray(cloudData.days)) {
+            data = cloudData.days.map(normalizeDayData);
+          }
           enableDrinkPenalty = cloudData.enableDrinkPenalty !== undefined ? cloudData.enableDrinkPenalty : true;
           dailyGoal = cloudData.dailyGoal !== undefined ? Number(cloudData.dailyGoal) : 30;
         } else {
-          // Fallback / migration from localStorage
           const saved = JSON.parse(localStorage.getItem(localDataKey()));
-          data = Array.isArray(saved) && saved.length === DAYS ? saved : emptyData();
+          data = Array.isArray(saved) && saved.length === DAYS ? saved.map(normalizeDayData) : emptyData();
           const savedOpts = JSON.parse(localStorage.getItem(localOptionsKey()) || '{}');
           enableDrinkPenalty = savedOpts.enableDrinkPenalty !== false;
           dailyGoal = Number(savedOpts.dailyGoal) || 30;
@@ -373,7 +433,7 @@ button,input,select{font:inherit}
     } else {
       try {
         const saved = JSON.parse(localStorage.getItem(localDataKey()));
-        data = Array.isArray(saved) && saved.length === DAYS ? saved : emptyData();
+        data = Array.isArray(saved) && saved.length === DAYS ? saved.map(normalizeDayData) : emptyData();
         const savedOpts = JSON.parse(localStorage.getItem(localOptionsKey()) || '{}');
         enableDrinkPenalty = savedOpts.enableDrinkPenalty !== false;
         dailyGoal = Number(savedOpts.dailyGoal) || 30;
@@ -481,37 +541,124 @@ button,input,select{font:inherit}
     data.forEach((d, i) => {
       const day = i + 1, b = document.createElement('button');
       b.className = 'day';
+      const dayTotal = getDayTotalMinutes(d);
+
       if (d.missed) b.classList.add('missed');
-      else if (d.minutes >= t.dailyGoal) b.classList.add('complete');
-      else if (d.minutes > 0) b.classList.add('partial');
+      else if (dayTotal >= t.dailyGoal) b.classList.add('complete');
+      else if (dayTotal > 0) b.classList.add('partial');
       
       if (year === now.getFullYear() && now.getMonth() === 8 && day === now.getDate()) b.classList.add('today');
       if (new Date(year, 8, day) > now) b.classList.add('future');
       
-      b.innerHTML = `<div class="day-num">${day}</div><div class="day-min">${Math.min(d.minutes, t.cap)} min</div><div class="day-note">${d.drinks ? `${d.drinks} drink${d.drinks === 1 ? '' : 's'}` : d.missed ? 'Missed' : d.edited ? 'Saved' : 'No entry'}</div>`;
+      let noteText = 'No entry';
+      if (d.drinks) noteText = `${d.drinks} drink${d.drinks === 1 ? '' : 's'}`;
+      else if (d.missed) noteText = 'Missed';
+      else if (d.edited || dayTotal > 0) noteText = `${d.activities.length || (dayTotal > 0 ? 1 : 0)} act`;
+
+      b.innerHTML = `<div class="day-num">${day}</div><div class="day-min">${Math.min(dayTotal, t.cap)} min</div><div class="day-note">${noteText}</div>`;
       b.onclick = () => { selectedDay = day; loadForm(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
       cal.appendChild(b);
     });
   }
 
-  // 11. Form Population & Save Handlers
+  // 11. Multi-Activity Form Handlers
+  function createActivityRow(type = "Cardio", minutes = 0) {
+    const row = document.createElement('div');
+    row.className = 'activity-row';
+
+    const select = document.createElement('select');
+    ACTIVITY_TYPES.forEach(opt => {
+      const o = document.createElement('option');
+      o.value = opt;
+      o.textContent = opt;
+      if (opt === type) o.selected = true;
+      select.appendChild(o);
+    });
+
+    const input = document.createElement('input');
+    input.type = 'number';
+    input.min = '0';
+    input.step = '1';
+    input.inputMode = 'numeric';
+    input.placeholder = 'Minutes';
+    input.value = minutes > 0 ? minutes : '';
+
+    const removeBtn = document.createElement('button');
+    removeBtn.type = 'button';
+    removeBtn.className = 'btn-remove-row';
+    removeBtn.innerHTML = '&times;';
+    removeBtn.title = 'Remove activity';
+
+    removeBtn.onclick = () => {
+      row.remove();
+      updateDayTotalFromInputs();
+      saveForm(false);
+    };
+
+    [select, input].forEach(el => el.addEventListener('input', () => {
+      updateDayTotalFromInputs();
+      saveForm(false);
+    }));
+
+    row.appendChild(select);
+    row.appendChild(input);
+    row.appendChild(removeBtn);
+    return row;
+  }
+
+  function updateDayTotalFromInputs() {
+    let sum = 0;
+    const rows = $('activityContainer').querySelectorAll('.activity-row');
+    rows.forEach(r => {
+      const minInput = r.querySelector('input[type=number]');
+      sum += clampInt(minInput.value);
+    });
+    $('dayTotalDisplay').textContent = `${sum} min`;
+    return sum;
+  }
+
   function loadForm() {
     const d = data[selectedDay - 1];
     $('entryTitle').textContent = `September ${selectedDay} entry`;
-    $('minutes').value = d.minutes;
-    $('drinks').value = d.drinks;
-    $('missed').checked = d.missed;
+    $('drinks').value = d.drinks || 0;
+    $('missed').checked = !!d.missed;
+
+    const container = $('activityContainer');
+    container.innerHTML = '';
+
+    if (Array.isArray(d.activities) && d.activities.length > 0) {
+      d.activities.forEach(a => container.appendChild(createActivityRow(a.type, a.minutes)));
+    } else {
+      // Default initial row for quick logging
+      container.appendChild(createActivityRow("Cardio", 0));
+    }
+    updateDayTotalFromInputs();
   }
 
   async function saveForm(show = false) {
     const d = data[selectedDay - 1];
-    d.minutes = clampInt($('minutes').value);
+    const rows = $('activityContainer').querySelectorAll('.activity-row');
+    const activities = [];
+
+    rows.forEach(r => {
+      const type = r.querySelector('select').value;
+      const mins = clampInt(r.querySelector('input[type=number]').value);
+      if (mins > 0) {
+        activities.push({ type, minutes: mins });
+      }
+    });
+
+    d.activities = activities;
     d.drinks = clampInt($('drinks').value);
     d.missed = $('missed').checked;
     d.edited = true;
     await persist();
     if (show) toast(`September ${selectedDay} saved`);
   }
+
+  $('addActivityBtn').onclick = () => {
+    $('activityContainer').appendChild(createActivityRow("Cardio", 0));
+  };
 
   // 12. Option Toggles & Handlers
   $('enableDrinkPenalty').onchange = async () => {
@@ -560,9 +707,10 @@ button,input,select{font:inherit}
         if (docSnap.id === String(year)) {
           const uData = docSnap.data();
           if (Array.isArray(uData.days)) {
+            const normalized = uData.days.map(normalizeDayData);
             const hasPenaltyOption = uData.enableDrinkPenalty !== undefined ? uData.enableDrinkPenalty : true;
             const userGoal = uData.dailyGoal !== undefined ? Number(uData.dailyGoal) : 30;
-            const stats = calculateUserTotals(uData.days, hasPenaltyOption, userGoal);
+            const stats = calculateUserTotals(normalized, hasPenaltyOption, userGoal);
             rows.push({
               name: uData.displayName || 'Participant',
               photoURL: uData.photoURL || 'https://via.placeholder.com/32',
@@ -572,7 +720,6 @@ button,input,select{font:inherit}
         }
       });
 
-      // Sort by completion % descending, then by total counted minutes
       rows.sort((a, b) => b.pct - a.pct || b.counted - a.counted);
 
       if (rows.length === 0) {
@@ -619,7 +766,7 @@ button,input,select{font:inherit}
   }
 
   // 15. Form Event Listeners
-  ['minutes', 'drinks', 'missed'].forEach(id => $(id).addEventListener('change', () => saveForm(false)));
+  ['drinks', 'missed'].forEach(id => $(id).addEventListener('change', () => saveForm(false)));
   $('saveEntry').onclick = () => saveForm(true);
 
   // 16. Google Authentication Listeners
