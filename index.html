@@ -4,8 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#173b57">
-<title>September Cardio Challenge</title>
+<title>September Fitness Challenge</title>
 <style>
+/* ==========================================================================
+   Design System & Theme Variables
+   ========================================================================== */
 :root {
   --navy:#173b57; --blue:#2674a8; --cyan:#24a7b6; --green:#2b9a66;
   --amber:#d99521; --red:#c94d4d; --ink:#183042; --muted:#6b7c88;
@@ -15,6 +18,10 @@
 body{margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:linear-gradient(145deg,#eaf2f5,#f7f9fa);color:var(--ink)}
 button,input,select{font:inherit}
 .app{max-width:1180px;margin:auto;padding:22px}
+
+/* ==========================================================================
+   Hero & Header Styles
+   ========================================================================== */
 .hero{background:linear-gradient(125deg,var(--navy),#235d7c 62%,#258b96);color:white;border-radius:24px;padding:25px;box-shadow:var(--shadow);position:relative;overflow:hidden}
 .hero:after{content:"";position:absolute;width:260px;height:260px;border:40px solid rgba(255,255,255,.07);border-radius:50%;right:-90px;top:-110px}
 .hero h1{margin:0 0 7px;font-size:clamp(1.65rem,4vw,2.5rem)}
@@ -27,25 +34,40 @@ button,input,select{font:inherit}
 .user-info{display:none;align-items:center;gap:10px;color:white;font-size:.9rem;font-weight:600}
 .user-avatar{width:32px;height:32px;border-radius:50%;border:2px solid white;object-fit:cover}
 
-/* Nav Tabs */
+/* ==========================================================================
+   Navigation Tabs
+   ========================================================================== */
 .tabs{display:flex;gap:10px;margin:18px 0 6px}
 .tab-btn{background:var(--paper);border:1px solid rgba(220,229,234,.8);border-radius:12px;padding:10px 18px;font-weight:700;color:var(--muted);cursor:pointer;transition:.15s}
 .tab-btn:hover{color:var(--ink)}
 .tab-btn.active{background:var(--navy);color:white;border-color:var(--navy)}
 
+/* ==========================================================================
+   Dashboard Metrics & Layout
+   ========================================================================== */
 .summary{display:grid;grid-template-columns:repeat(5,1fr);gap:13px;margin:18px 0}
 .card,.panel{background:var(--paper);border:1px solid rgba(220,229,234,.8);border-radius:18px;box-shadow:var(--shadow)}
 .metric{padding:17px}.metric .label{color:var(--muted);font-size:.81rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em}.metric .value{font-size:1.55rem;font-weight:800;margin-top:6px}.metric .sub{color:var(--muted);font-size:.78rem;margin-top:3px}
 .layout{display:grid;grid-template-columns:1.55fr .9fr;gap:16px}.panel{padding:19px;margin-bottom:16px}.panel h2{margin:0 0 15px;font-size:1.1rem}
 .progress-shell{height:17px;background:#e7eef1;border-radius:99px;overflow:hidden}.progress-bar{height:100%;width:0;background:linear-gradient(90deg,var(--cyan),var(--green));transition:width .3s}.progress-copy{display:flex;justify-content:space-between;gap:10px;margin-top:9px;color:var(--muted);font-size:.85rem}
+
+/* ==========================================================================
+   Calendar Grid
+   ========================================================================== */
 .calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}.dow{text-align:center;color:var(--muted);font-size:.72rem;font-weight:800;padding-bottom:2px}.blank{min-height:85px}.day{min-height:85px;padding:9px;border:1px solid var(--line);border-radius:13px;background:#fbfcfd;cursor:pointer;transition:.15s;text-align:left;color:var(--ink)}.day:hover,.day:focus{transform:translateY(-2px);box-shadow:0 7px 16px rgba(24,48,66,.1);outline:none}.day.today{box-shadow:0 0 0 2px var(--blue)}.day.complete{background:#e8f6ee;border-color:#a8d9be}.day.partial{background:#fff7e7;border-color:#efcf91}.day.missed{background:#fdecec;border-color:#edb2b2}.day.future{opacity:.65}.day-num{font-weight:800}.day-min{font-size:.9rem;margin-top:12px;font-weight:750}.day-note{font-size:.69rem;color:var(--muted);margin-top:4px}
-.today-form{display:grid;gap:13px}.field label{display:block;font-weight:750;font-size:.85rem;margin-bottom:6px}.field input[type=number]{width:100%;padding:11px;border:1px solid var(--line);border-radius:10px;background:#fbfcfd}.check{display:flex;align-items:center;gap:9px;padding:11px;background:#f5f8f9;border-radius:10px}.check input{width:18px;height:18px}
+
+/* ==========================================================================
+   Form Elements & Toggles
+   ========================================================================== */
+.today-form{display:grid;gap:13px}.field label{display:block;font-weight:750;font-size:.85rem;margin-bottom:6px}.field input[type=number]{width:100%;padding:11px;border:1px solid var(--line);border-radius:10px;background:#fbfcfd}.check{display:flex;align-items:center;gap:9px;padding:11px;background:#f5f8f9;border-radius:10px;font-size:.88rem;cursor:pointer}.check input{width:18px;height:18px;cursor:pointer}
 .btn{border:0;border-radius:11px;padding:11px 13px;font-weight:800;cursor:pointer;width:100%}.primary{background:var(--blue);color:white}.btn:hover{filter:brightness(.96)}
 .status{padding:13px;border-radius:12px;background:#eef7f8;line-height:1.45;font-size:.9rem}.legend{display:flex;flex-wrap:wrap;gap:12px;color:var(--muted);font-size:.76rem}.dot{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:5px}.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(70px);background:#173b57;color:white;padding:11px 18px;border-radius:99px;opacity:0;transition:.25s;z-index:20}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .notice{font-size:.79rem;color:var(--muted);line-height:1.45}
 .hidden{display:none}
 
-/* Leaderboard Specific Styles */
+/* ==========================================================================
+   Leaderboard Table Styles
+   ========================================================================== */
 .table-wrap{overflow-x:auto}
 .leader-table{width:100%;border-collapse:collapse;text-align:left;font-size:.9rem}
 .leader-table th{background:#f4f7f9;color:var(--muted);font-size:.78rem;font-weight:750;text-transform:uppercase;padding:12px 14px;border-bottom:1px solid var(--line)}
@@ -54,25 +76,31 @@ button,input,select{font:inherit}
 .leader-rank{font-weight:800;font-size:1.1rem;color:var(--muted);width:26px}
 .rank-1{color:#d99521}.rank-2{color:#8b9ba5}.rank-3{color:#b37648}
 .tag{display:inline-block;padding:3px 8px;border-radius:6px;font-size:.76rem;font-weight:700}
-.tag-good{background:#e8f6ee;color:#2b9a66}.tag-warn{background:#fff7e7;color:#d99521}
+.tag-good{background:#e8f6ee;color:#2b9a66}.tag-warn{background:#fff7e7;color:#d99521}.tag-neutral{background:#eef3f6;color:var(--muted)}
 
-/* Rules Styles */
+/* ==========================================================================
+   Rules & Guidelines Styles
+   ========================================================================== */
 .rules-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;margin-top:14px}
 .rule-card{padding:16px;background:#fbfcfd;border:1px solid var(--line);border-radius:14px}
 .rule-card h3{margin:0 0 8px;font-size:1rem;color:var(--navy);display:flex;align-items:center;gap:8px}
 .rule-card p{margin:0;font-size:.88rem;color:var(--ink);line-height:1.45}
 
+/* ==========================================================================
+   Responsive Breakpoints
+   ========================================================================== */
 @media(max-width:900px){.summary{grid-template-columns:repeat(2,1fr)}.layout{grid-template-columns:1fr}.summary .metric:last-child{grid-column:span 2}}
 @media(max-width:620px){.app{padding:12px}.hero{border-radius:17px;padding:19px}.hero-top{display:block}.hero-actions{margin-top:12px;flex-wrap:wrap}.calendar{gap:4px}.day{min-height:69px;padding:6px;border-radius:9px}.day-min{font-size:.76rem;margin-top:8px}.day-note{font-size:.59rem}.blank{min-height:69px}.panel{padding:13px}.metric{padding:13px}.metric .value{font-size:1.28rem}}
 </style>
 </head>
 <body>
 <div class="app">
+  <!-- Hero Section -->
   <header class="hero">
     <div class="hero-top">
       <div>
-        <h1>September Cardio Challenge</h1>
-        <p>30 minutes every day. Build consistency, track penalties, finish strong.</p>
+        <h1>September Fitness Challenge</h1>
+        <p>30 minutes of intentional activity every day. Build consistency, finish strong.</p>
       </div>
       <div class="hero-actions">
         <select id="year" class="year-select" aria-label="Challenge year"></select>
@@ -86,6 +114,7 @@ button,input,select{font:inherit}
     </div>
   </header>
 
+  <!-- Top Navigation Tabs -->
   <nav class="tabs">
     <button id="tabDashboard" class="tab-btn active">My Dashboard</button>
     <button id="tabLeaderboard" class="tab-btn">Group Leaderboard</button>
@@ -95,14 +124,15 @@ button,input,select{font:inherit}
   <!-- DASHBOARD VIEW -->
   <div id="dashboardView">
     <section class="summary">
-      <div class="card metric"><div class="label">Counted cardio</div><div class="value" id="completed">0 min</div><div class="sub" id="actualMinutes">0 actual minutes</div></div>
+      <div class="card metric"><div class="label">Counted activity</div><div class="value" id="completed">0 min</div><div class="sub" id="actualMinutes">0 actual minutes</div></div>
       <div class="card metric"><div class="label">Adjusted target</div><div class="value" id="target">900 min</div><div class="sub">Base: 900 minutes</div></div>
       <div class="card metric"><div class="label">Remaining</div><div class="value" id="remaining">900 min</div><div class="sub" id="remainingHours">15 hours</div></div>
-      <div class="card metric"><div class="label">Drinks</div><div class="value" id="drinksTotal">0</div><div class="sub" id="drinkPenalty">+0 min</div></div>
+      <div class="card metric"><div class="label">Drinks logged</div><div class="value" id="drinksTotal">0</div><div class="sub" id="drinkPenalty">+0 min</div></div>
       <div class="card metric"><div class="label">Missed days</div><div class="value" id="missedTotal">0</div><div class="sub" id="missPenalty">+0 min</div></div>
     </section>
 
     <div class="layout">
+      <!-- Main Content: Progress & Calendar Grid -->
       <main>
         <section class="panel">
           <h2>Challenge progress</h2>
@@ -121,17 +151,28 @@ button,input,select{font:inherit}
         </section>
       </main>
 
+      <!-- Sidebar: Data Entry & Challenge Settings -->
       <aside>
         <section class="panel">
           <h2 id="entryTitle">Today's entry</h2>
           <div class="today-form">
-            <div class="field"><label for="minutes">Cardio minutes completed</label><input id="minutes" type="number" min="0" step="1" inputmode="numeric"><div class="notice">A maximum of 120 minutes counts toward the challenge per day.</div></div>
+            <div class="field"><label for="minutes">Activity minutes completed</label><input id="minutes" type="number" min="0" step="1" inputmode="numeric"><div class="notice">A maximum of 120 minutes counts toward the challenge per day.</div></div>
             <div class="field"><label for="drinks">Number of drinks</label><input id="drinks" type="number" min="0" step="1" inputmode="numeric"></div>
             <label class="check"><input id="missed" type="checkbox"> Mark this as a missed day</label>
             <button class="btn primary" id="saveEntry">Save entry</button>
             <div class="notice" id="syncStatus">Saved in browser only. Sign in to sync across devices.</div>
           </div>
         </section>
+        
+        <section class="panel">
+          <h2>Challenge options</h2>
+          <label class="check">
+            <input id="enableDrinkPenalty" type="checkbox" checked>
+            <span>Include drink penalties (+30m/drink)</span>
+          </label>
+          <div class="notice" style="margin-top:8px">Uncheck if you want to track drinks without adding penalty minutes to your target.</div>
+        </section>
+
         <section class="panel">
           <h2>Pace and forecast</h2>
           <div class="status" id="forecast">Your forecast will appear as you enter activity.</div>
@@ -150,6 +191,7 @@ button,input,select{font:inherit}
             <tr>
               <th>Rank</th>
               <th>Participant</th>
+              <th>Mode</th>
               <th>Progress</th>
               <th>Counted</th>
               <th>Target</th>
@@ -158,7 +200,7 @@ button,input,select{font:inherit}
             </tr>
           </thead>
           <tbody id="leaderboardBody">
-            <tr><td colspan="7" style="text-align:center;color:var(--muted)">Sign in or wait for standings to load...</td></tr>
+            <tr><td colspan="8" style="text-align:center;color:var(--muted)">Sign in or wait for standings to load...</td></tr>
           </tbody>
         </table>
       </div>
@@ -169,17 +211,17 @@ button,input,select{font:inherit}
   <div id="rulesView" class="hidden">
     <section class="panel" style="margin-top:18px">
       <h2>Challenge Rules & Guidelines</h2>
-      <p style="margin-top:0;color:var(--muted);font-size:0.92rem">The goal of the September Cardio Challenge is building sustained daily discipline and consistency.</p>
+      <p style="margin-top:0;color:var(--muted);font-size:0.92rem">The goal of the September Fitness Challenge is building sustained daily discipline and consistency.</p>
       
       <div class="rules-grid">
         <div class="rule-card">
-          <h3>👟 Your Cardio, Your Baseline</h3>
-          <p>Cardio is relative to your personal starting point. For some, it might be a dedicated power walk or hiking; for others, an indoor trainer session, gym circuit, gravel ride, or run. Any sustained, intentional effort that gets your heart rate up counts.</p>
+          <h3>👟 Your Activity, Your Baseline</h3>
+          <p>Activity is relative to your personal starting point. For some, it might be a dedicated brisk walk or hiking; for others, an indoor trainer ride, gym circuit, gravel spin, or run. Any sustained, intentional effort that gets you moving counts.</p>
         </div>
 
         <div class="rule-card">
           <h3>⏱️ The Daily Baseline</h3>
-          <p>The core objective is <strong>30 minutes of intentional cardio per day</strong> throughout September (30 days &times; 30 min = <strong>900 minutes base target</strong>).</p>
+          <p>The core objective is <strong>30 minutes of intentional activity per day</strong> throughout September (30 days &times; 30 min = <strong>900 minutes base target</strong>).</p>
         </div>
 
         <div class="rule-card">
@@ -188,18 +230,18 @@ button,input,select{font:inherit}
         </div>
 
         <div class="rule-card">
-          <h3>🍺 Drink Penalty</h3>
-          <p>Every alcoholic drink consumed adds a <strong>+30 minute penalty</strong> to your overall September target. Drinks directly raise the total minutes needed to finish.</p>
+          <h3>🍺 Optional Drink Penalty</h3>
+          <p>Participants can choose whether to include drink penalties. When enabled, each alcoholic drink adds a <strong>+30 minute penalty</strong> to your overall September target. You can toggle this setting in your dashboard.</p>
         </div>
 
         <div class="rule-card">
           <h3>❌ Missed Day Penalty</h3>
-          <p>If you fail to get your workout in or mark a day as missed, a <strong>+30 minute penalty</strong> is added to your target, and you'll need to make up the volume on other days.</p>
+          <p>If you fail to get your activity in or mark a day as missed, a <strong>+30 minute penalty</strong> is added to your target, and you will need to make up the volume on other days.</p>
         </div>
 
         <div class="rule-card">
           <h3>🎯 Adjusted Target Formula</h3>
-          <p><strong>Total Target = 900 min + (Total Drinks &times; 30 min) + (Missed Days &times; 30 min)</strong>. Standings are ranked by percentage progress against each participant's adjusted target.</p>
+          <p><strong>Total Target = 900 min + (Drink Penalty if enabled) + (Missed Days &times; 30 min)</strong>. Standings are ranked by percentage progress against each participant's target.</p>
         </div>
 
         <div class="rule-card">
@@ -212,14 +254,17 @@ button,input,select{font:inherit}
 </div>
 <div class="toast" id="toast"></div>
 
+<!-- ==========================================================================
+     Application Logic & Firebase Integration
+     ========================================================================== -->
 <script type="module">
-  // Import Firebase SDKs
+  // 1. Firebase SDK Imports
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
   import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-analytics.js";
   import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
   import { getFirestore, doc, getDoc, setDoc, collectionGroup, query, getDocs } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
-  // Your Firebase configuration
+  // 2. Firebase Configuration
   const firebaseConfig = {
     apiKey: "AIzaSyCbxoN1DLvMqxZb7FD4qu8p7k6lnD5ENP4",
     authDomain: "fitness-challenge-smason.firebaseapp.com",
@@ -230,27 +275,31 @@ button,input,select{font:inherit}
     measurementId: "G-PP4QLCW7Q4"
   };
 
-  // Initialize Firebase
+  // 3. Initialize Firebase Services
   const app = initializeApp(firebaseConfig);
   const analytics = getAnalytics(app);
   const auth = getAuth(app);
   const db = getFirestore(app);
   const provider = new GoogleAuthProvider();
 
-  // App Logic
+  // 4. Core Constants & State
   const DAYS = 30, BASE = 900, DAILY = 30, CAP = 120;
   const $ = id => document.getElementById(id);
   const now = new Date();
   let selectedDay = (now.getMonth() === 8 ? now.getDate() : 1);
   let year = now.getFullYear();
   let currentUser = null;
+  let enableDrinkPenalty = true;
 
-  function localKey() { return `septCardioChallenge_v3_${year}`; }
+  // 5. Data Structures & Helper Keys
+  function localDataKey() { return `septFitnessChallenge_v4_${year}_days`; }
+  function localOptionsKey() { return `septFitnessChallenge_v4_${year}_options`; }
   function emptyData() { return Array.from({ length: DAYS }, () => ({ minutes: 0, drinks: 0, missed: false, edited: false })); }
   
   let data = emptyData();
 
-  function calculateUserTotals(daysArray) {
+  // 6. Calculation Utility for User Statistics
+  function calculateUserTotals(daysArray, hasDrinkPenalty = true) {
     let counted = 0, actual = 0, drinks = 0, missed = 0;
     daysArray.forEach(d => {
       actual += (d.minutes || 0);
@@ -258,21 +307,28 @@ button,input,select{font:inherit}
       drinks += (d.drinks || 0);
       if (d.missed) missed++;
     });
-    const target = BASE + (drinks + missed) * 30;
+    const drinkPenaltyMinutes = hasDrinkPenalty ? (drinks * 30) : 0;
+    const missedPenaltyMinutes = missed * 30;
+    const target = BASE + drinkPenaltyMinutes + missedPenaltyMinutes;
     const pct = target ? Math.min(100, (counted / target) * 100) : 0;
-    return { counted, actual, drinks, missed, target, remaining: Math.max(0, target - counted), pct };
+    return { counted, actual, drinks, missed, target, drinkPenaltyMinutes, remaining: Math.max(0, target - counted), pct, hasDrinkPenalty };
   }
 
+  // 7. Data Loading (Local & Firestore Cloud Sync)
   async function loadData() {
     if (currentUser) {
       try {
         const docRef = doc(db, "users", currentUser.uid, "challenges", String(year));
         const docSnap = await getDoc(docRef);
-        if (docSnap.exists() && Array.isArray(docSnap.data().days)) {
-          data = docSnap.data().days;
+        if (docSnap.exists()) {
+          const cloudData = docSnap.data();
+          if (Array.isArray(cloudData.days)) data = cloudData.days;
+          enableDrinkPenalty = cloudData.enableDrinkPenalty !== undefined ? cloudData.enableDrinkPenalty : true;
         } else {
-          const saved = JSON.parse(localStorage.getItem(localKey()));
+          // Fallback / initial migration from localStorage
+          const saved = JSON.parse(localStorage.getItem(localDataKey()));
           data = Array.isArray(saved) && saved.length === DAYS ? saved : emptyData();
+          enableDrinkPenalty = localStorage.getItem(localOptionsKey()) !== 'false';
           if (Array.isArray(saved)) persist();
         }
       } catch (err) {
@@ -281,17 +337,21 @@ button,input,select{font:inherit}
       }
     } else {
       try {
-        const saved = JSON.parse(localStorage.getItem(localKey()));
+        const saved = JSON.parse(localStorage.getItem(localDataKey()));
         data = Array.isArray(saved) && saved.length === DAYS ? saved : emptyData();
+        enableDrinkPenalty = localStorage.getItem(localOptionsKey()) !== 'false';
       } catch {
         data = emptyData();
       }
     }
+    $('enableDrinkPenalty').checked = enableDrinkPenalty;
     render();
   }
 
+  // 8. Data Persistence (Local & Firestore Cloud Sync)
   async function persist() {
-    localStorage.setItem(localKey(), JSON.stringify(data));
+    localStorage.setItem(localDataKey(), JSON.stringify(data));
+    localStorage.setItem(localOptionsKey(), String(enableDrinkPenalty));
     
     if (currentUser) {
       try {
@@ -302,6 +362,7 @@ button,input,select{font:inherit}
           photoURL: currentUser.photoURL || '',
           email: currentUser.email || '',
           year: year,
+          enableDrinkPenalty: enableDrinkPenalty,
           updatedAt: new Date().toISOString(),
           days: data
         });
@@ -314,7 +375,7 @@ button,input,select{font:inherit}
   }
 
   function clampInt(v) { return Math.max(0, Math.floor(Number(v) || 0)); }
-  function totals() { return calculateUserTotals(data); }
+  function totals() { return calculateUserTotals(data, enableDrinkPenalty); }
 
   function daysElapsed() {
     if (year < now.getFullYear() || (year === now.getFullYear() && now.getMonth() > 8)) return 30;
@@ -325,6 +386,7 @@ button,input,select{font:inherit}
   function fmtHours(m) { const h = m / 60; return `${Number.isInteger(h) ? h : h.toFixed(1)} hours`; }
   function toast(msg) { $('toast').textContent = msg; $('toast').classList.add('show'); setTimeout(() => $('toast').classList.remove('show'), 1800); }
 
+  // 9. Main UI Render Routine
   function render() {
     const t = totals(), elapsed = daysElapsed();
     $('completed').textContent = `${t.counted} min`;
@@ -333,7 +395,7 @@ button,input,select{font:inherit}
     $('remaining').textContent = `${t.remaining} min`;
     $('remainingHours').textContent = fmtHours(t.remaining);
     $('drinksTotal').textContent = t.drinks;
-    $('drinkPenalty').textContent = `+${t.drinks * 30} min`;
+    $('drinkPenalty').textContent = enableDrinkPenalty ? `+${t.drinkPenaltyMinutes} min` : 'Penalty off';
     $('missedTotal').textContent = t.missed;
     $('missPenalty').textContent = `+${t.missed * 30} min`;
     $('progressBar').style.width = `${t.pct}%`;
@@ -355,6 +417,7 @@ button,input,select{font:inherit}
     loadForm();
   }
 
+  // 10. Calendar Generation
   function buildCalendar() {
     const cal = $('calendar');
     cal.innerHTML = '';
@@ -386,6 +449,7 @@ button,input,select{font:inherit}
     });
   }
 
+  // 11. Form Population & Save Handlers
   function loadForm() {
     const d = data[selectedDay - 1];
     $('entryTitle').textContent = `September ${selectedDay} entry`;
@@ -404,7 +468,14 @@ button,input,select{font:inherit}
     if (show) toast(`September ${selectedDay} saved`);
   }
 
-  // Navigation Tabs Switching Logic
+  // 12. Option Toggles & Real-Time Sync
+  $('enableDrinkPenalty').onchange = async () => {
+    enableDrinkPenalty = $('enableDrinkPenalty').checked;
+    await persist();
+    toast(enableDrinkPenalty ? 'Drink penalties enabled' : 'Drink penalties disabled');
+  };
+
+  // 13. Navigation View Switching
   function showTab(activeBtnId, activeViewId) {
     ['tabDashboard', 'tabLeaderboard', 'tabRules'].forEach(id => {
       $(id).classList.toggle('active', id === activeBtnId);
@@ -421,10 +492,11 @@ button,input,select{font:inherit}
   };
   $('tabRules').onclick = () => showTab('tabRules', 'rulesView');
 
+  // 14. Leaderboard Cloud Fetch & Rendering
   async function loadLeaderboard() {
     $('leaderboardYear').textContent = year;
     const tbody = $('leaderboardBody');
-    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:20px">Loading standings...</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:20px">Loading standings...</td></tr>`;
     
     try {
       const q = query(collectionGroup(db, 'challenges'));
@@ -435,7 +507,8 @@ button,input,select{font:inherit}
         if (docSnap.id === String(year)) {
           const uData = docSnap.data();
           if (Array.isArray(uData.days)) {
-            const stats = calculateUserTotals(uData.days);
+            const hasPenaltyOption = uData.enableDrinkPenalty !== undefined ? uData.enableDrinkPenalty : true;
+            const stats = calculateUserTotals(uData.days, hasPenaltyOption);
             rows.push({
               name: uData.displayName || 'Participant',
               photoURL: uData.photoURL || 'https://via.placeholder.com/32',
@@ -445,10 +518,11 @@ button,input,select{font:inherit}
         }
       });
 
+      // Sort by completion % descending, then by total counted minutes
       rows.sort((a, b) => b.pct - a.pct || b.counted - a.counted);
 
       if (rows.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:20px">No participant entries found for September ${year}.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:20px">No participant entries found for September ${year}.</td></tr>`;
         return;
       }
 
@@ -456,6 +530,10 @@ button,input,select{font:inherit}
       rows.forEach((r, idx) => {
         const tr = document.createElement('tr');
         const rankClass = idx === 0 ? 'rank-1' : idx === 1 ? 'rank-2' : idx === 2 ? 'rank-3' : '';
+        const modeBadge = r.hasDrinkPenalty 
+          ? `<span class="tag tag-warn" title="Drink penalties active">🎯 +Drinks</span>` 
+          : `<span class="tag tag-neutral" title="Standard tracking without drink penalties">⚡ Standard</span>`;
+
         tr.innerHTML = `
           <td><span class="leader-rank ${rankClass}">#${idx + 1}</span></td>
           <td>
@@ -464,6 +542,7 @@ button,input,select{font:inherit}
               <strong>${r.name}</strong>
             </div>
           </td>
+          <td>${modeBadge}</td>
           <td>
             <div style="font-weight:800;font-size:1rem">${r.pct.toFixed(1)}%</div>
             <div style="font-size:0.75rem;color:var(--muted)">${r.counted} / ${r.target} min</div>
@@ -472,7 +551,7 @@ button,input,select{font:inherit}
           <td>${r.target} min</td>
           <td>${r.remaining} min</td>
           <td>
-            <span class="tag ${r.drinks > 0 ? 'tag-warn' : 'tag-good'}">${r.drinks} drink${r.drinks === 1 ? '' : 's'}</span>
+            <span class="tag ${r.drinks > 0 && r.hasDrinkPenalty ? 'tag-warn' : 'tag-good'}">${r.drinks} drink${r.drinks === 1 ? '' : 's'}</span>
             <span class="tag ${r.missed > 0 ? 'tag-warn' : 'tag-good'}">${r.missed} missed</span>
           </td>
         `;
@@ -480,14 +559,15 @@ button,input,select{font:inherit}
       });
     } catch (err) {
       console.error("Error loading leaderboard:", err);
-      tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--red);padding:20px">Error loading standings. Check Firestore security rules.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--red);padding:20px">Error loading standings. Check Firestore security rules.</td></tr>`;
     }
   }
 
+  // 15. Form Event Listeners
   ['minutes', 'drinks', 'missed'].forEach(id => $(id).addEventListener('change', () => saveForm(false)));
   $('saveEntry').onclick = () => saveForm(true);
 
-  // Auth Handling
+  // 16. Google Authentication Listeners
   $('authBtn').onclick = async () => {
     try {
       await signInWithPopup(auth, provider);
@@ -517,6 +597,7 @@ button,input,select{font:inherit}
     loadData();
   });
 
+  // 17. Year Selection Dropdown
   const ys = $('year');
   for (let y = now.getFullYear() - 1; y <= now.getFullYear() + 2; y++) {
     const o = document.createElement('option');
@@ -534,6 +615,7 @@ button,input,select{font:inherit}
     }
   };
 
+  // 18. Initial App Boot
   loadData();
 </script>
 </body>
