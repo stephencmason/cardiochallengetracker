@@ -129,7 +129,7 @@ button,input,select{font:inherit}
         </div>
       </div>
     </div>
-    <div class="version-tag">v4.4</div>
+    <div class="version-tag">v4.5</div>
   </header>
 
   <!-- Top Navigation Tabs & Options Toolbar -->
@@ -321,7 +321,7 @@ button,input,select{font:inherit}
   const provider = new GoogleAuthProvider();
 
   // 4. Core Constants & App Version
-  const APP_VERSION = "4.4";
+  const APP_VERSION = "4.5";
   const DAYS = 30;
   const ACTIVITY_TYPES = ["Cardio", "Cross Fit", "Weights", "Other"];
   const $ = id => document.getElementById(id);
@@ -424,7 +424,7 @@ button,input,select{font:inherit}
           const savedOpts = JSON.parse(localStorage.getItem(localOptionsKey()) || '{}');
           enableDrinkPenalty = savedOpts.enableDrinkPenalty !== false;
           dailyGoal = Number(savedOpts.dailyGoal) || 30;
-          if (Array.isArray(saved)) persist();
+          if (Array.isArray(saved)) persist(false);
         }
       } catch (err) {
         console.error("Error loading cloud data:", err);
@@ -443,11 +443,11 @@ button,input,select{font:inherit}
     }
     $('enableDrinkPenalty').checked = enableDrinkPenalty;
     $('dailyGoalInput').value = dailyGoal;
-    render();
+    render(true);
   }
 
   // 8. Data Persistence (Local & Firestore Cloud Sync)
-  async function persist() {
+  async function persist(reRenderUI = false) {
     localStorage.setItem(localDataKey(), JSON.stringify(data));
     localStorage.setItem(localOptionsKey(), JSON.stringify({ enableDrinkPenalty, dailyGoal }));
     
@@ -468,10 +468,11 @@ button,input,select{font:inherit}
         });
       } catch (err) {
         console.error("Error saving to cloud:", err);
-        toast("Saved locally (cloud sync error)");
       }
     }
-    render();
+    if (reRenderUI) {
+      render(false);
+    }
   }
 
   function clampInt(v) { return Math.max(0, Math.floor(Number(v) || 0)); }
@@ -487,7 +488,7 @@ button,input,select{font:inherit}
   function toast(msg) { $('toast').textContent = msg; $('toast').classList.add('show'); setTimeout(() => $('toast').classList.remove('show'), 1800); }
 
   // 9. Main UI Render Routine
-  function render() {
+  function render(fullReloadForm = false) {
     const t = totals(), elapsed = daysElapsed();
     $('completed').textContent = `${t.counted} min`;
     $('actualMinutes').textContent = `${t.actual} actual minutes`;
@@ -519,7 +520,9 @@ button,input,select{font:inherit}
     
     $('forecast').textContent = forecast;
     buildCalendar(t);
-    loadForm();
+    if (fullReloadForm) {
+      loadForm();
+    }
   }
 
   // 10. Calendar Generation
@@ -556,7 +559,11 @@ button,input,select{font:inherit}
       else if (d.edited || dayTotal > 0) noteText = `${d.activities.length || (dayTotal > 0 ? 1 : 0)} act`;
 
       b.innerHTML = `<div class="day-num">${day}</div><div class="day-min">${Math.min(dayTotal, t.cap)} min</div><div class="day-note">${noteText}</div>`;
-      b.onclick = () => { selectedDay = day; loadForm(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+      b.onclick = () => { 
+        selectedDay = day; 
+        loadForm(); 
+        window.scrollTo({ top: 0, behavior: 'smooth' }); 
+      };
       cal.appendChild(b);
     });
   }
@@ -592,13 +599,21 @@ button,input,select{font:inherit}
     removeBtn.onclick = () => {
       row.remove();
       updateDayTotalFromInputs();
-      saveForm(false);
+      syncFormToData();
+      persist(true);
     };
 
-    [select, input].forEach(el => el.addEventListener('input', () => {
+    select.addEventListener('change', () => {
       updateDayTotalFromInputs();
-      saveForm(false);
-    }));
+      syncFormToData();
+      persist(true);
+    });
+
+    input.addEventListener('input', () => {
+      updateDayTotalFromInputs();
+      syncFormToData();
+      persist(true);
+    });
 
     row.appendChild(select);
     row.appendChild(input);
@@ -617,6 +632,25 @@ button,input,select{font:inherit}
     return sum;
   }
 
+  function syncFormToData() {
+    const d = data[selectedDay - 1];
+    const rows = $('activityContainer').querySelectorAll('.activity-row');
+    const activities = [];
+
+    rows.forEach(r => {
+      const type = r.querySelector('select').value;
+      const valStr = r.querySelector('input[type=number]').value;
+      const mins = clampInt(valStr);
+      // Keep row in memory as long as the row exists in UI
+      activities.push({ type, minutes: mins });
+    });
+
+    d.activities = activities;
+    d.drinks = clampInt($('drinks').value);
+    d.missed = $('missed').checked;
+    d.edited = true;
+  }
+
   function loadForm() {
     const d = data[selectedDay - 1];
     $('entryTitle').textContent = `September ${selectedDay} entry`;
@@ -629,41 +663,27 @@ button,input,select{font:inherit}
     if (Array.isArray(d.activities) && d.activities.length > 0) {
       d.activities.forEach(a => container.appendChild(createActivityRow(a.type, a.minutes)));
     } else {
-      // Default initial row for quick logging
       container.appendChild(createActivityRow("Cardio", 0));
     }
     updateDayTotalFromInputs();
   }
 
-  async function saveForm(show = false) {
-    const d = data[selectedDay - 1];
-    const rows = $('activityContainer').querySelectorAll('.activity-row');
-    const activities = [];
-
-    rows.forEach(r => {
-      const type = r.querySelector('select').value;
-      const mins = clampInt(r.querySelector('input[type=number]').value);
-      if (mins > 0) {
-        activities.push({ type, minutes: mins });
-      }
-    });
-
-    d.activities = activities;
-    d.drinks = clampInt($('drinks').value);
-    d.missed = $('missed').checked;
-    d.edited = true;
-    await persist();
-    if (show) toast(`September ${selectedDay} saved`);
+  async function saveForm(showToast = false) {
+    syncFormToData();
+    await persist(true);
+    if (showToast) toast(`September ${selectedDay} saved`);
   }
 
   $('addActivityBtn').onclick = () => {
     $('activityContainer').appendChild(createActivityRow("Cardio", 0));
+    syncFormToData();
+    persist(true);
   };
 
   // 12. Option Toggles & Handlers
   $('enableDrinkPenalty').onchange = async () => {
     enableDrinkPenalty = $('enableDrinkPenalty').checked;
-    await persist();
+    await persist(true);
     toast(enableDrinkPenalty ? 'Drink penalties enabled' : 'Drink penalties disabled');
   };
 
@@ -671,7 +691,7 @@ button,input,select{font:inherit}
     const val = clampInt($('dailyGoalInput').value);
     dailyGoal = Math.max(15, Math.min(180, val || 30));
     $('dailyGoalInput').value = dailyGoal;
-    await persist();
+    await persist(true);
     toast(`Daily goal set to ${dailyGoal} min/day`);
   };
 
@@ -766,7 +786,8 @@ button,input,select{font:inherit}
   }
 
   // 15. Form Event Listeners
-  ['drinks', 'missed'].forEach(id => $(id).addEventListener('change', () => saveForm(false)));
+  $('drinks').addEventListener('input', () => { syncFormToData(); persist(true); });
+  $('missed').addEventListener('change', () => { syncFormToData(); persist(true); });
   $('saveEntry').onclick = () => saveForm(true);
 
   // 16. Google Authentication Listeners
