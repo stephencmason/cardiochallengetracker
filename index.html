@@ -70,11 +70,20 @@ button,input,select{font:inherit}
 .field label{display:block;font-weight:750;font-size:.85rem;margin-bottom:6px}
 .field input[type=number], .field select{width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;background:#fbfcfd}
 .activity-list{display:grid;gap:8px}
-.activity-row{display:grid;grid-template-columns:1.2fr 1fr 34px;gap:6px;align-items:center}
-.activity-row select{padding:8px;border:1px solid var(--line);border-radius:8px;background:#fff;font-size:.85rem}
-.activity-row input[type=number]{padding:8px;border:1px solid var(--line);border-radius:8px;background:#fff;font-size:.85rem}
+.activity-item{background:#f8fafc;border:1px solid var(--line);border-radius:11px;padding:8px;display:grid;gap:6px;transition:border-color .15s}
+.activity-item:focus-within{border-color:var(--blue)}
+.activity-row-main{display:grid;grid-template-columns:1.2fr 1fr 34px 34px;gap:6px;align-items:center}
+.activity-row-main select{padding:8px 6px;border:1px solid var(--line);border-radius:8px;background:#fff;font-size:.83rem}
+.activity-row-main input[type=number]{padding:8px 6px;border:1px solid var(--line);border-radius:8px;background:#fff;font-size:.85rem}
+.btn-note-toggle{background:#f0f4f7;color:var(--muted);border:1px solid var(--line);border-radius:8px;height:35px;cursor:pointer;font-size:.88rem;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.btn-note-toggle:hover{background:#e4edf2;color:var(--ink)}
+.btn-note-toggle.active{background:#e8f3fa;color:var(--blue);border-color:var(--blue)}
 .btn-remove-row{background:#fff0f0;color:#c94d4d;border:1px solid #fedede;border-radius:8px;height:35px;cursor:pointer;font-weight:bold;font-size:1.1rem;display:flex;align-items:center;justify-content:center}
 .btn-remove-row:hover{background:#fedede}
+.activity-note-wrap{display:none}
+.activity-note-wrap.show{display:block}
+.activity-note-input{width:100%;padding:7px 10px;border:1px dashed var(--line);border-radius:8px;background:#fff;font-size:.8rem;color:var(--ink)}
+.activity-note-input:focus{border-style:solid;border-color:var(--blue);outline:none}
 .btn-add-activity{background:#eef7f8;color:var(--blue);border:1px dashed var(--blue);border-radius:9px;padding:8px;font-size:.82rem;font-weight:750;cursor:pointer;width:100%;text-align:center;margin-top:4px}
 .btn-add-activity:hover{background:#e2f2f5}
 .day-total-banner{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:#f4f8fa;border-radius:8px;font-size:.86rem;font-weight:750}
@@ -118,6 +127,37 @@ button,input,select{font:inherit}
 }
 
 /* ==========================================================================
+   Footer & Unique Users Counter
+   ========================================================================== */
+.app-footer{
+  margin-top:35px;
+  padding:20px 10px;
+  border-top:1px solid var(--line);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:12px;
+  color:var(--muted);
+  font-size:0.84rem;
+  font-weight:600;
+}
+.user-count-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  background:var(--paper);
+  border:1px solid rgba(220,229,234,.9);
+  padding:7px 14px;
+  border-radius:99px;
+  box-shadow:0 2px 8px rgba(24,48,66,0.04);
+}
+.user-count-badge strong{
+  color:var(--navy);
+  font-size:0.95rem;
+}
+
+/* ==========================================================================
    Rules & Guidelines Styles
    ========================================================================== */
 .rules-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;margin-top:14px}
@@ -129,7 +169,7 @@ button,input,select{font:inherit}
    Responsive Breakpoints
    ========================================================================== */
 @media(max-width:900px){.summary{grid-template-columns:repeat(2,1fr)}.layout{grid-template-columns:1fr}.summary .metric:last-child{grid-column:span 2}}
-@media(max-width:620px){.app{padding:12px}.hero{border-radius:17px;padding:19px}.hero-top{display:block}.hero-actions{margin-top:12px;flex-wrap:wrap}.calendar{gap:4px}.day{min-height:69px;padding:6px;border-radius:9px}.day-min{font-size:.76rem;margin-top:8px}.day-note{font-size:.59rem}.blank{min-height:69px}.panel{padding:13px}.metric{padding:13px}.metric .value{font-size:1.28rem}}
+@media(max-width:620px){.app{padding:12px}.hero{border-radius:17px;padding:19px}.hero-top{display:block}.hero-actions{margin-top:12px;flex-wrap:wrap}.calendar{gap:4px}.day{min-height:69px;padding:6px;border-radius:9px}.day-min{font-size:.76rem;margin-top:8px}.day-note{font-size:.59rem}.blank{min-height:69px}.panel{padding:13px}.metric{padding:13px}.metric .value{font-size:1.28rem}.app-footer{justify-content:center;text-align:center}}
 </style>
 </head>
 <body>
@@ -139,7 +179,7 @@ button,input,select{font:inherit}
     <div class="hero-top">
       <div>
         <h1>September Fitness Challenge</h1>
-        <p>Daily intentional activity. Build consistency, track progress, finish strong.</p>
+        <p>Daily activity. Build consistency, track progress, finish strong.</p>
       </div>
       <div class="hero-actions">
         <select id="year" class="year-select" aria-label="Challenge year"></select>
@@ -151,7 +191,7 @@ button,input,select{font:inherit}
         </div>
       </div>
     </div>
-    <div class="version-tag">v4.8</div>
+    <div class="version-tag">v5.2</div>
   </header>
 
   <!-- Top Navigation Tabs & Options Toolbar -->
@@ -169,7 +209,7 @@ button,input,select{font:inherit}
       </div>
       <label class="check" style="background:transparent;padding:0;gap:7px" title="Uncheck to track drinks without adding penalty minutes to your target.">
         <input id="enableDrinkPenalty" type="checkbox" checked>
-        <span style="font-weight:750;font-size:0.85rem;color:var(--muted)">Drink Penalty (+30m)</span>
+        <span style="font-weight:750;font-size:0.85rem;color:var(--muted)">Drink Penalty or Door Dash for Jon (+30m)</span>
       </label>
     </div>
   </div>
@@ -277,8 +317,8 @@ button,input,select{font:inherit}
       
       <div class="rules-grid">
         <div class="rule-card">
-          <h3>👟 Multi-Activity Tracking</h3>
-          <p>You can log multiple activity sessions per day (Cardio, Cross Fit, Weights, Other). Minutes from all daily sessions are automatically totaled together.</p>
+          <h3>👟 Multi-Activity Tracking & Notes</h3>
+          <p>You can log multiple activity sessions per day (Cardio, Cross Fit, Weights, Resistance Training, Other) and add workout notes (e.g., mileage, pace, weight, sets). Minutes from all daily sessions are automatically totaled together.</p>
         </div>
 
         <div class="rule-card">
@@ -292,7 +332,7 @@ button,input,select{font:inherit}
         </div>
 
         <div class="rule-card">
-          <h3>🍺 Optional Drink Penalty</h3>
+          <h3>🍺 Optional Drink Penalty or Door Dash for Jon</h3>
           <p>When enabled, each alcoholic drink adds a <strong>+30 minute penalty</strong> to your overall September target. You can toggle this setting in the top toolbar.</p>
         </div>
 
@@ -313,6 +353,15 @@ button,input,select{font:inherit}
       </div>
     </section>
   </div>
+
+  <!-- Footer with Unique Users Counter -->
+  <footer class="app-footer">
+    <div class="user-count-badge">
+      <span>👥 Challengers Enrolled:</span>
+      <strong id="uniqueUsersCount">Loading...</strong>
+    </div>
+    <div>September Fitness Challenge &bull; v5.2</div>
+  </footer>
 </div>
 <div class="toast" id="toast"></div>
 
@@ -345,9 +394,9 @@ button,input,select{font:inherit}
   const provider = new GoogleAuthProvider();
 
   // 4. Core Constants & App Version
-  const APP_VERSION = "4.8";
+  const APP_VERSION = "5.2";
   const DAYS = 30;
-  const ACTIVITY_TYPES = ["Cardio", "Cross Fit", "Weights", "Other"];
+  const ACTIVITY_TYPES = ["Cardio", "Cross Fit", "Weights", "Resistance Training", "Other"];
   const $ = id => document.getElementById(id);
   const now = new Date();
   let selectedDay = (now.getMonth() === 8 ? now.getDate() : 1);
@@ -379,10 +428,8 @@ button,input,select{font:inherit}
     }
 
     if (tooltip.body) {
-      const titleLines = tooltip.title || [];
       const bodyLines = tooltip.body.map(b => b.lines);
       const label = bodyLines[0] ? bodyLines[0][0] : '';
-
       tooltipEl.innerHTML = `<div><strong>${label}</strong></div>`;
     }
 
@@ -409,10 +456,11 @@ button,input,select{font:inherit}
     if (Array.isArray(d.activities)) {
       activities = d.activities.map(a => ({
         type: ACTIVITY_TYPES.includes(a.type) ? a.type : "Cardio",
-        minutes: clampInt(a.minutes)
+        minutes: clampInt(a.minutes),
+        note: typeof a.note === 'string' ? a.note.trim() : ""
       }));
     } else if (Number(d.minutes) > 0) {
-      activities = [{ type: "Cardio", minutes: clampInt(d.minutes) }];
+      activities = [{ type: "Cardio", minutes: clampInt(d.minutes), note: "" }];
     }
     return {
       activities,
@@ -434,8 +482,12 @@ button,input,select{font:inherit}
     const cap = Math.max(120, goal);
     const baseTarget = DAYS * goal;
     let counted = 0, actual = 0, drinks = 0, missed = 0;
-    const counts = { "Cardio": 0, "Cross Fit": 0, "Weights": 0, "Other": 0 };
-    const minutes = { "Cardio": 0, "Cross Fit": 0, "Weights": 0, "Other": 0 };
+    const counts = {};
+    const minutes = {};
+    ACTIVITY_TYPES.forEach(type => {
+      counts[type] = 0;
+      minutes[type] = 0;
+    });
     
     daysArray.forEach(d => {
       const dayTotal = getDayTotalMinutes(d);
@@ -519,6 +571,7 @@ button,input,select{font:inherit}
     $('enableDrinkPenalty').checked = enableDrinkPenalty;
     $('dailyGoalInput').value = dailyGoal;
     render(true);
+    refreshParticipantCount();
   }
 
   // 8. Data Persistence (Local & Firestore Cloud Sync)
@@ -548,6 +601,7 @@ button,input,select{font:inherit}
     if (reRenderUI) {
       render(false);
     }
+    refreshParticipantCount();
   }
 
   function clampInt(v) { return Math.max(0, Math.floor(Number(v) || 0)); }
@@ -631,7 +685,10 @@ button,input,select{font:inherit}
       let noteText = 'No entry';
       if (d.drinks) noteText = `${d.drinks} drink${d.drinks === 1 ? '' : 's'}`;
       else if (d.missed) noteText = 'Missed';
-      else if (d.edited || dayTotal > 0) noteText = `${d.activities.length || (dayTotal > 0 ? 1 : 0)} act`;
+      else if (d.edited || dayTotal > 0) {
+        const hasNotes = Array.isArray(d.activities) && d.activities.some(a => a.note && a.note.trim());
+        noteText = `${d.activities.length || (dayTotal > 0 ? 1 : 0)} act${hasNotes ? ' 📝' : ''}`;
+      }
 
       b.innerHTML = `<div class="day-num">${day}</div><div class="day-min">${Math.min(dayTotal, t.cap)} min</div><div class="day-note">${noteText}</div>`;
       b.onclick = () => { 
@@ -644,9 +701,12 @@ button,input,select{font:inherit}
   }
 
   // 11. Multi-Activity Form Handlers
-  function createActivityRow(type = "Cardio", minutes = 0) {
-    const row = document.createElement('div');
-    row.className = 'activity-row';
+  function createActivityRow(type = "Cardio", minutes = 0, note = "") {
+    const item = document.createElement('div');
+    item.className = 'activity-item';
+
+    const mainRow = document.createElement('div');
+    mainRow.className = 'activity-row-main';
 
     const select = document.createElement('select');
     ACTIVITY_TYPES.forEach(opt => {
@@ -665,14 +725,41 @@ button,input,select{font:inherit}
     input.placeholder = 'Minutes';
     input.value = minutes > 0 ? minutes : '';
 
+    const noteBtn = document.createElement('button');
+    noteBtn.type = 'button';
+    noteBtn.className = 'btn-note-toggle' + (note ? ' active' : '');
+    noteBtn.innerHTML = '📝';
+    noteBtn.title = note ? 'Edit workout note' : 'Add workout note';
+
     const removeBtn = document.createElement('button');
     removeBtn.type = 'button';
     removeBtn.className = 'btn-remove-row';
     removeBtn.innerHTML = '&times;';
     removeBtn.title = 'Remove activity';
 
+    const noteWrap = document.createElement('div');
+    noteWrap.className = 'activity-note-wrap' + (note ? ' show' : '');
+
+    const noteInput = document.createElement('input');
+    noteInput.type = 'text';
+    noteInput.className = 'activity-note-input';
+    noteInput.placeholder = 'Workout details (e.g., 5k interval, 4x8 bench, trail hike)';
+    noteInput.value = note || '';
+
+    noteWrap.appendChild(noteInput);
+
+    noteBtn.onclick = () => {
+      const isShowing = noteWrap.classList.toggle('show');
+      if (isShowing) {
+        noteBtn.classList.add('active');
+        noteInput.focus();
+      } else if (!noteInput.value.trim()) {
+        noteBtn.classList.remove('active');
+      }
+    };
+
     removeBtn.onclick = () => {
-      row.remove();
+      item.remove();
       updateDayTotalFromInputs();
       syncFormToData();
       persist(true);
@@ -690,16 +777,30 @@ button,input,select{font:inherit}
       persist(true);
     });
 
-    row.appendChild(select);
-    row.appendChild(input);
-    row.appendChild(removeBtn);
-    return row;
+    noteInput.addEventListener('input', () => {
+      if (noteInput.value.trim()) {
+        noteBtn.classList.add('active');
+      } else if (!noteWrap.classList.contains('show')) {
+        noteBtn.classList.remove('active');
+      }
+      syncFormToData();
+      persist(true);
+    });
+
+    mainRow.appendChild(select);
+    mainRow.appendChild(input);
+    mainRow.appendChild(noteBtn);
+    mainRow.appendChild(removeBtn);
+
+    item.appendChild(mainRow);
+    item.appendChild(noteWrap);
+    return item;
   }
 
   function updateDayTotalFromInputs() {
     let sum = 0;
-    const rows = $('activityContainer').querySelectorAll('.activity-row');
-    rows.forEach(r => {
+    const items = $('activityContainer').querySelectorAll('.activity-item');
+    items.forEach(r => {
       const minInput = r.querySelector('input[type=number]');
       sum += clampInt(minInput.value);
     });
@@ -709,14 +810,16 @@ button,input,select{font:inherit}
 
   function syncFormToData() {
     const d = data[selectedDay - 1];
-    const rows = $('activityContainer').querySelectorAll('.activity-row');
+    const items = $('activityContainer').querySelectorAll('.activity-item');
     const activities = [];
 
-    rows.forEach(r => {
+    items.forEach(r => {
       const type = r.querySelector('select').value;
       const valStr = r.querySelector('input[type=number]').value;
+      const noteInput = r.querySelector('.activity-note-input');
+      const noteStr = noteInput ? noteInput.value.trim() : '';
       const mins = clampInt(valStr);
-      activities.push({ type, minutes: mins });
+      activities.push({ type, minutes: mins, note: noteStr });
     });
 
     d.activities = activities;
@@ -735,9 +838,9 @@ button,input,select{font:inherit}
     container.innerHTML = '';
 
     if (Array.isArray(d.activities) && d.activities.length > 0) {
-      d.activities.forEach(a => container.appendChild(createActivityRow(a.type, a.minutes)));
+      d.activities.forEach(a => container.appendChild(createActivityRow(a.type, a.minutes, a.note || '')));
     } else {
-      container.appendChild(createActivityRow("Cardio", 0));
+      container.appendChild(createActivityRow("Cardio", 0, ""));
     }
     updateDayTotalFromInputs();
   }
@@ -749,7 +852,7 @@ button,input,select{font:inherit}
   }
 
   $('addActivityBtn').onclick = () => {
-    $('activityContainer').appendChild(createActivityRow("Cardio", 0));
+    $('activityContainer').appendChild(createActivityRow("Cardio", 0, ""));
     syncFormToData();
     persist(true);
   };
@@ -786,7 +889,30 @@ button,input,select{font:inherit}
   };
   $('tabRules').onclick = () => showTab('tabRules', 'rulesView');
 
-  // 14. Leaderboard Cloud Fetch & Rendering with Floating Mini Charts
+  // 14. Unique Participant Counter Routine
+  async function refreshParticipantCount() {
+    try {
+      const q = query(collectionGroup(db, 'challenges'));
+      const querySnapshot = await getDocs(q);
+      const userIds = new Set();
+
+      querySnapshot.forEach(docSnap => {
+        if (docSnap.id === String(year)) {
+          const uData = docSnap.data();
+          const uid = uData.userId || docSnap.ref.parent.parent?.id || uData.email;
+          if (uid) userIds.add(uid);
+        }
+      });
+
+      const count = userIds.size;
+      $('uniqueUsersCount').textContent = `${count} participant${count === 1 ? '' : 's'}`;
+    } catch (err) {
+      // Fallback display if not connected or running locally
+      $('uniqueUsersCount').textContent = currentUser ? '1 participant' : 'Local mode';
+    }
+  }
+
+  // 15. Leaderboard Cloud Fetch & Rendering with Floating Mini Charts
   async function loadLeaderboard() {
     $('leaderboardYear').textContent = year;
     const tbody = $('leaderboardBody');
@@ -800,10 +926,14 @@ button,input,select{font:inherit}
       const q = query(collectionGroup(db, 'challenges'));
       const querySnapshot = await getDocs(q);
       const rows = [];
+      const userIds = new Set();
 
       querySnapshot.forEach(docSnap => {
         if (docSnap.id === String(year)) {
           const uData = docSnap.data();
+          const uid = uData.userId || docSnap.ref.parent.parent?.id || uData.email;
+          if (uid) userIds.add(uid);
+
           if (Array.isArray(uData.days)) {
             const normalized = uData.days.map(normalizeDayData);
             const hasPenaltyOption = uData.enableDrinkPenalty !== undefined ? uData.enableDrinkPenalty : true;
@@ -818,6 +948,10 @@ button,input,select{font:inherit}
         }
       });
 
+      // Update bottom footer counter
+      const participantCount = userIds.size;
+      $('uniqueUsersCount').textContent = `${participantCount} participant${participantCount === 1 ? '' : 's'}`;
+
       rows.sort((a, b) => b.pct - a.pct || b.counted - a.counted);
 
       if (rows.length === 0) {
@@ -826,7 +960,7 @@ button,input,select{font:inherit}
       }
 
       tbody.innerHTML = '';
-      const palette = ['#2674a8', '#d99521', '#2b9a66', '#8b9ba5'];
+      const palette = ['#2674a8', '#d99521', '#2b9a66', '#8e5ea2', '#8b9ba5'];
 
       rows.forEach((r, idx) => {
         const tr = document.createElement('tr');
@@ -944,12 +1078,12 @@ button,input,select{font:inherit}
     }
   }
 
-  // 15. Form Event Listeners
+  // 16. Form Event Listeners
   $('drinks').addEventListener('input', () => { syncFormToData(); persist(true); });
   $('missed').addEventListener('change', () => { syncFormToData(); persist(true); });
   $('saveEntry').onclick = () => saveForm(true);
 
-  // 16. Google Authentication Listeners
+  // 17. Google Authentication Listeners
   $('authBtn').onclick = async () => {
     try {
       await signInWithPopup(auth, provider);
@@ -979,7 +1113,7 @@ button,input,select{font:inherit}
     loadData();
   });
 
-  // 17. Year Selection Dropdown
+  // 18. Year Selection Dropdown
   const ys = $('year');
   for (let y = now.getFullYear() - 1; y <= now.getFullYear() + 2; y++) {
     const o = document.createElement('option');
@@ -997,9 +1131,8 @@ button,input,select{font:inherit}
     }
   };
 
-  // 18. Initial App Boot
+  // 19. Initial App Boot
   loadData();
 </script>
 </body>
 </html>
-
