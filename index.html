@@ -35,7 +35,8 @@ button,input,select{font:inherit}
 .auth-btn:hover{background:#eef3f6}
 .user-info{display:none;align-items:center;gap:10px;color:white;font-size:.9rem;font-weight:600}
 .user-avatar{width:32px;height:32px;border-radius:50%;border:2px solid white;object-fit:cover}
-.version-tag{position:absolute;right:18px;bottom:10px;font-size:0.68rem;opacity:0.65;font-weight:700;letter-spacing:0.04em}
+.version-tag{position:absolute;right:18px;bottom:10px;font-size:0.68rem;opacity:0.65;font-weight:700;letter-spacing:0.04em;cursor:pointer;padding:4px 7px;border-radius:6px;transition:all .2s;user-select:none}
+.version-tag:hover{opacity:1;background:rgba(255,255,255,0.18)}
 
 /* ==========================================================================
    Navigation & Toolbar
@@ -91,7 +92,7 @@ button,input,select{font:inherit}
 .btn{border:0;border-radius:11px;padding:11px 13px;font-weight:800;cursor:pointer;width:100%}.primary{background:var(--blue);color:white}.btn:hover{filter:brightness(.96)}
 .status{padding:13px;border-radius:12px;background:#eef7f8;line-height:1.45;font-size:.9rem}.legend{display:flex;flex-wrap:wrap;gap:12px;color:var(--muted);font-size:.76rem}.dot{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:5px}.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(70px);background:#173b57;color:white;padding:11px 18px;border-radius:99px;opacity:0;transition:.25s;z-index:20}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .notice{font-size:.79rem;color:var(--muted);line-height:1.45}
-.hidden{display:none}
+.hidden{display:none !important}
 
 /* ==========================================================================
    Leaderboard Table & Mini Chart Styles
@@ -124,6 +125,70 @@ button,input,select{font:inherit}
   white-space:nowrap;
   transform:translate(-50%, -125%);
   transition:opacity 0.15s ease;
+}
+
+/* ==========================================================================
+   Activity Feed Styles
+   ========================================================================== */
+.feed-header-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px}
+.feed-list{display:flex;flex-direction:column;gap:12px}
+.feed-item{
+  display:flex;
+  gap:14px;
+  align-items:flex-start;
+  padding:14px 16px;
+  background:#fbfcfd;
+  border:1px solid var(--line);
+  border-radius:14px;
+  transition:transform .12s, box-shadow .12s;
+}
+.feed-item:hover{
+  transform:translateY(-1px);
+  box-shadow:0 4px 14px rgba(24,48,66,0.06);
+}
+.feed-avatar{
+  width:42px;
+  height:42px;
+  border-radius:50%;
+  object-fit:cover;
+  border:2px solid #eef3f6;
+  flex-shrink:0;
+}
+.feed-content{flex:1;min-width:0}
+.feed-line-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:baseline;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-bottom:4px;
+}
+.feed-user-name{font-weight:800;color:var(--navy);font-size:0.95rem}
+.feed-time{font-size:0.77rem;color:var(--muted);font-weight:600}
+.feed-action{font-size:0.9rem;line-height:1.4;color:var(--ink)}
+.feed-tag{
+  display:inline-block;
+  padding:2px 7px;
+  border-radius:6px;
+  font-size:0.75rem;
+  font-weight:750;
+  margin-left:4px;
+}
+.feed-tag-cardio{background:#e8f3fa;color:#2674a8}
+.feed-tag-crossfit{background:#fff6e8;color:#d99521}
+.feed-tag-weights{background:#eaf6ee;color:#2b9a66}
+.feed-tag-resistance{background:#f3ecf7;color:#8e5ea2}
+.feed-tag-other{background:#eef3f6;color:var(--muted)}
+.feed-note-bubble{
+  margin-top:8px;
+  padding:8px 12px;
+  background:#f4f7f9;
+  border-left:3px solid var(--blue);
+  border-radius:0 8px 8px 0;
+  font-size:0.83rem;
+  color:var(--ink);
+  line-height:1.4;
+  word-break:break-word;
 }
 
 /* ==========================================================================
@@ -191,7 +256,8 @@ button,input,select{font:inherit}
         </div>
       </div>
     </div>
-    <div class="version-tag">v5.2</div>
+    <!-- Clickable version tag acting as the secret trigger -->
+    <div class="version-tag" id="versionTag" title="Click to view Activity Feed">v5.3</div>
   </header>
 
   <!-- Top Navigation Tabs & Options Toolbar -->
@@ -200,6 +266,8 @@ button,input,select{font:inherit}
       <button id="tabDashboard" class="tab-btn active">My Dashboard</button>
       <button id="tabLeaderboard" class="tab-btn">Group Leaderboard</button>
       <button id="tabRules" class="tab-btn">Challenge Rules</button>
+      <!-- Activity Feed Tab (initially hidden, revealed when clicking version number) -->
+      <button id="tabFeed" class="tab-btn hidden">Activity Feed</button>
     </nav>
     <div class="options-pill">
       <div class="opt-field" title="Set your daily activity goal in minutes. Default is 30m. Missed days will match this penalty.">
@@ -309,6 +377,23 @@ button,input,select{font:inherit}
     </section>
   </div>
 
+  <!-- ACTIVITY FEED VIEW -->
+  <div id="feedView" class="hidden">
+    <section class="panel" style="margin-top:0">
+      <div class="feed-header-bar">
+        <div>
+          <h2 style="margin:0">Live Activity Feed (<span id="feedYear">2026</span>)</h2>
+          <div style="font-size:0.85rem;color:var(--muted);margin-top:3px">Real-time log of workouts completed by the group</div>
+        </div>
+        <button id="refreshFeedBtn" class="tab-btn" style="padding:7px 14px;font-size:0.83rem">Refresh Feed 🔄</button>
+      </div>
+
+      <div id="feedContainer" class="feed-list">
+        <div style="text-align:center;color:var(--muted);padding:30px">Loading activity feed...</div>
+      </div>
+    </section>
+  </div>
+
   <!-- RULES VIEW -->
   <div id="rulesView" class="hidden">
     <section class="panel" style="margin-top:0">
@@ -360,7 +445,7 @@ button,input,select{font:inherit}
       <span>👥 Challengers Enrolled:</span>
       <strong id="uniqueUsersCount">Loading...</strong>
     </div>
-    <div>September Fitness Challenge &bull; v5.2</div>
+    <div>September Fitness Challenge &bull; v5.3</div>
   </footer>
 </div>
 <div class="toast" id="toast"></div>
@@ -394,7 +479,7 @@ button,input,select{font:inherit}
   const provider = new GoogleAuthProvider();
 
   // 4. Core Constants & App Version
-  const APP_VERSION = "5.2";
+  const APP_VERSION = "5.3";
   const DAYS = 30;
   const ACTIVITY_TYPES = ["Cardio", "Cross Fit", "Weights", "Resistance Training", "Other"];
   const $ = id => document.getElementById(id);
@@ -457,10 +542,11 @@ button,input,select{font:inherit}
       activities = d.activities.map(a => ({
         type: ACTIVITY_TYPES.includes(a.type) ? a.type : "Cardio",
         minutes: clampInt(a.minutes),
-        note: typeof a.note === 'string' ? a.note.trim() : ""
+        note: typeof a.note === 'string' ? a.note.trim() : "",
+        loggedAt: a.loggedAt || null
       }));
     } else if (Number(d.minutes) > 0) {
-      activities = [{ type: "Cardio", minutes: clampInt(d.minutes), note: "" }];
+      activities = [{ type: "Cardio", minutes: clampInt(d.minutes), note: "", loggedAt: null }];
     }
     return {
       activities,
@@ -701,9 +787,10 @@ button,input,select{font:inherit}
   }
 
   // 11. Multi-Activity Form Handlers
-  function createActivityRow(type = "Cardio", minutes = 0, note = "") {
+  function createActivityRow(type = "Cardio", minutes = 0, note = "", loggedAt = null) {
     const item = document.createElement('div');
     item.className = 'activity-item';
+    item.dataset.loggedAt = loggedAt || '';
 
     const mainRow = document.createElement('div');
     mainRow.className = 'activity-row-main';
@@ -812,6 +899,7 @@ button,input,select{font:inherit}
     const d = data[selectedDay - 1];
     const items = $('activityContainer').querySelectorAll('.activity-item');
     const activities = [];
+    const nowIso = new Date().toISOString();
 
     items.forEach(r => {
       const type = r.querySelector('select').value;
@@ -819,7 +907,14 @@ button,input,select{font:inherit}
       const noteInput = r.querySelector('.activity-note-input');
       const noteStr = noteInput ? noteInput.value.trim() : '';
       const mins = clampInt(valStr);
-      activities.push({ type, minutes: mins, note: noteStr });
+      const existingTimestamp = r.dataset.loggedAt || (mins > 0 ? nowIso : null);
+      if (mins > 0) r.dataset.loggedAt = existingTimestamp;
+      activities.push({
+        type,
+        minutes: mins,
+        note: noteStr,
+        loggedAt: existingTimestamp
+      });
     });
 
     d.activities = activities;
@@ -838,9 +933,9 @@ button,input,select{font:inherit}
     container.innerHTML = '';
 
     if (Array.isArray(d.activities) && d.activities.length > 0) {
-      d.activities.forEach(a => container.appendChild(createActivityRow(a.type, a.minutes, a.note || '')));
+      d.activities.forEach(a => container.appendChild(createActivityRow(a.type, a.minutes, a.note || '', a.loggedAt || '')));
     } else {
-      container.appendChild(createActivityRow("Cardio", 0, ""));
+      container.appendChild(createActivityRow("Cardio", 0, "", ''));
     }
     updateDayTotalFromInputs();
   }
@@ -852,7 +947,7 @@ button,input,select{font:inherit}
   }
 
   $('addActivityBtn').onclick = () => {
-    $('activityContainer').appendChild(createActivityRow("Cardio", 0, ""));
+    $('activityContainer').appendChild(createActivityRow("Cardio", 0, "", ''));
     syncFormToData();
     persist(true);
   };
@@ -874,11 +969,13 @@ button,input,select{font:inherit}
 
   // 13. Navigation View Switching
   function showTab(activeBtnId, activeViewId) {
-    ['tabDashboard', 'tabLeaderboard', 'tabRules'].forEach(id => {
-      $(id).classList.toggle('active', id === activeBtnId);
+    ['tabDashboard', 'tabLeaderboard', 'tabRules', 'tabFeed'].forEach(id => {
+      const el = $(id);
+      if (el) el.classList.toggle('active', id === activeBtnId);
     });
-    ['dashboardView', 'leaderboardView', 'rulesView'].forEach(id => {
-      $(id).classList.toggle('hidden', id !== activeViewId);
+    ['dashboardView', 'leaderboardView', 'rulesView', 'feedView'].forEach(id => {
+      const el = $(id);
+      if (el) el.classList.toggle('hidden', id !== activeViewId);
     });
   }
 
@@ -888,6 +985,24 @@ button,input,select{font:inherit}
     loadLeaderboard();
   };
   $('tabRules').onclick = () => showTab('tabRules', 'rulesView');
+  $('tabFeed').onclick = () => {
+    showTab('tabFeed', 'feedView');
+    loadActivityFeed();
+  };
+
+  // Secret unlock trigger on Version Number click
+  $('versionTag').onclick = () => {
+    const feedBtn = $('tabFeed');
+    const wasHidden = feedBtn.classList.contains('hidden');
+    feedBtn.classList.remove('hidden');
+    showTab('tabFeed', 'feedView');
+    loadActivityFeed();
+    if (wasHidden) {
+      toast("Activity Feed unlocked! 🏃");
+    }
+  };
+
+  $('refreshFeedBtn').onclick = () => loadActivityFeed();
 
   // 14. Unique Participant Counter Routine
   async function refreshParticipantCount() {
@@ -907,18 +1022,151 @@ button,input,select{font:inherit}
       const count = userIds.size;
       $('uniqueUsersCount').textContent = `${count} participant${count === 1 ? '' : 's'}`;
     } catch (err) {
-      // Fallback display if not connected or running locally
       $('uniqueUsersCount').textContent = currentUser ? '1 participant' : 'Local mode';
     }
   }
 
-  // 15. Leaderboard Cloud Fetch & Rendering with Floating Mini Charts
+  // 15. Activity Feed Loader & Formatter
+  function formatRelativeTime(timestamp) {
+    if (!timestamp) return '';
+    const diffSec = Math.floor((Date.now() - timestamp) / 1000);
+    if (diffSec < 60) return 'Just now';
+    const diffMin = Math.floor(diffSec / 60);
+    if (diffMin < 60) return `${diffMin}m ago`;
+    const diffHour = Math.floor(diffMin / 60);
+    if (diffHour < 24) return `${diffHour}h ago`;
+    const diffDay = Math.floor(diffHour / 24);
+    if (diffDay < 7) return `${diffDay}d ago`;
+    const d = new Date(timestamp);
+    return `${d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}`;
+  }
+
+  function getActivityBadgeClass(type) {
+    switch (type) {
+      case 'Cardio': return 'feed-tag-cardio';
+      case 'Cross Fit': return 'feed-tag-crossfit';
+      case 'Weights': return 'feed-tag-weights';
+      case 'Resistance Training': return 'feed-tag-resistance';
+      default: return 'feed-tag-other';
+    }
+  }
+
+  async function loadActivityFeed() {
+    $('feedYear').textContent = year;
+    const container = $('feedContainer');
+    container.innerHTML = `<div style="text-align:center;color:var(--muted);padding:30px">Fetching activity stream...</div>`;
+
+    try {
+      const q = query(collectionGroup(db, 'challenges'));
+      const querySnapshot = await getDocs(q);
+      const feedItems = [];
+
+      querySnapshot.forEach(docSnap => {
+        if (docSnap.id === String(year)) {
+          const uData = docSnap.data();
+          const userName = uData.displayName || 'Participant';
+          const userPhoto = uData.photoURL || 'https://via.placeholder.com/42';
+          const docUpdatedAtTime = uData.updatedAt ? new Date(uData.updatedAt).getTime() : 0;
+
+          if (Array.isArray(uData.days)) {
+            uData.days.forEach((dayObj, dayIdx) => {
+              const dayNum = dayIdx + 1;
+              if (Array.isArray(dayObj.activities)) {
+                dayObj.activities.forEach((act, actIdx) => {
+                  const m = Number(act.minutes) || 0;
+                  if (m > 0) {
+                    const parsedTime = act.loggedAt ? new Date(act.loggedAt).getTime() : 0;
+                    // Timestamp fallback priority: explicit activity log time -> doc updated time -> day date
+                    const effectiveTime = parsedTime || docUpdatedAtTime || new Date(year, 8, dayNum).getTime();
+
+                    feedItems.push({
+                      userName,
+                      userPhoto,
+                      dayNum,
+                      actIdx,
+                      type: act.type || 'Cardio',
+                      minutes: m,
+                      note: act.note ? act.note.trim() : '',
+                      timestamp: effectiveTime
+                    });
+                  }
+                });
+              } else if (Number(dayObj.minutes) > 0) {
+                feedItems.push({
+                  userName,
+                  userPhoto,
+                  dayNum,
+                  actIdx: 0,
+                  type: 'Cardio',
+                  minutes: Number(dayObj.minutes),
+                  note: '',
+                  timestamp: docUpdatedAtTime || new Date(year, 8, dayNum).getTime()
+                });
+              }
+            });
+          }
+        }
+      });
+
+      // Sort newest activities to the top
+      feedItems.sort((a, b) => b.timestamp - a.timestamp || b.dayNum - a.dayNum);
+
+      if (feedItems.length === 0) {
+        container.innerHTML = `
+          <div style="text-align:center;color:var(--muted);padding:40px;background:#fbfcfd;border:1px dashed var(--line);border-radius:14px">
+            No activities logged yet for ${year}. Start moving and be the first to log!
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = '';
+      feedItems.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'feed-item';
+
+        const tagClass = getActivityBadgeClass(item.type);
+        const timeAgoStr = formatRelativeTime(item.timestamp);
+        const noteHtml = item.note ? `<div class="feed-note-bubble">📝 <em>"${escapeHtml(item.note)}"</em></div>` : '';
+
+        card.innerHTML = `
+          <img class="feed-avatar" src="${item.userPhoto}" alt="${escapeHtml(item.userName)}" onerror="this.src='https://via.placeholder.com/42'">
+          <div class="feed-content">
+            <div class="feed-line-top">
+              <span class="feed-user-name">${escapeHtml(item.userName)}</span>
+              <span class="feed-time">Sept ${item.dayNum}${timeAgoStr ? ` &bull; ${timeAgoStr}` : ''}</span>
+            </div>
+            <div class="feed-action">
+              Completed <strong>${item.minutes} min</strong> of 
+              <span class="feed-tag ${tagClass}">${item.type}</span>
+            </div>
+            ${noteHtml}
+          </div>
+        `;
+        container.appendChild(card);
+      });
+
+    } catch (err) {
+      console.error("Error loading activity feed:", err);
+      container.innerHTML = `<div style="text-align:center;color:var(--red);padding:24px">Error loading activity feed. Please try again.</div>`;
+    }
+  }
+
+  function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  // 16. Leaderboard Cloud Fetch & Rendering with Floating Mini Charts
   async function loadLeaderboard() {
     $('leaderboardYear').textContent = year;
     const tbody = $('leaderboardBody');
     tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:20px">Loading standings...</td></tr>`;
     
-    // Cleanup previous chart instances
     leaderboardChartInstances.forEach(c => c.destroy());
     leaderboardChartInstances = [];
 
@@ -948,7 +1196,6 @@ button,input,select{font:inherit}
         }
       });
 
-      // Update bottom footer counter
       const participantCount = userIds.size;
       $('uniqueUsersCount').textContent = `${participantCount} participant${participantCount === 1 ? '' : 's'}`;
 
@@ -1078,12 +1325,12 @@ button,input,select{font:inherit}
     }
   }
 
-  // 16. Form Event Listeners
+  // 17. Form Event Listeners
   $('drinks').addEventListener('input', () => { syncFormToData(); persist(true); });
   $('missed').addEventListener('change', () => { syncFormToData(); persist(true); });
   $('saveEntry').onclick = () => saveForm(true);
 
-  // 17. Google Authentication Listeners
+  // 18. Google Authentication Listeners
   $('authBtn').onclick = async () => {
     try {
       await signInWithPopup(auth, provider);
@@ -1113,7 +1360,7 @@ button,input,select{font:inherit}
     loadData();
   });
 
-  // 18. Year Selection Dropdown
+  // 19. Year Selection Dropdown
   const ys = $('year');
   for (let y = now.getFullYear() - 1; y <= now.getFullYear() + 2; y++) {
     const o = document.createElement('option');
@@ -1129,9 +1376,12 @@ button,input,select{font:inherit}
     if (!$('leaderboardView').classList.contains('hidden')) {
       loadLeaderboard();
     }
+    if (!$('feedView').classList.contains('hidden')) {
+      loadActivityFeed();
+    }
   };
 
-  // 19. Initial App Boot
+  // 20. Initial App Boot
   loadData();
 </script>
 </body>
