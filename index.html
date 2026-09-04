@@ -36,44 +36,17 @@ button,input,select{font:inherit}
 .user-info{display:none;align-items:center;gap:10px;color:white;font-size:.9rem;font-weight:600}
 .user-avatar{width:32px;height:32px;border-radius:50%;border:2px solid white;object-fit:cover}
 
-/* Clickable Version Tags */
 .version-tag{
   position:absolute;
   right:18px;
   bottom:10px;
-  font-size:0.72rem;
-  opacity:0.85;
+  font-size:0.68rem;
+  opacity:0.65;
   font-weight:700;
   letter-spacing:0.04em;
-  cursor:pointer;
-  padding:4px 10px;
-  border-radius:8px;
-  background:rgba(255,255,255,0.18);
-  border:1px solid rgba(255,255,255,0.35);
-  transition:all .18s ease;
-  user-select:none;
-  z-index:99;
-  pointer-events:auto;
-}
-.version-tag:hover{
-  opacity:1;
-  background:rgba(255,255,255,0.32);
-  transform:scale(1.06);
-  box-shadow:0 2px 8px rgba(0,0,0,0.18);
-}
-.version-tag:active{
-  transform:scale(0.95);
 }
 .footer-version{
-  cursor:pointer;
-  padding:4px 8px;
-  border-radius:6px;
-  transition:all .15s ease;
-  user-select:none;
-}
-.footer-version:hover{
-  color:var(--navy);
-  background:var(--paper);
+  font-size:0.85rem;
 }
 
 /* ==========================================================================
@@ -224,8 +197,7 @@ button,input,select{font:inherit}
         </div>
       </div>
     </div>
-    <!-- Clickable version tag acting as the secret trigger -->
-    <div class="version-tag" id="versionTag" role="button" tabindex="0" title="Click to view Activity Feed">v5.7</div>
+    <div class="version-tag">v5.8</div>
   </header>
 
   <!-- Top Navigation Tabs & Options Toolbar -->
@@ -233,9 +205,8 @@ button,input,select{font:inherit}
     <nav class="tabs">
       <button id="tabDashboard" class="tab-btn active">My Dashboard</button>
       <button id="tabLeaderboard" class="tab-btn">Group Leaderboard</button>
+      <button id="tabFeed" class="tab-btn">Activity Feed</button>
       <button id="tabRules" class="tab-btn">Challenge Rules</button>
-      <!-- Activity Feed Tab (revealed on version tag click) -->
-      <button id="tabFeed" class="tab-btn hidden">Activity Feed 🏃</button>
     </nav>
     <div class="options-pill">
       <div class="opt-field" title="Set your daily activity goal in minutes. Default is 30m. Missed days will match this penalty.">
@@ -412,7 +383,7 @@ button,input,select{font:inherit}
       <span>👥 Challengers Enrolled:</span>
       <strong id="uniqueUsersCount">Loading...</strong>
     </div>
-    <div id="versionTagFooter" class="footer-version" role="button" tabindex="0" title="Click to view Activity Feed">September Fitness Challenge &bull; v5.7</div>
+    <div class="footer-version">September Fitness Challenge &bull; v5.8</div>
   </footer>
 </div>
 <div class="toast" id="toast"></div>
@@ -446,7 +417,7 @@ button,input,select{font:inherit}
   const provider = new GoogleAuthProvider();
 
   // 4. Core Constants & App Version
-  const APP_VERSION = "5.7";
+  const APP_VERSION = "5.8";
   const DAYS = 30;
   const ACTIVITY_TYPES = ["Cardio", "Cross Fit", "Weights", "Resistance Training", "Other"];
   const $ = id => document.getElementById(id);
@@ -952,34 +923,6 @@ button,input,select{font:inherit}
     showTab('tabFeed', 'feedView');
     loadActivityFeed();
   };
-
-  // Secret unlock trigger on Version Number click (handles both header and footer tags)
-  function unlockAndShowFeed() {
-    const feedBtn = $('tabFeed');
-    const wasHidden = feedBtn.classList.contains('hidden');
-    feedBtn.classList.remove('hidden');
-    feedBtn.style.display = '';
-    showTab('tabFeed', 'feedView');
-    loadActivityFeed();
-    toast(wasHidden ? "Activity Feed unlocked! 🏃" : "Switched to Activity Feed 🏃");
-    feedBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  }
-
-  const vTagHeader = $('versionTag');
-  if (vTagHeader) {
-    vTagHeader.addEventListener('click', unlockAndShowFeed);
-    vTagHeader.addEventListener('keydown', e => { 
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); unlockAndShowFeed(); }
-    });
-  }
-
-  const vTagFooter = $('versionTagFooter');
-  if (vTagFooter) {
-    vTagFooter.addEventListener('click', unlockAndShowFeed);
-    vTagFooter.addEventListener('keydown', e => { 
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); unlockAndShowFeed(); }
-    });
-  }
 
   $('refreshFeedBtn').onclick = () => loadActivityFeed();
 
