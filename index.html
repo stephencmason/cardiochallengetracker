@@ -180,6 +180,8 @@ button,input,select{font:inherit}
 .feed-type-Weights{background:#eaf6ee;color:#2b9a66}
 .feed-type-ResistanceTraining{background:#f4edf9;color:#8352b2}
 .feed-type-Other{background:#f0f4f7;color:#6b7c88}
+.feed-type-Drinks{background:#fef3e7;color:#d99521}
+.feed-type-MissedDay{background:#fdecec;color:#c94d4d}
 .feed-note{margin-top:6px;padding:8px 12px;background:#ffffff;border-left:3px solid var(--blue);border-radius:4px 8px 8px 4px;font-size:0.82rem;color:var(--ink);font-style:italic}
 
 /* ==========================================================================
@@ -223,7 +225,7 @@ button,input,select{font:inherit}
       </div>
     </div>
     <!-- Clickable version tag acting as the secret trigger -->
-    <div class="version-tag" id="versionTag" role="button" tabindex="0" title="Click to view Activity Feed">v5.6</div>
+    <div class="version-tag" id="versionTag" role="button" tabindex="0" title="Click to view Activity Feed">v5.7</div>
   </header>
 
   <!-- Top Navigation Tabs & Options Toolbar -->
@@ -410,7 +412,7 @@ button,input,select{font:inherit}
       <span>👥 Challengers Enrolled:</span>
       <strong id="uniqueUsersCount">Loading...</strong>
     </div>
-    <div id="versionTagFooter" class="footer-version" role="button" tabindex="0" title="Click to view Activity Feed">September Fitness Challenge &bull; v5.6</div>
+    <div id="versionTagFooter" class="footer-version" role="button" tabindex="0" title="Click to view Activity Feed">September Fitness Challenge &bull; v5.7</div>
   </footer>
 </div>
 <div class="toast" id="toast"></div>
@@ -444,7 +446,7 @@ button,input,select{font:inherit}
   const provider = new GoogleAuthProvider();
 
   // 4. Core Constants & App Version
-  const APP_VERSION = "5.6";
+  const APP_VERSION = "5.7";
   const DAYS = 30;
   const ACTIVITY_TYPES = ["Cardio", "Cross Fit", "Weights", "Resistance Training", "Other"];
   const $ = id => document.getElementById(id);
@@ -1034,20 +1036,15 @@ button,input,select{font:inherit}
           if (Array.isArray(uData.days)) {
             uData.days.forEach((dayObj, dayIdx) => {
               const dayNum = dayIdx + 1;
+              
+              // 1. Logged Activity Sessions
               if (Array.isArray(dayObj.activities)) {
                 dayObj.activities.forEach((act, actIdx) => {
                   const m = Number(act.minutes) || 0;
                   if (m > 0) {
-                    let ts = null;
-                    if (act.loggedAt) {
-                      ts = new Date(act.loggedAt).getTime();
-                    } else if (uData.updatedAt) {
-                      ts = new Date(uData.updatedAt).getTime();
-                    } else {
-                      ts = new Date(year, 8, dayNum, 12, 0).getTime();
-                    }
-
+                    const ts = act.loggedAt ? new Date(act.loggedAt).getTime() : 0;
                     feedItems.push({
+                      category: 'activity',
                       userName,
                       userPhoto,
                       dayNum,
@@ -1055,12 +1052,14 @@ button,input,select{font:inherit}
                       type: act.type || 'Cardio',
                       minutes: m,
                       note: act.note ? act.note.trim() : '',
+                      loggedAt: act.loggedAt || null,
                       timestamp: ts
                     });
                   }
                 });
               } else if (Number(dayObj.minutes) > 0) {
                 feedItems.push({
+                  category: 'activity',
                   userName,
                   userPhoto,
                   dayNum,
@@ -1068,7 +1067,33 @@ button,input,select{font:inherit}
                   type: 'Cardio',
                   minutes: Number(dayObj.minutes),
                   note: '',
-                  timestamp: uData.updatedAt ? new Date(uData.updatedAt).getTime() : new Date(year, 8, dayNum, 12, 0).getTime()
+                  loggedAt: null,
+                  timestamp: 0
+                });
+              }
+
+              // 2. Logged Drinks
+              if (dayObj.drinks && Number(dayObj.drinks) > 0) {
+                feedItems.push({
+                  category: 'drinks',
+                  userName,
+                  userPhoto,
+                  dayNum,
+                  drinks: Number(dayObj.drinks),
+                  type: 'Drinks',
+                  timestamp: 0
+                });
+              }
+
+              // 3. Missed Day Flags
+              if (dayObj.missed) {
+                feedItems.push({
+                  category: 'missed',
+                  userName,
+                  userPhoto,
+                  dayNum,
+                  type: 'Missed Day',
+                  timestamp: 0
                 });
               }
             });
@@ -1076,11 +1101,11 @@ button,input,select{font:inherit}
         }
       });
 
-      // Sort newest activities to the top
-      feedItems.sort((a, b) => b.timestamp - a.timestamp || b.dayNum - a.dayNum);
-
-      // Fallback: If cloud feed is empty, display locally logged workouts from active session
+      // Fallback: If cloud feed is empty, display locally logged entries from active session
       if (feedItems.length === 0) {
+        const uName = currentUser ? (currentUser.displayName || 'You') : 'You (Local)';
+        const uPhoto = currentUser?.photoURL || 'https://placehold.co/42x42/173b57/ffffff?text=Me';
+
         data.forEach((dayObj, dayIdx) => {
           const dayNum = dayIdx + 1;
           if (Array.isArray(dayObj.activities)) {
@@ -1088,21 +1113,53 @@ button,input,select{font:inherit}
               const m = Number(act.minutes) || 0;
               if (m > 0) {
                 feedItems.push({
-                  userName: currentUser ? (currentUser.displayName || 'You') : 'You (Local)',
-                  userPhoto: currentUser?.photoURL || 'https://placehold.co/42x42/173b57/ffffff?text=Me',
+                  category: 'activity',
+                  userName: uName,
+                  userPhoto: uPhoto,
                   dayNum,
                   actIdx,
                   type: act.type || 'Cardio',
                   minutes: m,
                   note: act.note ? act.note.trim() : '',
-                  timestamp: act.loggedAt ? new Date(act.loggedAt).getTime() : Date.now()
+                  loggedAt: act.loggedAt || null,
+                  timestamp: act.loggedAt ? new Date(act.loggedAt).getTime() : 0
                 });
               }
             });
           }
+
+          if (dayObj.drinks && Number(dayObj.drinks) > 0) {
+            feedItems.push({
+              category: 'drinks',
+              userName: uName,
+              userPhoto: uPhoto,
+              dayNum,
+              drinks: Number(dayObj.drinks),
+              type: 'Drinks',
+              timestamp: 0
+            });
+          }
+
+          if (dayObj.missed) {
+            feedItems.push({
+              category: 'missed',
+              userName: uName,
+              userPhoto: uPhoto,
+              dayNum,
+              type: 'Missed Day',
+              timestamp: 0
+            });
+          }
         });
-        feedItems.sort((a, b) => b.timestamp - a.timestamp || b.dayNum - a.dayNum);
       }
+
+      // Sort purely by date (September day descending) so it acts as a true chronological running tally across all participants
+      feedItems.sort((a, b) => {
+        if (b.dayNum !== a.dayNum) {
+          return b.dayNum - a.dayNum;
+        }
+        return (b.timestamp || 0) - (a.timestamp || 0);
+      });
 
       if (feedItems.length === 0) {
         container.innerHTML = `
@@ -1119,12 +1176,21 @@ button,input,select{font:inherit}
         card.className = 'feed-item';
         
         let timeStr = `Sept ${item.dayNum}`;
-        if (item.timestamp) {
-          const d = new Date(item.timestamp);
-          timeStr += ` &bull; ${d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} at ${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+        if (item.loggedAt) {
+          const d = new Date(item.loggedAt);
+          timeStr += ` &bull; ${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
         }
 
         const cleanTypeClass = 'feed-type-' + item.type.replace(/\s+/g, '');
+
+        let activityHtml = '';
+        if (item.category === 'activity') {
+          activityHtml = `Completed <strong>${item.minutes} min</strong> of <span class="feed-type-badge ${cleanTypeClass}">${item.type}</span>`;
+        } else if (item.category === 'drinks') {
+          activityHtml = `Logged <strong>${item.drinks} drink${item.drinks === 1 ? '' : 's'}</strong> <span class="feed-type-badge ${cleanTypeClass}">🍺 Drinks</span>`;
+        } else if (item.category === 'missed') {
+          activityHtml = `Marked day as <span class="feed-type-badge ${cleanTypeClass}">❌ Missed</span>`;
+        }
 
         card.innerHTML = `
           <img class="feed-avatar" src="${item.userPhoto}" alt="${item.userName}">
@@ -1134,8 +1200,7 @@ button,input,select{font:inherit}
               <span class="feed-date">${timeStr}</span>
             </div>
             <div class="feed-activity">
-              Completed <strong>${item.minutes} min</strong> of 
-              <span class="feed-type-badge ${cleanTypeClass}">${item.type}</span>
+              ${activityHtml}
             </div>
             ${item.note ? `<div class="feed-note">"${item.note}"</div>` : ''}
           </div>
