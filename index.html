@@ -149,7 +149,7 @@ button,input,select{font:inherit}
         </div>
       </div>
     </div>
-    <div class="version-tag">v6.5</div>
+    <div class="version-tag">v6.6</div>
   </header>
 
   <div class="toolbar">
@@ -178,7 +178,7 @@ button,input,select{font:inherit}
       <div class="card metric"><div class="label">Counted activity</div><div class="value" id="completed">0 min</div><div class="sub" id="actualMinutes">0 actual minutes</div></div>
       <div class="card metric"><div class="label">Adjusted target</div><div class="value" id="target">900 min</div><div class="sub" id="baseTargetSub">Base: 900 minutes (30m/day)</div></div>
       <div class="card metric"><div class="label">Remaining</div><div class="value" id="remaining">900 min</div><div class="sub" id="remainingHours">15 hours</div></div>
-      <div class="card metric" id="secretDrinkTrigger"><div class="label">Drinks logged 🍺</div><div class="value" id="drinksTotal">0</div><div class="sub" id="drinkPenalty">+0 min</div></div>
+      <div class="card metric"><div class="label">Drinks logged <span id="secretDrinkTrigger" style="cursor:default;user-select:none">🍺</span></div><div class="value" id="drinksTotal">0</div><div class="sub" id="drinkPenalty">+0 min</div></div>
       <div class="card metric"><div class="label">Missed days</div><div class="value" id="missedTotal">0</div><div class="sub" id="missPenalty">+0 min</div></div>
     </section>
 
@@ -354,7 +354,7 @@ button,input,select{font:inherit}
       <span>👥 Challengers Enrolled:</span>
       <strong id="uniqueUsersCount">Loading...</strong>
     </div>
-    <div class="footer-version">September Fitness Challenge &bull; v6.5</div>
+    <div class="footer-version">September Fitness Challenge &bull; v6.6</div>
   </footer>
 </div>
 <div class="toast" id="toast"></div>
@@ -381,7 +381,7 @@ button,input,select{font:inherit}
   const db = getFirestore(app);
   const provider = new GoogleAuthProvider();
 
-  const APP_VERSION = "6.5";
+  const APP_VERSION = "6.6";
   const DAYS = 30;
   const ACTIVITY_TYPES = ["Cardio", "Cross Fit", "Weights", "Resistance Training", "Other"];
   const $ = id => document.getElementById(id);
@@ -910,6 +910,7 @@ button,input,select{font:inherit}
   };
 
   $('closeDrinkLeaderboardBtn').onclick = () => {
+    $('tabDrinkLeaderboard').classList.add('hidden');
     showTab('tabDashboard', 'dashboardView');
   };
 
