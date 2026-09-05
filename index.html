@@ -7,6 +7,7 @@
 <title>September Fitness Challenge</title>
 <!-- Chart.js CDN for inline breakdown charts -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <style>
 :root {
   --navy:#173b57; --blue:#2674a8; --cyan:#24a7b6; --green:#2b9a66;
@@ -29,19 +30,7 @@ button,input,select{font:inherit}
 .auth-btn:hover{background:#eef3f6}
 .user-info{display:none;align-items:center;gap:10px;color:white;font-size:.9rem;font-weight:600}
 .user-avatar{width:32px;height:32px;border-radius:50%;border:2px solid white;object-fit:cover}
-
-.version-tag{
-  position:absolute;
-  right:18px;
-  bottom:10px;
-  font-size:0.68rem;
-  opacity:0.65;
-  font-weight:700;
-  letter-spacing:0.04em;
-}
-.footer-version{
-  font-size:0.85rem;
-}
+.version-tag{position:absolute;right:18px;bottom:10px;font-size:0.68rem;opacity:0.65;font-weight:700;letter-spacing:0.04em}
 
 .toolbar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin:18px 0 12px}
 .tabs{display:flex;gap:8px;flex-wrap:wrap}
@@ -94,10 +83,8 @@ button,input,select{font:inherit}
 .rank-1{color:#d99521}.rank-2{color:#8b9ba5}.rank-3{color:#b37648}
 .tag{display:inline-block;padding:3px 8px;border-radius:6px;font-size:.76rem;font-weight:700}
 .tag-good{background:#e8f6ee;color:#2b9a66}.tag-warn{background:#fff7e7;color:#d99521}.tag-neutral{background:#eef3f6;color:var(--muted)}
-
 .leader-charts{display:flex;align-items:center;gap:12px}
 .mini-chart-box{width:48px;height:48px;position:relative;cursor:pointer}
-
 .chart-custom-tooltip{
   position:fixed;
   pointer-events:none;
@@ -162,7 +149,7 @@ button,input,select{font:inherit}
         </div>
       </div>
     </div>
-    <div class="version-tag">v6.0</div>
+    <div class="version-tag">v6.5</div>
   </header>
 
   <div class="toolbar">
@@ -171,6 +158,7 @@ button,input,select{font:inherit}
       <button id="tabLeaderboard" class="tab-btn">Group Leaderboard</button>
       <button id="tabFeed" class="tab-btn">Activity Feed</button>
       <button id="tabRules" class="tab-btn">Challenge Rules</button>
+      <button id="tabDrinkLeaderboard" class="tab-btn hidden" style="border-color:var(--amber);color:var(--amber)">🍻 Sweat Hard, Sip Harder Standings</button>
     </nav>
     <div class="options-pill">
       <div class="opt-field" title="Set your daily activity goal in minutes. Default is 30m. Missed days will match this penalty.">
@@ -190,7 +178,7 @@ button,input,select{font:inherit}
       <div class="card metric"><div class="label">Counted activity</div><div class="value" id="completed">0 min</div><div class="sub" id="actualMinutes">0 actual minutes</div></div>
       <div class="card metric"><div class="label">Adjusted target</div><div class="value" id="target">900 min</div><div class="sub" id="baseTargetSub">Base: 900 minutes (30m/day)</div></div>
       <div class="card metric"><div class="label">Remaining</div><div class="value" id="remaining">900 min</div><div class="sub" id="remainingHours">15 hours</div></div>
-      <div class="card metric"><div class="label">Drinks logged</div><div class="value" id="drinksTotal">0</div><div class="sub" id="drinkPenalty">+0 min</div></div>
+      <div class="card metric" id="secretDrinkTrigger"><div class="label">Drinks logged 🍺</div><div class="value" id="drinksTotal">0</div><div class="sub" id="drinkPenalty">+0 min</div></div>
       <div class="card metric"><div class="label">Missed days</div><div class="value" id="missedTotal">0</div><div class="sub" id="missPenalty">+0 min</div></div>
     </section>
 
@@ -335,12 +323,38 @@ button,input,select{font:inherit}
     </section>
   </div>
 
+  <div id="drinkLeaderboardView" class="hidden">
+    <section class="panel" style="margin-top:0">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:14px">
+        <div>
+          <h2 style="margin:0">🍻 Sweat Hard, Sip Harder Standings (<span id="drinkLeaderboardYear">2026</span>)</h2>
+        </div>
+        <button id="closeDrinkLeaderboardBtn" class="tab-btn" style="padding:7px 14px;font-size:0.82rem">✕ Close Secret Board</button>
+      </div>
+      <div class="table-wrap">
+        <table class="leader-table">
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>Participant</th>
+              <th>Drinks Logged</th>
+              <th>Sweat Proof</th>
+            </tr>
+          </thead>
+          <tbody id="drinkLeaderboardBody">
+            <tr><td colspan="4" style="text-align:center;color:var(--muted);padding:20px">Loading secret standings...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
   <footer class="app-footer">
     <div class="user-count-badge">
       <span>👥 Challengers Enrolled:</span>
       <strong id="uniqueUsersCount">Loading...</strong>
     </div>
-    <div class="footer-version">September Fitness Challenge &bull; v6.0</div>
+    <div class="footer-version">September Fitness Challenge &bull; v6.5</div>
   </footer>
 </div>
 <div class="toast" id="toast"></div>
@@ -367,7 +381,7 @@ button,input,select{font:inherit}
   const db = getFirestore(app);
   const provider = new GoogleAuthProvider();
 
-  const APP_VERSION = "6.0";
+  const APP_VERSION = "6.5";
   const DAYS = 30;
   const ACTIVITY_TYPES = ["Cardio", "Cross Fit", "Weights", "Resistance Training", "Other"];
   const $ = id => document.getElementById(id);
@@ -390,7 +404,6 @@ button,input,select{font:inherit}
     return customTooltipEl;
   }
 
-  // Uses getBoundingClientRect coordinates without adding page offset because element is position: fixed
   function externalTooltipHandler(context, unitLabel) {
     const { chart, tooltip } = context;
     const tooltipEl = getOrCreateTooltip();
@@ -412,7 +425,6 @@ button,input,select{font:inherit}
     tooltipEl.style.top = (rect.top + tooltip.caretY) + 'px';
   }
 
-  // Hide popover immediately when scrolling so it never floats detached
   window.addEventListener('scroll', () => {
     if (customTooltipEl) customTooltipEl.style.opacity = '0';
   }, { passive: true });
@@ -866,11 +878,11 @@ button,input,select{font:inherit}
   };
 
   function showTab(activeBtnId, activeViewId) {
-    ['tabDashboard', 'tabLeaderboard', 'tabFeed', 'tabRules'].forEach(id => {
-      $(id).classList.toggle('active', id === activeBtnId);
+    ['tabDashboard', 'tabLeaderboard', 'tabFeed', 'tabRules', 'tabDrinkLeaderboard'].forEach(id => {
+      if ($(id)) $(id).classList.toggle('active', id === activeBtnId);
     });
-    ['dashboardView', 'leaderboardView', 'feedView', 'rulesView'].forEach(id => {
-      $(id).classList.toggle('hidden', id !== activeViewId);
+    ['dashboardView', 'leaderboardView', 'feedView', 'rulesView', 'drinkLeaderboardView'].forEach(id => {
+      if ($(id)) $(id).classList.toggle('hidden', id !== activeViewId);
     });
   }
 
@@ -884,6 +896,84 @@ button,input,select{font:inherit}
     loadActivityFeed();
   };
   $('tabRules').onclick = () => showTab('tabRules', 'rulesView');
+
+  $('secretDrinkTrigger').onclick = () => {
+    $('tabDrinkLeaderboard').classList.remove('hidden');
+    showTab('tabDrinkLeaderboard', 'drinkLeaderboardView');
+    loadDrinkLeaderboard();
+    toast("🍻 'Sweat Hard, Sip Harder Standings' Unlocked!");
+  };
+
+  $('tabDrinkLeaderboard').onclick = () => {
+    showTab('tabDrinkLeaderboard', 'drinkLeaderboardView');
+    loadDrinkLeaderboard();
+  };
+
+  $('closeDrinkLeaderboardBtn').onclick = () => {
+    showTab('tabDashboard', 'dashboardView');
+  };
+
+  async function loadDrinkLeaderboard() {
+    $('drinkLeaderboardYear').textContent = year;
+    const tbody = $('drinkLeaderboardBody');
+    tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:20px">Fetching beverage rankings...</td></tr>`;
+
+    try {
+      const q = query(collectionGroup(db, 'challenges'));
+      const querySnapshot = await getDocs(q);
+      const rows = [];
+
+      querySnapshot.forEach(docSnap => {
+        if (docSnap.id === String(year)) {
+          const uData = docSnap.data();
+          if (Array.isArray(uData.days)) {
+            const normalized = uData.days.map(normalizeDayData);
+            const hasPenaltyOption = uData.enableDrinkPenalty !== undefined ? uData.enableDrinkPenalty : true;
+            const userGoal = uData.dailyGoal !== undefined ? Number(uData.dailyGoal) : 30;
+            const stats = calculateUserTotals(normalized, hasPenaltyOption, userGoal);
+            rows.push({
+              name: uData.displayName || 'Participant',
+              photoURL: uData.photoURL || 'https://via.placeholder.com/32',
+              ...stats
+            });
+          }
+        }
+      });
+
+      rows.sort((a, b) => b.drinks - a.drinks || b.counted - a.counted);
+
+      if (rows.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:20px">No entries found for September ${year}.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = '';
+      rows.forEach((r, idx) => {
+        const tr = document.createElement('tr');
+        const rankClass = idx === 0 ? 'rank-1' : idx === 1 ? 'rank-2' : idx === 2 ? 'rank-3' : '';
+        const rankDisplay = idx === 0 ? '👑 #1' : idx === 1 ? '🥈 #2' : idx === 2 ? '🥉 #3' : `#${idx + 1}`;
+
+        tr.innerHTML = `
+          <td><span class="leader-rank ${rankClass}" style="width:auto">${rankDisplay}</span></td>
+          <td>
+            <div class="leader-user">
+              <img class="user-avatar" src="${r.photoURL}" alt="" onerror="this.src='https://via.placeholder.com/32'">
+              <strong>${r.name}</strong>
+            </div>
+          </td>
+          <td><strong style="font-size:1.05rem;color:var(--amber)">🍺 ${r.drinks} drink${r.drinks === 1 ? '' : 's'}</strong></td>
+          <td>
+            <span style="font-weight:750">${r.counted} min</span>
+            <span style="font-size:0.75rem;color:var(--muted)">(${r.pct.toFixed(0)}% to target)</span>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    } catch (err) {
+      console.error("Error loading drink leaderboard:", err);
+      tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;color:var(--red);padding:20px">Error loading beverage standings.</td></tr>`;
+    }
+  }
 
   async function loadLeaderboard() {
     $('leaderboardYear').textContent = year;
@@ -1112,7 +1202,6 @@ button,input,select{font:inherit}
         }
       });
 
-      // Sort chronologically by calendar day descending, then session timestamp
       feedEvents.sort((a, b) => b.dayNum - a.dayNum || b.timestamp - a.timestamp);
 
       if (feedEvents.length === 0) {
