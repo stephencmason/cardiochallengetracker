@@ -200,7 +200,7 @@ button,input,select{font:inherit}
         </div>
       </div>
     </div>
-    <div class="version-tag">v7.4</div>
+    <div class="version-tag">v7.5</div>
   </header>
 
   <div class="toolbar">
@@ -428,7 +428,7 @@ button,input,select{font:inherit}
       <span>👥 Challengers Enrolled:</span>
       <strong id="uniqueUsersCount">Loading...</strong>
     </div>
-    <div class="footer-version">September Fitness Challenge &bull; v7.4</div>
+    <div class="footer-version">September Fitness Challenge &bull; v7.5</div>
   </footer>
 </div>
 <div class="toast" id="toast"></div>
@@ -455,7 +455,7 @@ button,input,select{font:inherit}
   const db = getFirestore(app);
   const provider = new GoogleAuthProvider();
 
-  const APP_VERSION = "7.4";
+  const APP_VERSION = "7.5";
   const DAYS = 30;
   const ACTIVITY_TYPES = ["Bootcamp", "Cardio", "Cross Fit", "Weights", "Resistance Training", "Yoga", "Other"];
   const PALETTE = ['#d95b32', '#2674a8', '#d99521', '#2b9a66', '#8352b2', '#209699', '#8b9ba5'];
@@ -466,6 +466,7 @@ button,input,select{font:inherit}
   let currentUser = null;
   let enableDrinkPenalty = true;
   let dailyGoal = 30;
+  let cachedWorldNumberOneUids = new Set();
 
   function cleanDisplayName(name, email) {
     if (name && name.trim()) {
@@ -946,6 +947,17 @@ button,input,select{font:inherit}
       ? `You have reached your ${t.dailyGoal}m goal ${t.streak} days in a row! Keep it burning! 🔥` 
       : `Log at least ${t.dailyGoal} minutes today to ignite your streak!`;
 
+    if (currentUser && cachedWorldNumberOneUids.has(currentUser.uid)) {
+      if (!t.badges.some(b => b.id === 'world1')) {
+        t.badges.unshift({
+          id: 'world1',
+          icon: '👑',
+          name: 'World #1',
+          desc: 'Held 1st place on the leaderboard at the close of a day (Sept 7+)'
+        });
+      }
+    }
+
     // Render badges inside challenge progress header
     const dashBadges = $('dashboardBadges');
     dashBadges.innerHTML = '';
@@ -1326,6 +1338,7 @@ button,input,select{font:inherit}
       const querySnapshot = await getDocs(q);
       const rows = [];
       const yesterdayRows = [];
+      const allParticipantsRaw = [];
 
       // Determine the reference day for "yesterday"
       const curYear = now.getFullYear();
@@ -1349,6 +1362,13 @@ button,input,select{font:inherit}
             const hasPenaltyOption = uData.enableDrinkPenalty !== undefined ? uData.enableDrinkPenalty : true;
             const userGoal = uData.dailyGoal !== undefined ? Number(uData.dailyGoal) : 30;
             
+            allParticipantsRaw.push({
+              uid,
+              normalized,
+              hasPenaltyOption,
+              userGoal
+            });
+
             // Current totals (today)
             const stats = calculateUserTotals(normalized, hasPenaltyOption, userGoal, year);
             const displayName = cleanDisplayName(uData.displayName, uData.email);
@@ -1373,6 +1393,33 @@ button,input,select{font:inherit}
           }
         }
       });
+
+      const pastDaysConcluded = getPastDaysCount(year);
+      const worldNumberOneUids = new Set();
+
+      // Evaluate only fully completed days starting from Day 7 up to pastDaysConcluded
+      if (pastDaysConcluded >= 7 && allParticipantsRaw.length > 0) {
+        for (let d = 7; d <= pastDaysConcluded; d++) {
+          let dayTopUid = null;
+          let bestPct = -1;
+          let bestCounted = -1;
+
+          allParticipantsRaw.forEach(p => {
+            const histStats = calculateUserTotals(p.normalized, p.hasPenaltyOption, p.userGoal, year, d);
+            if (histStats.pct > bestPct || (histStats.pct === bestPct && histStats.counted > bestCounted)) {
+              bestPct = histStats.pct;
+              bestCounted = histStats.counted;
+              dayTopUid = p.uid;
+            }
+          });
+
+          if (dayTopUid && bestPct > 0) {
+            worldNumberOneUids.add(dayTopUid);
+          }
+        }
+      }
+
+      cachedWorldNumberOneUids = worldNumberOneUids;
 
       // Sort current standings
       rows.sort((a, b) => b.pct - a.pct || b.counted - a.counted);
@@ -1422,6 +1469,16 @@ button,input,select{font:inherit}
         const streakBadge = r.streak > 0
           ? `<span class="streak-tag" title="${r.streak} consecutive days meeting ${r.dailyGoal}m goal">🔥 ${r.streak}d</span>`
           : `<span class="streak-tag streak-tag-zero" title="No active streak">0d</span>`;
+
+        // Check if user earned the World #1 badge
+        if (worldNumberOneUids.has(r.uid) && !r.badges.some(b => b.id === 'world1')) {
+          r.badges.unshift({
+            id: 'world1',
+            icon: '👑',
+            name: 'World #1',
+            desc: 'Held 1st place on the leaderboard at the close of a day (Sept 7+)'
+          });
+        }
 
         tr.innerHTML = `
           <td><span class="leader-rank ${rankClass}">#${currentRank}</span></td>
