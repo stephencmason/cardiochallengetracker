@@ -45,6 +45,13 @@ button,input,select{font:inherit}
 .layout{display:grid;grid-template-columns:1.55fr .9fr;gap:16px}.panel{padding:19px;margin-bottom:16px}.panel h2{margin:0 0 15px;font-size:1.1rem}
 .progress-shell{height:17px;background:#e7eef1;border-radius:99px;overflow:hidden}.progress-bar{height:100%;width:0;background:linear-gradient(90deg,var(--cyan),var(--green));transition:width .3s}.progress-copy{display:flex;justify-content:space-between;gap:10px;margin-top:9px;color:var(--muted);font-size:.85rem}
 
+/* Option B: Personal Best Highlight Strip */
+.pb-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
+.pb-item{background:#f8fafb;border:1px solid rgba(220,229,234,.8);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:2px}
+.pb-label{font-size:0.72rem;font-weight:750;text-transform:uppercase;letter-spacing:0.04em;color:var(--muted)}
+.pb-val{font-size:1.18rem;font-weight:800;color:var(--ink);display:flex;align-items:center;gap:6px;margin-top:2px}
+.pb-sub{font-size:0.73rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+
 .panel-header-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:8px;flex-wrap:wrap}
 .panel-header-row h2{margin:0;font-size:1.1rem}
 .header-badges-wrap{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
@@ -179,7 +186,7 @@ button,input,select{font:inherit}
 .user-count-badge{background:var(--paper);border:1px solid var(--line);border-radius:99px;padding:6px 16px;font-weight:700;color:var(--navy);display:inline-flex;align-items:center;gap:6px;box-shadow:0 4px 12px rgba(24,48,66,0.04)}
 
 @media(max-width:900px){.summary{grid-template-columns:repeat(2,1fr)}.layout{grid-template-columns:1fr}.summary .metric:last-child{grid-column:span 2}}
-@media(max-width:620px){.app{padding:12px}.hero{border-radius:17px;padding:19px}.hero-top{display:block}.hero-actions{margin-top:12px;flex-wrap:wrap}.calendar{gap:4px}.day{min-height:69px;padding:6px;border-radius:9px}.day-min{font-size:.76rem;margin-top:8px}.day-note{font-size:.59rem}.blank{min-height:69px}.panel{padding:13px}.metric{padding:13px}.metric .value{font-size:1.28rem}}
+@media(max-width:620px){.app{padding:12px}.hero{border-radius:17px;padding:19px}.hero-top{display:block}.hero-actions{margin-top:12px;flex-wrap:wrap}.calendar{gap:4px}.day{min-height:69px;padding:6px;border-radius:9px}.day-min{font-size:.76rem;margin-top:8px}.day-note{font-size:.59rem}.blank{min-height:69px}.panel{padding:13px}.metric{padding:13px}.metric .value{font-size:1.28rem}.pb-strip{grid-template-columns:1fr;gap:6px}.pb-item{padding:7px 10px}}
 </style>
 </head>
 <body>
@@ -200,7 +207,7 @@ button,input,select{font:inherit}
         </div>
       </div>
     </div>
-    <div class="version-tag">v7.6</div>
+    <div class="version-tag">v7.7</div>
   </header>
 
   <div class="toolbar">
@@ -247,6 +254,25 @@ button,input,select{font:inherit}
           </div>
           <div class="progress-shell"><div id="progressBar" class="progress-bar"></div></div>
           <div class="progress-copy"><span id="progressText">0% complete</span><span id="paceText">Ready to begin</span></div>
+
+          <!-- Option B: Personal Best Highlight Strip -->
+          <div class="pb-strip" id="pbStrip">
+            <div class="pb-item">
+              <div class="pb-label">Longest Streak</div>
+              <div class="pb-val" id="pbStreak">🔥 0 Days</div>
+              <div class="pb-sub" id="pbStreakSub">Personal record</div>
+            </div>
+            <div class="pb-item">
+              <div class="pb-label">Biggest Day</div>
+              <div class="pb-val" id="pbBiggestDay">⏱️ 0 min</div>
+              <div class="pb-sub" id="pbBiggestDaySub">No activity yet</div>
+            </div>
+            <div class="pb-item">
+              <div class="pb-label">Favorite Workout</div>
+              <div class="pb-val" id="pbFavWorkout">👟 —</div>
+              <div class="pb-sub" id="pbFavWorkoutSub">0 min logged</div>
+            </div>
+          </div>
         </section>
 
         <section class="panel">
@@ -345,8 +371,8 @@ button,input,select{font:inherit}
         </div>
 
         <div class="rule-card">
-          <h3>🔥 Daily Workout Streaks</h3>
-          <p>Maintain an active daily streak by meeting or exceeding your daily minute goal consecutively. Your streak is shown on your progress card and directly next to your progress on the group leaderboard.</p>
+          <h3>🔥 Daily Workout Streaks & PBs</h3>
+          <p>Maintain an active daily streak by meeting or exceeding your daily minute goal consecutively. Your personal best streak, biggest workout day, and top discipline are tracked directly under your progress bar.</p>
         </div>
 
         <div class="rule-card">
@@ -428,7 +454,7 @@ button,input,select{font:inherit}
       <span>👥 Challengers Enrolled:</span>
       <strong id="uniqueUsersCount">Loading...</strong>
     </div>
-    <div class="footer-version">September Fitness Challenge &bull; v7.6</div>
+    <div class="footer-version">September Fitness Challenge &bull; v7.7</div>
   </footer>
 </div>
 <div class="toast" id="toast"></div>
@@ -455,10 +481,20 @@ button,input,select{font:inherit}
   const db = getFirestore(app);
   const provider = new GoogleAuthProvider();
 
-  const APP_VERSION = "7.6";
+  const APP_VERSION = "7.7";
   const DAYS = 30;
   const ACTIVITY_TYPES = ["Bootcamp", "Cardio", "Cross Fit", "Weights", "Resistance Training", "Yoga", "Other"];
   const PALETTE = ['#d95b32', '#2674a8', '#d99521', '#2b9a66', '#8352b2', '#209699', '#8b9ba5'];
+  const ACTIVITY_ICONS = {
+    "Bootcamp": "🥾",
+    "Cardio": "🏃‍♂️",
+    "Cross Fit": "💪",
+    "Weights": "🏋️",
+    "Resistance Training": "⚡",
+    "Yoga": "🧘",
+    "Other": "👟"
+  };
+
   const $ = id => document.getElementById(id);
   const now = new Date();
   let selectedDay = (now.getMonth() === 8 ? now.getDate() : 1);
@@ -524,6 +560,76 @@ button,input,select{font:inherit}
     }
 
     return streak;
+  }
+
+  // Computes personal records: Longest Streak, Biggest Day, and Favorite Discipline
+  function calculatePersonalBests(daysArray, goal) {
+    // 1. All-time longest streak
+    let maxStreak = 0;
+    let curStreak = 0;
+    daysArray.forEach(d => {
+      const dayTotal = getDayTotalMinutes(d);
+      if (dayTotal >= goal) {
+        curStreak++;
+        if (curStreak > maxStreak) maxStreak = curStreak;
+      } else {
+        curStreak = 0;
+      }
+    });
+
+    // 2. Biggest single day
+    let maxDayMinutes = 0;
+    let bestDayIndex = -1;
+    let bestDayTypes = [];
+    daysArray.forEach((d, idx) => {
+      const dayTotal = getDayTotalMinutes(d);
+      if (dayTotal > maxDayMinutes) {
+        maxDayMinutes = dayTotal;
+        bestDayIndex = idx + 1;
+        if (Array.isArray(d.activities)) {
+          bestDayTypes = [...new Set(d.activities.map(a => a.type).filter(Boolean))];
+        }
+      }
+    });
+
+    // 3. Favorite workout discipline (by total minutes logged)
+    const typeMinutes = {};
+    let totalWorkoutMinutes = 0;
+    ACTIVITY_TYPES.forEach(t => { typeMinutes[t] = 0; });
+    daysArray.forEach(d => {
+      if (Array.isArray(d.activities)) {
+        d.activities.forEach(a => {
+          const m = Number(a.minutes) || 0;
+          const type = ACTIVITY_TYPES.includes(a.type) ? a.type : "Other";
+          if (m > 0) {
+            typeMinutes[type] = (typeMinutes[type] || 0) + m;
+            totalWorkoutMinutes += m;
+          }
+        });
+      }
+    });
+
+    let favType = null;
+    let favMinutes = 0;
+    Object.entries(typeMinutes).forEach(([t, mins]) => {
+      if (mins > favMinutes) {
+        favMinutes = mins;
+        favType = t;
+      }
+    });
+
+    const favPct = (totalWorkoutMinutes > 0 && favType) ? Math.round((favMinutes / totalWorkoutMinutes) * 100) : 0;
+
+    return {
+      maxStreak,
+      maxDayMinutes,
+      bestDayIndex,
+      bestDayTypes,
+      favType,
+      favMinutes,
+      favPct,
+      totalWorkoutMinutes
+    };
   }
 
   // Calculates unlocked surprise milestone badges based on challenge data
@@ -802,6 +908,7 @@ button,input,select{font:inherit}
     const pct = target ? Math.min(100, (counted / target) * 100) : 0;
     const streak = calculateActiveStreak(daysArray, goal, targetYear);
     const badges = calculateBadges(daysArray, drinks, cap);
+    const personalBests = calculatePersonalBests(daysArray, goal);
 
     return {
       counted,
@@ -818,6 +925,7 @@ button,input,select{font:inherit}
       pct,
       streak,
       badges,
+      personalBests,
       hasDrinkPenalty,
       counts,
       minutes
@@ -946,6 +1054,31 @@ button,input,select{font:inherit}
     $('streakPill').title = t.streak > 0 
       ? `You have reached your ${t.dailyGoal}m goal ${t.streak} days in a row! Keep it burning! 🔥` 
       : `Log at least ${t.dailyGoal} minutes today to ignite your streak!`;
+
+    // Render Option B: Personal Best Highlight Strip
+    const pb = t.personalBests;
+    $('pbStreak').textContent = `🔥 ${pb.maxStreak} Day${pb.maxStreak === 1 ? '' : 's'}`;
+    $('pbStreakSub').textContent = (pb.maxStreak > 0 && t.streak === pb.maxStreak) 
+      ? 'Active challenge record! 🔥' 
+      : 'All-time best streak';
+
+    if (pb.maxDayMinutes > 0) {
+      $('pbBiggestDay').textContent = `⏱️ ${pb.maxDayMinutes} min`;
+      const typesCopy = pb.bestDayTypes.length > 0 ? ` (${pb.bestDayTypes.slice(0, 2).join(' + ')})` : '';
+      $('pbBiggestDaySub').textContent = `Sept ${pb.bestDayIndex}${typesCopy}`;
+    } else {
+      $('pbBiggestDay').textContent = '⏱️ 0 min';
+      $('pbBiggestDaySub').textContent = 'No workouts logged yet';
+    }
+
+    if (pb.favType) {
+      const icon = ACTIVITY_ICONS[pb.favType] || '👟';
+      $('pbFavWorkout').textContent = `${icon} ${pb.favType}`;
+      $('pbFavWorkoutSub').textContent = `${pb.favPct}% of total time (${pb.favMinutes}m)`;
+    } else {
+      $('pbFavWorkout').textContent = '👟 —';
+      $('pbFavWorkoutSub').textContent = '0 min logged';
+    }
 
     if (currentUser && cachedWorldNumberOneUids.has(currentUser.uid)) {
       if (!t.badges.some(b => b.id === 'world1')) {
@@ -1414,7 +1547,6 @@ button,input,select{font:inherit}
           });
 
           if (dayTopUid && bestPct > 0) {
-            // Set ensures each participant's UID is collected only once
             worldNumberOneUids.add(dayTopUid);
           }
         }
