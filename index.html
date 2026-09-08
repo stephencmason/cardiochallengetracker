@@ -45,6 +45,11 @@ button,input,select{font:inherit}
 .layout{display:grid;grid-template-columns:1.55fr .9fr;gap:16px}.panel{padding:19px;margin-bottom:16px}.panel h2{margin:0 0 15px;font-size:1.1rem}
 .progress-shell{height:17px;background:#e7eef1;border-radius:99px;overflow:hidden}.progress-bar{height:100%;width:0;background:linear-gradient(90deg,var(--cyan),var(--green));transition:width .3s}.progress-copy{display:flex;justify-content:space-between;gap:10px;margin-top:9px;color:var(--muted);font-size:.85rem}
 
+.panel-header-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:8px}
+.panel-header-row h2{margin:0;font-size:1.1rem}
+.streak-pill{display:inline-flex;align-items:center;gap:5px;background:#fff5eb;border:1px solid #fedbc0;color:#c84f10;padding:4px 10px;border-radius:99px;font-size:0.82rem;font-weight:800;letter-spacing:0.01em;transition:all .15s}
+.streak-pill.streak-zero{background:#f4f6f8;border-color:var(--line);color:var(--muted)}
+
 .calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}.dow{text-align:center;color:var(--muted);font-size:.72rem;font-weight:800;padding-bottom:2px}.blank{min-height:85px}.day{min-height:85px;padding:9px;border:1px solid var(--line);border-radius:13px;background:#fbfcfd;cursor:pointer;transition:.15s;text-align:left;color:var(--ink)}.day:hover,.day:focus{transform:translateY(-2px);box-shadow:0 7px 16px rgba(24,48,66,.1);outline:none}.day.today{box-shadow:0 0 0 2px var(--blue)}.day.complete{background:#e8f6ee;border-color:#a8d9be}.day.partial{background:#fff7e7;border-color:#efcf91}.day.missed{background:#fdecec;border-color:#edb2b2}.day.future{opacity:.65}.day-num{font-weight:800}.day-min{font-size:.9rem;margin-top:12px;font-weight:750}.day-note{font-size:.69rem;color:var(--muted);margin-top:4px}
 
 .today-form{display:grid;gap:13px}
@@ -82,6 +87,9 @@ button,input,select{font:inherit}
 .rank-1{color:#d99521}.rank-2{color:#8b9ba5}.rank-3{color:#b37648}
 .tag{display:inline-block;padding:3px 8px;border-radius:6px;font-size:.76rem;font-weight:700}
 .tag-good{background:#e8f6ee;color:#2b9a66}.tag-warn{background:#fff7e7;color:#d99521}.tag-neutral{background:#eef3f6;color:var(--muted)}
+
+.streak-tag{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:6px;font-size:.78rem;font-weight:800;background:#fff5eb;color:#c84f10;border:1px solid #fedbc0}
+.streak-tag-zero{background:#f4f6f8;color:var(--muted);border:1px solid var(--line)}
 
 /* Pure CSS Donut Rings */
 .leader-charts{display:flex;align-items:center;gap:10px}
@@ -177,7 +185,7 @@ button,input,select{font:inherit}
         </div>
       </div>
     </div>
-    <div class="version-tag">v7.1</div>
+    <div class="version-tag">v7.2</div>
   </header>
 
   <div class="toolbar">
@@ -213,7 +221,12 @@ button,input,select{font:inherit}
     <div class="layout">
       <main>
         <section class="panel">
-          <h2>Challenge progress</h2>
+          <div class="panel-header-row">
+            <h2>Challenge progress</h2>
+            <div id="streakPill" class="streak-pill streak-zero" title="Consecutive days meeting your daily goal">
+              <span>🔥</span> <span id="streakCount">0-day streak</span>
+            </div>
+          </div>
           <div class="progress-shell"><div id="progressBar" class="progress-bar"></div></div>
           <div class="progress-copy"><span id="progressText">0% complete</span><span id="paceText">Ready to begin</span></div>
         </section>
@@ -280,7 +293,7 @@ button,input,select{font:inherit}
               <th>Sessions/Minutes</th>
               <th>Counted</th>
               <th>Target</th>
-              <th>Remaining</th>
+              <th>Streak</th>
               <th>Penalties</th>
             </tr>
           </thead>
@@ -306,6 +319,11 @@ button,input,select{font:inherit}
         <div class="rule-card">
           <h3>⏱️ Customizable Daily Baseline</h3>
           <p>The standard baseline is <strong>30 minutes per day</strong> (30 days &times; 30 min = <strong>900 min base</strong>). You can increase your daily target (e.g., 45m or 60m) in the top toolbar to match your personal goal.</p>
+        </div>
+
+        <div class="rule-card">
+          <h3>🔥 Daily Workout Streaks</h3>
+          <p>Maintain an active daily streak by meeting or exceeding your daily minute goal consecutively. Your streak is shown on your progress card and on the group leaderboard.</p>
         </div>
 
         <div class="rule-card">
@@ -382,7 +400,7 @@ button,input,select{font:inherit}
       <span>👥 Challengers Enrolled:</span>
       <strong id="uniqueUsersCount">Loading...</strong>
     </div>
-    <div class="footer-version">September Fitness Challenge &bull; v7.1</div>
+    <div class="footer-version">September Fitness Challenge &bull; v7.2</div>
   </footer>
 </div>
 <div class="toast" id="toast"></div>
@@ -409,7 +427,7 @@ button,input,select{font:inherit}
   const db = getFirestore(app);
   const provider = new GoogleAuthProvider();
 
-  const APP_VERSION = "7.1";
+  const APP_VERSION = "7.2";
   const DAYS = 30;
   const ACTIVITY_TYPES = ["Bootcamp", "Cardio", "Cross Fit", "Weights", "Resistance Training", "Yoga", "Other"];
   const PALETTE = ['#d95b32', '#2674a8', '#d99521', '#2b9a66', '#8352b2', '#209699', '#8b9ba5'];
@@ -443,6 +461,40 @@ button,input,select{font:inherit}
     if (challengeYear > curYear || (challengeYear === curYear && curMonth < 8)) return 0;
     // Current year September: days strictly before today have fully concluded
     return Math.min(30, Math.max(0, now.getDate() - 1));
+  }
+
+  // Calculates the active consecutive-day streak meeting or exceeding dailyGoal
+  function calculateActiveStreak(daysArray, goal, challengeYear) {
+    const curYear = now.getFullYear();
+    const curMonth = now.getMonth();
+    let referenceDay = 30;
+
+    if (challengeYear === curYear && curMonth === 8) {
+      referenceDay = Math.min(30, Math.max(1, now.getDate()));
+    } else if (challengeYear > curYear || (challengeYear === curYear && curMonth < 8)) {
+      return 0; // Future challenge has no active streak
+    }
+
+    let streak = 0;
+    const todayTotal = getDayTotalMinutes(daysArray[referenceDay - 1]);
+    let checkDay = referenceDay;
+
+    // If today hasn't met the goal yet during active September, evaluate streak starting from yesterday
+    if (challengeYear === curYear && curMonth === 8 && todayTotal < goal) {
+      checkDay = referenceDay - 1;
+    }
+
+    while (checkDay >= 1) {
+      const dayTotal = getDayTotalMinutes(daysArray[checkDay - 1]);
+      if (dayTotal >= goal) {
+        streak++;
+        checkDay--;
+      } else {
+        break;
+      }
+    }
+
+    return streak;
   }
 
   // Reusable Floating Popover Tooltip for CSS Donut Rings
@@ -569,7 +621,7 @@ button,input,select{font:inherit}
   
   let data = emptyData();
 
-  // Computes user totals with dynamic evaluation for past empty days
+  // Computes user totals with dynamic evaluation for past empty days and active streak
   function calculateUserTotals(daysArray, hasDrinkPenalty = true, userDailyGoal = 30, targetYear = year) {
     const goal = Math.max(10, userDailyGoal || 30);
     const cap = Math.max(120, goal);
@@ -588,9 +640,6 @@ button,input,select{font:inherit}
       counted += Math.min(dayTotal, cap);
       drinks += (d.drinks || 0);
 
-      // Dynamic Missed Evaluation:
-      // A day is counted as missed if it has 0 minutes AND (it was marked missed OR it is already past).
-      // If dayTotal > 0, it is NEVER counted as missed (automatically clears penalty).
       const isPast = dayNum <= pastDays;
       const isMissed = (dayTotal === 0) && (d.missed || isPast);
       if (isMissed) missed++;
@@ -611,6 +660,7 @@ button,input,select{font:inherit}
     const missedPenaltyMinutes = missed * goal;
     const target = baseTarget + drinkPenaltyMinutes + missedPenaltyMinutes;
     const pct = target ? Math.min(100, (counted / target) * 100) : 0;
+    const streak = calculateActiveStreak(daysArray, goal, targetYear);
 
     return {
       counted,
@@ -625,6 +675,7 @@ button,input,select{font:inherit}
       missedPenaltyMinutes,
       remaining: Math.max(0, target - counted),
       pct,
+      streak,
       hasDrinkPenalty,
       counts,
       minutes
@@ -747,6 +798,13 @@ button,input,select{font:inherit}
     $('progressBar').style.width = `${t.pct}%`;
     $('progressText').textContent = `${t.pct.toFixed(1)}% complete`;
     
+    // Update streak badge integrated inside Challenge progress header
+    $('streakCount').textContent = `${t.streak}-day streak`;
+    $('streakPill').classList.toggle('streak-zero', t.streak === 0);
+    $('streakPill').title = t.streak > 0 
+      ? `You have reached your ${t.dailyGoal}m goal ${t.streak} days in a row! Keep it burning! 🔥` 
+      : `Log at least ${t.dailyGoal} minutes today to ignite your streak!`;
+
     $('legendComplete').innerHTML = `<i class="dot" style="background:#7bc99d"></i>${t.dailyGoal}+ min`;
     $('legendPartial').innerHTML = `<i class="dot" style="background:#ebbd5f"></i>1–${t.dailyGoal - 1} min`;
     $('capNotice').textContent = `A maximum of ${t.cap} minutes counts toward the challenge per day.`;
@@ -923,7 +981,6 @@ button,input,select{font:inherit}
     });
     $('dayTotalDisplay').textContent = `${sum} min`;
 
-    // Entering positive workout minutes automatically overrides and unchecks "missed day"
     if (sum > 0 && $('missed').checked) {
       $('missed').checked = false;
     }
@@ -952,7 +1009,6 @@ button,input,select{font:inherit}
     d.activities = activities;
     d.drinks = clampInt($('drinks').value);
     
-    // If minutes are logged, the day is never missed
     if (totalMins > 0) {
       d.missed = false;
       $('missed').checked = false;
@@ -967,7 +1023,6 @@ button,input,select{font:inherit}
     $('entryTitle').textContent = `September ${selectedDay} entry`;
     $('drinks').value = d.drinks || 0;
     
-    // If day total > 0, missed is always unchecked
     const dayTotal = getDayTotalMinutes(d);
     $('missed').checked = dayTotal === 0 ? !!d.missed : false;
 
@@ -1158,6 +1213,10 @@ button,input,select{font:inherit}
         const countGradient = buildConicGradient(r.counts);
         const minGradient = buildConicGradient(r.minutes);
 
+        const streakBadge = r.streak > 0
+          ? `<span class="streak-tag" title="${r.streak} consecutive days meeting ${r.dailyGoal}m goal">🔥 ${r.streak}d</span>`
+          : `<span class="streak-tag streak-tag-zero" title="No active streak">0d</span>`;
+
         tr.innerHTML = `
           <td><span class="leader-rank ${rankClass}">#${idx + 1}</span></td>
           <td>
@@ -1185,14 +1244,13 @@ button,input,select{font:inherit}
           </td>
           <td><strong>${r.counted} min</strong></td>
           <td>${r.target} min</td>
-          <td>${r.remaining} min</td>
+          <td>${streakBadge}</td>
           <td>
             <span class="tag ${r.drinks > 0 && r.hasDrinkPenalty ? 'tag-warn' : 'tag-good'}">${r.drinks} drink${r.drinks === 1 ? '' : 's'}</span>
             <span class="tag ${r.missed > 0 ? 'tag-warn' : 'tag-good'}">${r.missed} missed</span>
           </td>
         `;
 
-        // Attach rich hover/tap tooltips to the pure CSS rings
         const sessionsEl = tr.querySelector('.donut-sessions');
         const minutesEl = tr.querySelector('.donut-minutes');
         attachDonutTooltip(sessionsEl, `${r.name}'s Sessions`, r.counts, 'sessions');
