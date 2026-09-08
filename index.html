@@ -45,10 +45,15 @@ button,input,select{font:inherit}
 .layout{display:grid;grid-template-columns:1.55fr .9fr;gap:16px}.panel{padding:19px;margin-bottom:16px}.panel h2{margin:0 0 15px;font-size:1.1rem}
 .progress-shell{height:17px;background:#e7eef1;border-radius:99px;overflow:hidden}.progress-bar{height:100%;width:0;background:linear-gradient(90deg,var(--cyan),var(--green));transition:width .3s}.progress-copy{display:flex;justify-content:space-between;gap:10px;margin-top:9px;color:var(--muted);font-size:.85rem}
 
-.panel-header-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:8px}
+.panel-header-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:8px;flex-wrap:wrap}
 .panel-header-row h2{margin:0;font-size:1.1rem}
+.header-badges-wrap{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .streak-pill{display:inline-flex;align-items:center;gap:5px;background:#fff5eb;border:1px solid #fedbc0;color:#c84f10;padding:4px 10px;border-radius:99px;font-size:0.82rem;font-weight:800;letter-spacing:0.01em;transition:all .15s}
 .streak-pill.streak-zero{background:#f4f6f8;border-color:var(--line);color:var(--muted)}
+
+.dashboard-badges{display:inline-flex;align-items:center;gap:5px}
+.badge-chip{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;background:#f4f7f9;border:1px solid var(--line);border-radius:50%;font-size:0.95rem;cursor:pointer;transition:transform 0.15s ease,box-shadow 0.15s ease}
+.badge-chip:hover{transform:scale(1.18);box-shadow:0 3px 8px rgba(24,48,66,0.14)}
 
 .calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}.dow{text-align:center;color:var(--muted);font-size:.72rem;font-weight:800;padding-bottom:2px}.blank{min-height:85px}.day{min-height:85px;padding:9px;border:1px solid var(--line);border-radius:13px;background:#fbfcfd;cursor:pointer;transition:.15s;text-align:left;color:var(--ink)}.day:hover,.day:focus{transform:translateY(-2px);box-shadow:0 7px 16px rgba(24,48,66,.1);outline:none}.day.today{box-shadow:0 0 0 2px var(--blue)}.day.complete{background:#e8f6ee;border-color:#a8d9be}.day.partial{background:#fff7e7;border-color:#efcf91}.day.missed{background:#fdecec;border-color:#edb2b2}.day.future{opacity:.65}.day-num{font-weight:800}.day-min{font-size:.9rem;margin-top:12px;font-weight:750}.day-note{font-size:.69rem;color:var(--muted);margin-top:4px}
 
@@ -81,7 +86,7 @@ button,input,select{font:inherit}
 .leader-table{width:100%;border-collapse:collapse;text-align:left;font-size:.9rem}
 .leader-table th{background:#f4f7f9;color:var(--muted);font-size:.78rem;font-weight:750;text-transform:uppercase;padding:12px 14px;border-bottom:1px solid var(--line)}
 .leader-table td{padding:12px 14px;border-bottom:1px solid #edf2f5;vertical-align:middle}
-.leader-user{display:flex;align-items:center;gap:10px;min-width:0;max-width:190px}
+.leader-user{display:flex;align-items:center;gap:10px;min-width:0;max-width:180px}
 .leader-user strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block}
 .leader-rank{font-weight:800;font-size:1.1rem;color:var(--muted);width:26px}
 .rank-1{color:#d99521}.rank-2{color:#8b9ba5}.rank-3{color:#b37648}
@@ -90,6 +95,8 @@ button,input,select{font:inherit}
 
 .streak-tag{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:6px;font-size:.78rem;font-weight:800;background:#fff5eb;color:#c84f10;border:1px solid #fedbc0}
 .streak-tag-zero{background:#f4f6f8;color:var(--muted);border:1px solid var(--line)}
+
+.badges-cell{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
 
 /* Pure CSS Donut Rings */
 .leader-charts{display:flex;align-items:center;gap:10px}
@@ -185,7 +192,7 @@ button,input,select{font:inherit}
         </div>
       </div>
     </div>
-    <div class="version-tag">v7.2</div>
+    <div class="version-tag">v7.3</div>
   </header>
 
   <div class="toolbar">
@@ -223,8 +230,11 @@ button,input,select{font:inherit}
         <section class="panel">
           <div class="panel-header-row">
             <h2>Challenge progress</h2>
-            <div id="streakPill" class="streak-pill streak-zero" title="Consecutive days meeting your daily goal">
-              <span>🔥</span> <span id="streakCount">0-day streak</span>
+            <div class="header-badges-wrap">
+              <div id="dashboardBadges" class="dashboard-badges"></div>
+              <div id="streakPill" class="streak-pill streak-zero" title="Consecutive days meeting your daily goal">
+                <span>🔥</span> <span id="streakCount">0-day streak</span>
+              </div>
             </div>
           </div>
           <div class="progress-shell"><div id="progressBar" class="progress-bar"></div></div>
@@ -290,15 +300,14 @@ button,input,select{font:inherit}
               <th>Participant</th>
               <th>Goal / Mode</th>
               <th>Progress</th>
-              <th>Sessions/Minutes</th>
-              <th>Counted</th>
-              <th>Target</th>
               <th>Streak</th>
+              <th>Sessions/Minutes</th>
               <th>Penalties</th>
+              <th>Badges</th>
             </tr>
           </thead>
           <tbody id="leaderboardBody">
-            <tr><td colspan="9" style="text-align:center;color:var(--muted)">Sign in or wait for standings to load...</td></tr>
+            <tr><td colspan="8" style="text-align:center;color:var(--muted)">Sign in or wait for standings to load...</td></tr>
           </tbody>
         </table>
       </div>
@@ -323,7 +332,12 @@ button,input,select{font:inherit}
 
         <div class="rule-card">
           <h3>🔥 Daily Workout Streaks</h3>
-          <p>Maintain an active daily streak by meeting or exceeding your daily minute goal consecutively. Your streak is shown on your progress card and on the group leaderboard.</p>
+          <p>Maintain an active daily streak by meeting or exceeding your daily minute goal consecutively. Your streak is shown on your progress card and directly next to your progress on the group leaderboard.</p>
+        </div>
+
+        <div class="rule-card">
+          <h3>🏅 Secret Achievement Badges</h3>
+          <p>Milestone badges are awarded automatically as you conquer unexpected achievements throughout September. Keep training, exploring new workouts, and enjoying the journey to unlock them all!</p>
         </div>
 
         <div class="rule-card">
@@ -400,7 +414,7 @@ button,input,select{font:inherit}
       <span>👥 Challengers Enrolled:</span>
       <strong id="uniqueUsersCount">Loading...</strong>
     </div>
-    <div class="footer-version">September Fitness Challenge &bull; v7.2</div>
+    <div class="footer-version">September Fitness Challenge &bull; v7.3</div>
   </footer>
 </div>
 <div class="toast" id="toast"></div>
@@ -427,7 +441,7 @@ button,input,select{font:inherit}
   const db = getFirestore(app);
   const provider = new GoogleAuthProvider();
 
-  const APP_VERSION = "7.2";
+  const APP_VERSION = "7.3";
   const DAYS = 30;
   const ACTIVITY_TYPES = ["Bootcamp", "Cardio", "Cross Fit", "Weights", "Resistance Training", "Yoga", "Other"];
   const PALETTE = ['#d95b32', '#2674a8', '#d99521', '#2b9a66', '#8352b2', '#209699', '#8b9ba5'];
@@ -497,7 +511,86 @@ button,input,select{font:inherit}
     return streak;
   }
 
-  // Reusable Floating Popover Tooltip for CSS Donut Rings
+  // Calculates unlocked surprise milestone badges based on challenge data
+  function calculateBadges(daysArray, totalDrinks, cap) {
+    const badges = [];
+
+    // 1. Century Club: 100+ counted minutes in a single day
+    const hasCentury = daysArray.some(d => {
+      const dayMins = getDayTotalMinutes(d);
+      return Math.min(dayMins, cap) >= 100;
+    });
+    if (hasCentury) {
+      badges.push({
+        id: 'century',
+        icon: '💯',
+        name: 'Century Club',
+        desc: 'Logged 100+ counted minutes in a single day'
+      });
+    }
+
+    // 2. Well Deserved Rest: Marked/took a rest day with 0 minutes
+    const hasRestDay = daysArray.some(d => {
+      const dayMins = getDayTotalMinutes(d);
+      return dayMins === 0 && (d.missed || d.edited);
+    });
+    if (hasRestDay) {
+      badges.push({
+        id: 'rest',
+        icon: '🛡️',
+        name: 'Well Deserved Rest',
+        desc: 'Took an intentional rest day for recovery'
+      });
+    }
+
+    // 3. Party Hard: 10+ cumulative drinks logged
+    if (totalDrinks >= 10) {
+      badges.push({
+        id: 'party',
+        icon: '🥳',
+        name: 'Party Hard',
+        desc: 'Logged 10 or more drinks during the challenge'
+      });
+    }
+
+    // 4. Triple Threat: Logged 3 distinct activity types in any single calendar week (excluding "Other")
+    const weeks = [
+      [0, 6],   // Days 1-7
+      [7, 13],  // Days 8-14
+      [14, 20], // Days 15-21
+      [21, 27], // Days 22-28
+      [28, 29]  // Days 29-30
+    ];
+
+    const hasTripleThreat = weeks.some(([start, end]) => {
+      const weeklyTypes = new Set();
+      for (let i = start; i <= end; i++) {
+        const dayObj = daysArray[i];
+        if (dayObj && Array.isArray(dayObj.activities)) {
+          dayObj.activities.forEach(act => {
+            const m = Number(act.minutes) || 0;
+            if (m > 0 && act.type && act.type !== 'Other') {
+              weeklyTypes.add(act.type);
+            }
+          });
+        }
+      }
+      return weeklyTypes.size >= 3;
+    });
+
+    if (hasTripleThreat) {
+      badges.push({
+        id: 'triple',
+        icon: '⚡',
+        name: 'Triple Threat',
+        desc: 'Logged 3 distinct workout types in a single week'
+      });
+    }
+
+    return badges;
+  }
+
+  // Reusable Floating Popover Tooltip for CSS Donut Rings and Badges
   let customTooltipEl = null;
   function getOrCreateTooltip() {
     if (!customTooltipEl) {
@@ -514,7 +607,7 @@ button,input,select{font:inherit}
   }, { passive: true });
 
   document.addEventListener('click', (e) => {
-    if (customTooltipEl && !e.target.closest('.mini-donut')) {
+    if (customTooltipEl && !e.target.closest('.mini-donut') && !e.target.closest('.badge-chip')) {
       customTooltipEl.style.opacity = '0';
     }
   });
@@ -584,6 +677,34 @@ button,input,select{font:inherit}
     });
   }
 
+  // Helper: Attaches clean popover tooltip for badges
+  function attachBadgeTooltip(el, badge) {
+    const show = () => {
+      const tt = getOrCreateTooltip();
+      tt.innerHTML = `
+        <div style="display:flex;align-items:center;gap:6px;font-weight:800;font-size:0.85rem">
+          <span>${badge.icon}</span> <span>${badge.name}</span>
+        </div>
+        <div style="font-size:0.75rem;opacity:0.9;margin-top:2px">${badge.desc}</div>
+      `;
+      tt.style.opacity = '1';
+      const rect = el.getBoundingClientRect();
+      tt.style.left = `${rect.left + rect.width / 2}px`;
+      tt.style.top = `${rect.top - 6}px`;
+    };
+
+    const hide = () => {
+      if (customTooltipEl) customTooltipEl.style.opacity = '0';
+    };
+
+    el.addEventListener('mouseenter', show);
+    el.addEventListener('mouseleave', hide);
+    el.addEventListener('click', (e) => {
+      e.stopPropagation();
+      show();
+    });
+  }
+
   function localDataKey() { return `septFitnessChallenge_v4_${year}_days`; }
   function localOptionsKey() { return `septFitnessChallenge_v4_${year}_options`; }
   
@@ -621,7 +742,7 @@ button,input,select{font:inherit}
   
   let data = emptyData();
 
-  // Computes user totals with dynamic evaluation for past empty days and active streak
+  // Computes user totals with dynamic evaluation for past empty days, active streak, and badges
   function calculateUserTotals(daysArray, hasDrinkPenalty = true, userDailyGoal = 30, targetYear = year) {
     const goal = Math.max(10, userDailyGoal || 30);
     const cap = Math.max(120, goal);
@@ -661,6 +782,7 @@ button,input,select{font:inherit}
     const target = baseTarget + drinkPenaltyMinutes + missedPenaltyMinutes;
     const pct = target ? Math.min(100, (counted / target) * 100) : 0;
     const streak = calculateActiveStreak(daysArray, goal, targetYear);
+    const badges = calculateBadges(daysArray, drinks, cap);
 
     return {
       counted,
@@ -676,6 +798,7 @@ button,input,select{font:inherit}
       remaining: Math.max(0, target - counted),
       pct,
       streak,
+      badges,
       hasDrinkPenalty,
       counts,
       minutes
@@ -804,6 +927,17 @@ button,input,select{font:inherit}
     $('streakPill').title = t.streak > 0 
       ? `You have reached your ${t.dailyGoal}m goal ${t.streak} days in a row! Keep it burning! 🔥` 
       : `Log at least ${t.dailyGoal} minutes today to ignite your streak!`;
+
+    // Render badges inside challenge progress header
+    const dashBadges = $('dashboardBadges');
+    dashBadges.innerHTML = '';
+    t.badges.forEach(b => {
+      const span = document.createElement('span');
+      span.className = 'badge-chip';
+      span.textContent = b.icon;
+      attachBadgeTooltip(span, b);
+      dashBadges.appendChild(span);
+    });
 
     $('legendComplete').innerHTML = `<i class="dot" style="background:#7bc99d"></i>${t.dailyGoal}+ min`;
     $('legendPartial').innerHTML = `<i class="dot" style="background:#ebbd5f"></i>1–${t.dailyGoal - 1} min`;
@@ -1167,7 +1301,7 @@ button,input,select{font:inherit}
   async function loadLeaderboard() {
     $('leaderboardYear').textContent = year;
     const tbody = $('leaderboardBody');
-    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:20px">Loading standings...</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:20px">Loading standings...</td></tr>`;
 
     try {
       const q = query(collectionGroup(db, 'challenges'));
@@ -1196,7 +1330,7 @@ button,input,select{font:inherit}
       rows.sort((a, b) => b.pct - a.pct || b.counted - a.counted);
 
       if (rows.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:20px">No participant entries found for September ${year}.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:20px">No participant entries found for September ${year}.</td></tr>`;
         return;
       }
 
@@ -1230,6 +1364,7 @@ button,input,select{font:inherit}
             <div style="font-weight:800;font-size:1rem">${r.pct.toFixed(1)}%</div>
             <div style="font-size:0.75rem;color:var(--muted)">${r.counted} / ${r.target} min</div>
           </td>
+          <td>${streakBadge}</td>
           <td>
             <div class="leader-charts">
               <div class="mini-donut-wrap">
@@ -1242,12 +1377,12 @@ button,input,select{font:inherit}
               </div>
             </div>
           </td>
-          <td><strong>${r.counted} min</strong></td>
-          <td>${r.target} min</td>
-          <td>${streakBadge}</td>
           <td>
             <span class="tag ${r.drinks > 0 && r.hasDrinkPenalty ? 'tag-warn' : 'tag-good'}">${r.drinks} drink${r.drinks === 1 ? '' : 's'}</span>
             <span class="tag ${r.missed > 0 ? 'tag-warn' : 'tag-good'}">${r.missed} missed</span>
+          </td>
+          <td>
+            <div class="badges-cell"></div>
           </td>
         `;
 
@@ -1256,11 +1391,24 @@ button,input,select{font:inherit}
         attachDonutTooltip(sessionsEl, `${r.name}'s Sessions`, r.counts, 'sessions');
         attachDonutTooltip(minutesEl, `${r.name}'s Minutes`, r.minutes, 'min');
 
+        const badgesCell = tr.querySelector('.badges-cell');
+        if (r.badges && r.badges.length > 0) {
+          r.badges.forEach(b => {
+            const span = document.createElement('span');
+            span.className = 'badge-chip';
+            span.textContent = b.icon;
+            attachBadgeTooltip(span, b);
+            badgesCell.appendChild(span);
+          });
+        } else {
+          badgesCell.innerHTML = `<span style="color:var(--muted);font-size:0.75rem">—</span>`;
+        }
+
         tbody.appendChild(tr);
       });
     } catch (err) {
       console.error("Error loading leaderboard:", err);
-      tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:var(--red);padding:20px">Error loading standings. Check Firestore security rules.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--red);padding:20px">Error loading standings. Check Firestore security rules.</td></tr>`;
     }
   }
 
