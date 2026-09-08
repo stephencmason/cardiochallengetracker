@@ -177,7 +177,7 @@ button,input,select{font:inherit}
         </div>
       </div>
     </div>
-    <div class="version-tag">v6.9</div>
+    <div class="version-tag">v7.1</div>
   </header>
 
   <div class="toolbar">
@@ -225,7 +225,7 @@ button,input,select{font:inherit}
             <span id="legendComplete"><i class="dot" style="background:#7bc99d"></i>30+ min</span>
             <span id="legendPartial"><i class="dot" style="background:#ebbd5f"></i>1–29 min</span>
             <span><i class="dot" style="background:#dd7777"></i>Missed</span>
-            <span>Tap any day to edit</span>
+            <span>Tap any day to edit or make up</span>
           </div>
         </section>
       </main>
@@ -277,7 +277,7 @@ button,input,select{font:inherit}
               <th>Participant</th>
               <th>Goal / Mode</th>
               <th>Progress</th>
-              <th>Breakdown</th>
+              <th>Sessions/Minutes</th>
               <th>Counted</th>
               <th>Target</th>
               <th>Remaining</th>
@@ -319,8 +319,8 @@ button,input,select{font:inherit}
         </div>
 
         <div class="rule-card">
-          <h3>❌ Missed Day Penalty</h3>
-          <p>Marking a day as missed adds a penalty equal to <strong>your selected daily target</strong> (+30 min by default, or your custom goal), which must be made up on other days.</p>
+          <h3>❌ Automatic Missed-Day Policy</h3>
+          <p>Any past September day with 0 logged minutes automatically counts as a missed day (+your daily target penalty). You can go back and enter workouts for any past day anytime to immediately erase the penalty!</p>
         </div>
 
         <div class="rule-card">
@@ -382,7 +382,7 @@ button,input,select{font:inherit}
       <span>👥 Challengers Enrolled:</span>
       <strong id="uniqueUsersCount">Loading...</strong>
     </div>
-    <div class="footer-version">September Fitness Challenge &bull; v6.9</div>
+    <div class="footer-version">September Fitness Challenge &bull; v7.1</div>
   </footer>
 </div>
 <div class="toast" id="toast"></div>
@@ -409,7 +409,7 @@ button,input,select{font:inherit}
   const db = getFirestore(app);
   const provider = new GoogleAuthProvider();
 
-  const APP_VERSION = "6.9";
+  const APP_VERSION = "7.1";
   const DAYS = 30;
   const ACTIVITY_TYPES = ["Bootcamp", "Cardio", "Cross Fit", "Weights", "Resistance Training", "Yoga", "Other"];
   const PALETTE = ['#d95b32', '#2674a8', '#d99521', '#2b9a66', '#8352b2', '#209699', '#8b9ba5'];
@@ -433,6 +433,16 @@ button,input,select{font:inherit}
       return email.split('@')[0];
     }
     return email || 'Participant';
+  }
+
+  // Returns how many past calendar days have completely finished for a given challenge year
+  function getPastDaysCount(challengeYear) {
+    const curYear = now.getFullYear();
+    const curMonth = now.getMonth(); // 8 is September
+    if (challengeYear < curYear || (challengeYear === curYear && curMonth > 8)) return 30;
+    if (challengeYear > curYear || (challengeYear === curYear && curMonth < 8)) return 0;
+    // Current year September: days strictly before today have fully concluded
+    return Math.min(30, Math.max(0, now.getDate() - 1));
   }
 
   // Reusable Floating Popover Tooltip for CSS Donut Rings
@@ -559,22 +569,31 @@ button,input,select{font:inherit}
   
   let data = emptyData();
 
-  function calculateUserTotals(daysArray, hasDrinkPenalty = true, userDailyGoal = 30) {
+  // Computes user totals with dynamic evaluation for past empty days
+  function calculateUserTotals(daysArray, hasDrinkPenalty = true, userDailyGoal = 30, targetYear = year) {
     const goal = Math.max(10, userDailyGoal || 30);
     const cap = Math.max(120, goal);
     const baseTarget = DAYS * goal;
+    const pastDays = getPastDaysCount(targetYear);
     let counted = 0, actual = 0, drinks = 0, missed = 0;
     
     const counts = {};
     const minutes = {};
     ACTIVITY_TYPES.forEach(t => { counts[t] = 0; minutes[t] = 0; });
     
-    daysArray.forEach(d => {
+    daysArray.forEach((d, idx) => {
+      const dayNum = idx + 1;
       const dayTotal = getDayTotalMinutes(d);
       actual += dayTotal;
       counted += Math.min(dayTotal, cap);
       drinks += (d.drinks || 0);
-      if (d.missed) missed++;
+
+      // Dynamic Missed Evaluation:
+      // A day is counted as missed if it has 0 minutes AND (it was marked missed OR it is already past).
+      // If dayTotal > 0, it is NEVER counted as missed (automatically clears penalty).
+      const isPast = dayNum <= pastDays;
+      const isMissed = (dayTotal === 0) && (d.missed || isPast);
+      if (isMissed) missed++;
 
       if (Array.isArray(d.activities)) {
         d.activities.forEach(a => {
@@ -683,7 +702,7 @@ button,input,select{font:inherit}
   }
 
   function clampInt(v) { return Math.max(0, Math.floor(Number(v) || 0)); }
-  function totals() { return calculateUserTotals(data, enableDrinkPenalty, dailyGoal); }
+  function totals() { return calculateUserTotals(data, enableDrinkPenalty, dailyGoal, year); }
 
   function daysElapsed() {
     if (year < now.getFullYear() || (year === now.getFullYear() && now.getMonth() > 8)) return 30;
@@ -765,12 +784,15 @@ button,input,select{font:inherit}
       b.className = 'blank';
       cal.appendChild(b);
     }
+    const pastDays = getPastDaysCount(year);
     data.forEach((d, i) => {
       const day = i + 1, b = document.createElement('button');
       b.className = 'day';
       const dayTotal = getDayTotalMinutes(d);
+      const isPast = day <= pastDays;
+      const isMissed = (dayTotal === 0) && (d.missed || isPast);
 
-      if (d.missed) b.classList.add('missed');
+      if (isMissed) b.classList.add('missed');
       else if (dayTotal >= t.dailyGoal) b.classList.add('complete');
       else if (dayTotal > 0) b.classList.add('partial');
       
@@ -780,7 +802,7 @@ button,input,select{font:inherit}
       const hasNotes = Array.isArray(d.activities) && d.activities.some(a => a.note && a.note.trim().length > 0);
       let noteText = 'No entry';
       if (d.drinks) noteText = `${d.drinks} drink${d.drinks === 1 ? '' : 's'}`;
-      else if (d.missed) noteText = 'Missed';
+      else if (isMissed) noteText = 'Missed';
       else if (d.edited || dayTotal > 0) {
         const count = d.activities.length || (dayTotal > 0 ? 1 : 0);
         noteText = `${count} act${hasNotes ? ' 📝' : ''}`;
@@ -900,6 +922,11 @@ button,input,select{font:inherit}
       sum += clampInt(minInput.value);
     });
     $('dayTotalDisplay').textContent = `${sum} min`;
+
+    // Entering positive workout minutes automatically overrides and unchecks "missed day"
+    if (sum > 0 && $('missed').checked) {
+      $('missed').checked = false;
+    }
     return sum;
   }
 
@@ -921,9 +948,17 @@ button,input,select{font:inherit}
       });
     });
 
+    const totalMins = activities.reduce((sum, a) => sum + (a.minutes || 0), 0);
     d.activities = activities;
     d.drinks = clampInt($('drinks').value);
-    d.missed = $('missed').checked;
+    
+    // If minutes are logged, the day is never missed
+    if (totalMins > 0) {
+      d.missed = false;
+      $('missed').checked = false;
+    } else {
+      d.missed = $('missed').checked;
+    }
     d.edited = true;
   }
 
@@ -931,7 +966,10 @@ button,input,select{font:inherit}
     const d = data[selectedDay - 1];
     $('entryTitle').textContent = `September ${selectedDay} entry`;
     $('drinks').value = d.drinks || 0;
-    $('missed').checked = !!d.missed;
+    
+    // If day total > 0, missed is always unchecked
+    const dayTotal = getDayTotalMinutes(d);
+    $('missed').checked = dayTotal === 0 ? !!d.missed : false;
 
     const container = $('activityContainer');
     container.innerHTML = '';
@@ -1024,7 +1062,7 @@ button,input,select{font:inherit}
             const normalized = uData.days.map(normalizeDayData);
             const hasPenaltyOption = uData.enableDrinkPenalty !== undefined ? uData.enableDrinkPenalty : true;
             const userGoal = uData.dailyGoal !== undefined ? Number(uData.dailyGoal) : 30;
-            const stats = calculateUserTotals(normalized, hasPenaltyOption, userGoal);
+            const stats = calculateUserTotals(normalized, hasPenaltyOption, userGoal, year);
             const displayName = cleanDisplayName(uData.displayName, uData.email);
             rows.push({
               name: displayName,
@@ -1088,7 +1126,7 @@ button,input,select{font:inherit}
             const normalized = uData.days.map(normalizeDayData);
             const hasPenaltyOption = uData.enableDrinkPenalty !== undefined ? uData.enableDrinkPenalty : true;
             const userGoal = uData.dailyGoal !== undefined ? Number(uData.dailyGoal) : 30;
-            const stats = calculateUserTotals(normalized, hasPenaltyOption, userGoal);
+            const stats = calculateUserTotals(normalized, hasPenaltyOption, userGoal, year);
             const displayName = cleanDisplayName(uData.displayName, uData.email);
             rows.push({
               name: displayName,
@@ -1224,8 +1262,8 @@ button,input,select{font:inherit}
                 });
               }
 
-              // 3. Missed day
-              if (d.missed) {
+              // 3. Explicit Missed day (only show in feed if explicitly logged by user)
+              if (d.missed && d.edited) {
                 feedEvents.push({
                   category: 'missed',
                   name: userName,
