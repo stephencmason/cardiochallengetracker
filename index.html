@@ -200,7 +200,7 @@ button,input,select{font:inherit}
         </div>
       </div>
     </div>
-    <div class="version-tag">v7.5</div>
+    <div class="version-tag">v7.6</div>
   </header>
 
   <div class="toolbar">
@@ -428,7 +428,7 @@ button,input,select{font:inherit}
       <span>👥 Challengers Enrolled:</span>
       <strong id="uniqueUsersCount">Loading...</strong>
     </div>
-    <div class="footer-version">September Fitness Challenge &bull; v7.5</div>
+    <div class="footer-version">September Fitness Challenge &bull; v7.6</div>
   </footer>
 </div>
 <div class="toast" id="toast"></div>
@@ -455,7 +455,7 @@ button,input,select{font:inherit}
   const db = getFirestore(app);
   const provider = new GoogleAuthProvider();
 
-  const APP_VERSION = "7.5";
+  const APP_VERSION = "7.6";
   const DAYS = 30;
   const ACTIVITY_TYPES = ["Bootcamp", "Cardio", "Cross Fit", "Weights", "Resistance Training", "Yoga", "Other"];
   const PALETTE = ['#d95b32', '#2674a8', '#d99521', '#2b9a66', '#8352b2', '#209699', '#8b9ba5'];
@@ -953,7 +953,7 @@ button,input,select{font:inherit}
           id: 'world1',
           icon: '👑',
           name: 'World #1',
-          desc: 'Held 1st place on the leaderboard at the close of a day (Sept 7+)'
+          desc: 'Held 1st place on the leaderboard at the close of a day (after Sept 3rd)'
         });
       }
     }
@@ -1397,9 +1397,9 @@ button,input,select{font:inherit}
       const pastDaysConcluded = getPastDaysCount(year);
       const worldNumberOneUids = new Set();
 
-      // Evaluate only fully completed days starting from Day 7 up to pastDaysConcluded
-      if (pastDaysConcluded >= 7 && allParticipantsRaw.length > 0) {
-        for (let d = 7; d <= pastDaysConcluded; d++) {
+      // Evaluate each completed day starting after Sept 3rd (Day 4+) up to pastDaysConcluded
+      if (pastDaysConcluded >= 4 && allParticipantsRaw.length > 0) {
+        for (let d = 4; d <= pastDaysConcluded; d++) {
           let dayTopUid = null;
           let bestPct = -1;
           let bestCounted = -1;
@@ -1414,6 +1414,7 @@ button,input,select{font:inherit}
           });
 
           if (dayTopUid && bestPct > 0) {
+            // Set ensures each participant's UID is collected only once
             worldNumberOneUids.add(dayTopUid);
           }
         }
@@ -1470,13 +1471,12 @@ button,input,select{font:inherit}
           ? `<span class="streak-tag" title="${r.streak} consecutive days meeting ${r.dailyGoal}m goal">🔥 ${r.streak}d</span>`
           : `<span class="streak-tag streak-tag-zero" title="No active streak">0d</span>`;
 
-        // Check if user earned the World #1 badge
         if (worldNumberOneUids.has(r.uid) && !r.badges.some(b => b.id === 'world1')) {
           r.badges.unshift({
             id: 'world1',
             icon: '👑',
             name: 'World #1',
-            desc: 'Held 1st place on the leaderboard at the close of a day (Sept 7+)'
+            desc: 'Held 1st place on the leaderboard at the close of a day (after Sept 3rd)'
           });
         }
 
