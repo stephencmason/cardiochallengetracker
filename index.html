@@ -90,6 +90,14 @@ button,input,select{font:inherit}
 .leader-user strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block}
 .leader-rank{font-weight:800;font-size:1.1rem;color:var(--muted);width:26px}
 .rank-1{color:#d99521}.rank-2{color:#8b9ba5}.rank-3{color:#b37648}
+
+/* Movement Indicator Column */
+.movement-cell{width:36px;text-align:center;padding-left:4px;padding-right:4px}
+.movement-indicator{display:inline-flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:800;border-radius:6px;padding:2px 5px;min-width:26px}
+.move-up{color:#238255;background:#e7f7ed}
+.move-down{color:#c94d4d;background:#feecec}
+.move-same{color:var(--muted);background:#f2f5f7}
+
 .tag{display:inline-block;padding:3px 8px;border-radius:6px;font-size:.76rem;font-weight:700}
 .tag-good{background:#e8f6ee;color:#2b9a66}.tag-warn{background:#fff7e7;color:#d99521}.tag-neutral{background:#eef3f6;color:var(--muted)}
 
@@ -192,7 +200,7 @@ button,input,select{font:inherit}
         </div>
       </div>
     </div>
-    <div class="version-tag">v7.3</div>
+    <div class="version-tag">v7.4</div>
   </header>
 
   <div class="toolbar">
@@ -296,7 +304,8 @@ button,input,select{font:inherit}
         <table class="leader-table">
           <thead>
             <tr>
-              <th>Rank</th>
+              <th style="width:36px">Rank</th>
+              <th style="width:36px;text-align:center" title="Rank change compared to yesterday">+/-</th>
               <th>Participant</th>
               <th>Goal / Mode</th>
               <th>Progress</th>
@@ -307,7 +316,7 @@ button,input,select{font:inherit}
             </tr>
           </thead>
           <tbody id="leaderboardBody">
-            <tr><td colspan="8" style="text-align:center;color:var(--muted)">Sign in or wait for standings to load...</td></tr>
+            <tr><td colspan="9" style="text-align:center;color:var(--muted)">Sign in or wait for standings to load...</td></tr>
           </tbody>
         </table>
       </div>
@@ -328,6 +337,11 @@ button,input,select{font:inherit}
         <div class="rule-card">
           <h3>⏱️ Customizable Daily Baseline</h3>
           <p>The standard baseline is <strong>30 minutes per day</strong> (30 days &times; 30 min = <strong>900 min base</strong>). You can increase your daily target (e.g., 45m or 60m) in the top toolbar to match your personal goal.</p>
+        </div>
+
+        <div class="rule-card">
+          <h3>📈 Daily Leaderboard Movement</h3>
+          <p>Keep an eye on the <strong>+/-</strong> column between your rank and name on the group standings table. It compares your standing today against where you ranked yesterday, showing how your recent sessions moved you up or down.</p>
         </div>
 
         <div class="rule-card">
@@ -414,7 +428,7 @@ button,input,select{font:inherit}
       <span>👥 Challengers Enrolled:</span>
       <strong id="uniqueUsersCount">Loading...</strong>
     </div>
-    <div class="footer-version">September Fitness Challenge &bull; v7.3</div>
+    <div class="footer-version">September Fitness Challenge &bull; v7.4</div>
   </footer>
 </div>
 <div class="toast" id="toast"></div>
@@ -441,7 +455,7 @@ button,input,select{font:inherit}
   const db = getFirestore(app);
   const provider = new GoogleAuthProvider();
 
-  const APP_VERSION = "7.3";
+  const APP_VERSION = "7.4";
   const DAYS = 30;
   const ACTIVITY_TYPES = ["Bootcamp", "Cardio", "Cross Fit", "Weights", "Resistance Training", "Yoga", "Other"];
   const PALETTE = ['#d95b32', '#2674a8', '#d99521', '#2b9a66', '#8352b2', '#209699', '#8b9ba5'];
@@ -743,11 +757,13 @@ button,input,select{font:inherit}
   let data = emptyData();
 
   // Computes user totals with dynamic evaluation for past empty days, active streak, and badges
-  function calculateUserTotals(daysArray, hasDrinkPenalty = true, userDailyGoal = 30, targetYear = year) {
+  // asOfDayLimit allows simulating the totals as of a past day in the month (e.g., yesterday)
+  function calculateUserTotals(daysArray, hasDrinkPenalty = true, userDailyGoal = 30, targetYear = year, asOfDayLimit = 30) {
     const goal = Math.max(10, userDailyGoal || 30);
     const cap = Math.max(120, goal);
     const baseTarget = DAYS * goal;
-    const pastDays = getPastDaysCount(targetYear);
+    const actualPastDays = getPastDaysCount(targetYear);
+    const effectivePastDays = Math.min(actualPastDays, asOfDayLimit);
     let counted = 0, actual = 0, drinks = 0, missed = 0;
     
     const counts = {};
@@ -756,17 +772,19 @@ button,input,select{font:inherit}
     
     daysArray.forEach((d, idx) => {
       const dayNum = idx + 1;
-      const dayTotal = getDayTotalMinutes(d);
+      // If evaluating historical limit, ignore any activity after that day
+      const dayObj = (dayNum <= asOfDayLimit) ? d : { activities: [], drinks: 0, missed: false, edited: false };
+      const dayTotal = getDayTotalMinutes(dayObj);
       actual += dayTotal;
       counted += Math.min(dayTotal, cap);
-      drinks += (d.drinks || 0);
+      drinks += (dayObj.drinks || 0);
 
-      const isPast = dayNum <= pastDays;
-      const isMissed = (dayTotal === 0) && (d.missed || isPast);
+      const isPast = dayNum <= effectivePastDays;
+      const isMissed = (dayTotal === 0) && (dayObj.missed || isPast);
       if (isMissed) missed++;
 
-      if (Array.isArray(d.activities)) {
-        d.activities.forEach(a => {
+      if (Array.isArray(dayObj.activities)) {
+        dayObj.activities.forEach(a => {
           const type = ACTIVITY_TYPES.includes(a.type) ? a.type : "Cardio";
           const m = Number(a.minutes) || 0;
           if (m > 0) {
@@ -1301,36 +1319,75 @@ button,input,select{font:inherit}
   async function loadLeaderboard() {
     $('leaderboardYear').textContent = year;
     const tbody = $('leaderboardBody');
-    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:20px">Loading standings...</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:20px">Loading standings...</td></tr>`;
 
     try {
       const q = query(collectionGroup(db, 'challenges'));
       const querySnapshot = await getDocs(q);
       const rows = [];
+      const yesterdayRows = [];
+
+      // Determine the reference day for "yesterday"
+      const curYear = now.getFullYear();
+      const curMonth = now.getMonth();
+      let yesterdayLimit = 0;
+
+      if (year === curYear && curMonth === 8) {
+        yesterdayLimit = Math.max(0, now.getDate() - 1);
+      } else if (year < curYear || (year === curYear && curMonth > 8)) {
+        yesterdayLimit = 29; // At end of month, yesterday was day 29
+      } else {
+        yesterdayLimit = 0; // Future challenge
+      }
 
       querySnapshot.forEach(docSnap => {
         if (docSnap.id === String(year)) {
           const uData = docSnap.data();
           if (Array.isArray(uData.days)) {
+            const uid = uData.userId || docSnap.ref.parent.parent?.id || docSnap.id;
             const normalized = uData.days.map(normalizeDayData);
             const hasPenaltyOption = uData.enableDrinkPenalty !== undefined ? uData.enableDrinkPenalty : true;
             const userGoal = uData.dailyGoal !== undefined ? Number(uData.dailyGoal) : 30;
+            
+            // Current totals (today)
             const stats = calculateUserTotals(normalized, hasPenaltyOption, userGoal, year);
             const displayName = cleanDisplayName(uData.displayName, uData.email);
+            
             rows.push({
+              uid,
               name: displayName,
               fullName: uData.displayName || uData.email || 'Participant',
               photoURL: uData.photoURL || 'https://via.placeholder.com/32',
               ...stats
             });
+
+            // Historical totals as of yesterday (if past day 1)
+            if (yesterdayLimit >= 1) {
+              const yesterdayStats = calculateUserTotals(normalized, hasPenaltyOption, userGoal, year, yesterdayLimit);
+              yesterdayRows.push({
+                uid,
+                pct: yesterdayStats.pct,
+                counted: yesterdayStats.counted
+              });
+            }
           }
         }
       });
 
+      // Sort current standings
       rows.sort((a, b) => b.pct - a.pct || b.counted - a.counted);
 
+      // Calculate yesterday's ranks map: uid -> rank (1-indexed)
+      const yesterdayRankMap = {};
+      if (yesterdayLimit >= 1 && yesterdayRows.length > 0) {
+        yesterdayRows.sort((a, b) => b.pct - a.pct || b.counted - a.counted);
+        yesterdayRows.forEach((item, idx) => {
+          yesterdayRankMap[item.uid] = idx + 1;
+        });
+      }
+
       if (rows.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:20px">No participant entries found for September ${year}.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:20px">No participant entries found for September ${year}.</td></tr>`;
         return;
       }
 
@@ -1339,6 +1396,21 @@ button,input,select{font:inherit}
       rows.forEach((r, idx) => {
         const tr = document.createElement('tr');
         const rankClass = idx === 0 ? 'rank-1' : idx === 1 ? 'rank-2' : idx === 2 ? 'rank-3' : '';
+        const currentRank = idx + 1;
+
+        // Compute rank movement
+        let movementHTML = `<span class="movement-indicator move-same" title="Holding steady">—</span>`;
+        if (yesterdayLimit >= 1 && yesterdayRankMap[r.uid] !== undefined) {
+          const prevRank = yesterdayRankMap[r.uid];
+          const diff = prevRank - currentRank; // positive = climbed higher rank
+          if (diff > 0) {
+            movementHTML = `<span class="movement-indicator move-up" title="Climbed ${diff} spot${diff > 1 ? 's' : ''} since yesterday">▲ ${diff}</span>`;
+          } else if (diff < 0) {
+            const dropped = Math.abs(diff);
+            movementHTML = `<span class="movement-indicator move-down" title="Dropped ${dropped} spot${dropped > 1 ? 's' : ''} since yesterday">▼ ${dropped}</span>`;
+          }
+        }
+
         const goalBadge = `<span class="tag tag-neutral" title="Daily Goal">${r.dailyGoal}m/d</span>`;
         const penaltyBadge = r.hasDrinkPenalty 
           ? `<span class="tag tag-warn" title="Drink penalties active">+Drinks</span>` 
@@ -1352,7 +1424,8 @@ button,input,select{font:inherit}
           : `<span class="streak-tag streak-tag-zero" title="No active streak">0d</span>`;
 
         tr.innerHTML = `
-          <td><span class="leader-rank ${rankClass}">#${idx + 1}</span></td>
+          <td><span class="leader-rank ${rankClass}">#${currentRank}</span></td>
+          <td class="movement-cell">${movementHTML}</td>
           <td>
             <div class="leader-user" title="${r.fullName}">
               <img class="user-avatar" src="${r.photoURL}" alt="" onerror="this.src='https://via.placeholder.com/32'">
@@ -1408,7 +1481,7 @@ button,input,select{font:inherit}
       });
     } catch (err) {
       console.error("Error loading leaderboard:", err);
-      tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--red);padding:20px">Error loading standings. Check Firestore security rules.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:var(--red);padding:20px">Error loading standings. Check Firestore security rules.</td></tr>`;
     }
   }
 
