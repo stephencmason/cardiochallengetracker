@@ -62,7 +62,7 @@ button,input,select{font:inherit}
 .streak-pill{display:inline-flex;align-items:center;gap:5px;background:#fff5eb;border:1px solid #fedbc0;color:#c84f10;padding:4px 10px;border-radius:99px;font-size:0.82rem;font-weight:800;letter-spacing:0.01em;transition:all .15s}
 .streak-pill.streak-zero{background:#f4f6f8;border-color:var(--line);color:var(--muted)}
 
-.dashboard-badges{display:inline-flex;align-items:center;gap:5px}
+.dashboard-badges{display:inline-flex;align-items:center;gap:5px;flex-wrap:wrap}
 .badge-chip{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;background:#f4f7f9;border:1px solid var(--line);border-radius:50%;font-size:0.95rem;cursor:pointer;transition:transform 0.15s ease,box-shadow 0.15s ease}
 .badge-chip:hover{transform:scale(1.18);box-shadow:0 3px 8px rgba(24,48,66,0.14)}
 
@@ -233,7 +233,7 @@ button,input,select{font:inherit}
         </div>
       </div>
     </div>
-    <div class="version-tag">v7.9</div>
+    <div class="version-tag">v8.0</div>
   </header>
 
   <div class="toolbar">
@@ -349,21 +349,14 @@ button,input,select{font:inherit}
   </div>
 
   <div id="leaderboardView" class="hidden">
-    <section class="panel finishers-panel" style="margin-top:0">
+    <section id="finishersPanel" class="panel finishers-panel hidden" style="margin-top:0">
       <div class="finishers-banner">
         <div>
           <h2 style="margin:0;color:#855c0c;display:flex;align-items:center;gap:8px">
             <span>🏆</span> Finishers Circle (100% Target Met)
           </h2>
-          <p style="margin:3px 0 0;color:var(--muted);font-size:0.84rem">
-            Challengers who have conquered their adjusted target. Ranked by overtime bonus minutes!
-          </p>
         </div>
         <span class="finishers-badge-pill" id="finishersCountBadge">🎖️ 0 Finishers</span>
-      </div>
-
-      <div id="finishersEmptyNotice" class="finishers-empty">
-        🏁 The finish line awaits! Be the first to hit 100% and claim the <strong>🥇 First to Finish</strong> badge.
       </div>
 
       <div class="table-wrap hidden" id="finishersTableWrap">
@@ -520,7 +513,7 @@ button,input,select{font:inherit}
       <span>👥 Challengers Enrolled:</span>
       <strong id="uniqueUsersCount">1 enrolled</strong>
     </div>
-    <div class="footer-version">September Fitness Challenge &bull; v7.9</div>
+    <div class="footer-version">September Fitness Challenge &bull; v8.0</div>
   </footer>
 </div>
 
@@ -581,7 +574,7 @@ button,input,select{font:inherit}
     catch (_) { memoryStorage[key] = String(val); }
   }
 
-  const APP_VERSION = "7.9";
+  const APP_VERSION = "8.0";
   const DAYS = 30;
   const ACTIVITY_TYPES = ["Bootcamp", "Cardio", "Cross Fit", "Weights", "Resistance Training", "Yoga", "Other"];
   const PALETTE = ['#d95b32', '#2674a8', '#d99521', '#2b9a66', '#8352b2', '#209699', '#8b9ba5'];
@@ -721,9 +714,10 @@ button,input,select{font:inherit}
     };
   }
 
-  function calculateBadges(daysArray, totalDrinks, cap) {
+  function calculateBadges(daysArray, totalDrinks, cap, goal = 30) {
     const badges = [];
 
+    // 1. Century Club (100+ min in a single day)
     const hasCentury = daysArray.some(d => {
       const dayMins = getDayTotalMinutes(d);
       return Math.min(dayMins, cap) >= 100;
@@ -737,6 +731,32 @@ button,input,select{font:inherit}
       });
     }
 
+    // 2. 10-Day Streak (Perfect 10) - Can be earned multiple times!
+    let runStreak = 0;
+    let tenStreakCount = 0;
+    daysArray.forEach(d => {
+      const dayMins = getDayTotalMinutes(d);
+      if (dayMins >= goal) {
+        runStreak++;
+        if (runStreak === 10) {
+          tenStreakCount++;
+          runStreak = 0; // Reset after awarding each 10-day block so a 20-day streak awards 2, 30-day streak awards 3!
+        }
+      } else {
+        runStreak = 0;
+      }
+    });
+
+    for (let s = 1; s <= tenStreakCount; s++) {
+      badges.push({
+        id: `streak10_${s}`,
+        icon: '🔟',
+        name: tenStreakCount > 1 ? `Perfect 10 (#${s})` : 'Perfect 10',
+        desc: `Logged 10 consecutive days meeting your daily goal${tenStreakCount > 1 ? ` (Streak #${s})` : ''}`
+      });
+    }
+
+    // 3. Well Deserved Rest
     const hasRestDay = daysArray.some(d => {
       const dayMins = getDayTotalMinutes(d);
       return dayMins === 0 && (d.missed || d.edited);
@@ -750,6 +770,7 @@ button,input,select{font:inherit}
       });
     }
 
+    // 4. Party Hard
     if (totalDrinks >= 10) {
       badges.push({
         id: 'party',
@@ -759,6 +780,7 @@ button,input,select{font:inherit}
       });
     }
 
+    // 5. Triple Threat (3 distinct activity types in a calendar week)
     const weeks = [
       [0, 6],
       [7, 13],
@@ -969,7 +991,7 @@ button,input,select{font:inherit}
     const target = baseTarget + drinkPenaltyMinutes + missedPenaltyMinutes;
     const pct = target ? Math.min(100, (counted / target) * 100) : 0;
     const streak = calculateActiveStreak(daysArray, goal, targetYear);
-    const badges = calculateBadges(daysArray, drinks, cap);
+    const badges = calculateBadges(daysArray, drinks, cap, goal);
     const personalBests = calculatePersonalBests(daysArray, goal);
 
     return {
@@ -1177,7 +1199,6 @@ button,input,select{font:inherit}
           t.badges.unshift(pBadge);
         }
       } else {
-        // Automatically revoke podium badge if penalties pushed target above counted minutes
         delete cachedPodiumBadges[currentUser.uid];
         const podiumIds = ['finisher_1st', 'finisher_2nd', 'finisher_3rd'];
         t.badges = t.badges.filter(b => !podiumIds.includes(b.id));
@@ -1727,17 +1748,17 @@ button,input,select{font:inherit}
         });
       }
 
+      const finishersPanel = $('finishersPanel');
       const finishersWrap = $('finishersTableWrap');
-      const finishersNotice = $('finishersEmptyNotice');
       const finishersTbody = $('finishersLeaderboardBody');
       $('finishersCountBadge').textContent = `🎖️ ${finishersRows.length} Finisher${finishersRows.length === 1 ? '' : 's'}`;
 
       if (finishersRows.length === 0) {
+        if (finishersPanel) finishersPanel.classList.add('hidden');
         finishersWrap.classList.add('hidden');
-        finishersNotice.classList.remove('hidden');
         finishersTbody.innerHTML = '';
       } else {
-        finishersNotice.classList.add('hidden');
+        if (finishersPanel) finishersPanel.classList.remove('hidden');
         finishersWrap.classList.remove('hidden');
         finishersTbody.innerHTML = '';
 
