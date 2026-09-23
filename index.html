@@ -62,9 +62,11 @@ button,input,select{font:inherit}
 .streak-pill{display:inline-flex;align-items:center;gap:5px;background:#fff5eb;border:1px solid #fedbc0;color:#c84f10;padding:4px 10px;border-radius:99px;font-size:0.82rem;font-weight:800;letter-spacing:0.01em;transition:all .15s}
 .streak-pill.streak-zero{background:#f4f6f8;border-color:var(--line);color:var(--muted)}
 
-.dashboard-badges{display:inline-flex;align-items:center;gap:5px;flex-wrap:wrap}
+.dashboard-badges{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap}
 .badge-chip{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;background:#f4f7f9;border:1px solid var(--line);border-radius:50%;font-size:0.95rem;cursor:pointer;transition:transform 0.15s ease,box-shadow 0.15s ease}
 .badge-chip:hover{transform:scale(1.18);box-shadow:0 3px 8px rgba(24,48,66,0.14)}
+.badge-chip-lg{width:42px;height:42px;font-size:1.6rem;background:#fffdf6;border:1.5px solid #ecd38c;box-shadow:0 3px 10px rgba(24,48,66,0.12)}
+.badge-chip-lg:hover{transform:scale(1.18);box-shadow:0 5px 14px rgba(217,149,33,0.28)}
 
 .calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}.dow{text-align:center;color:var(--muted);font-size:.72rem;font-weight:800;padding-bottom:2px}.blank{min-height:85px}.day{min-height:85px;padding:9px;border:1px solid var(--line);border-radius:13px;background:#fbfcfd;cursor:pointer;transition:.15s;text-align:left;color:var(--ink)}.day:hover,.day:focus{transform:translateY(-2px);box-shadow:0 7px 16px rgba(24,48,66,.1);outline:none}.day.today{box-shadow:0 0 0 2px var(--blue)}.day.complete{background:#e8f6ee;border-color:#a8d9be}.day.partial{background:#fff7e7;border-color:#efcf91}.day.missed{background:#fdecec;border-color:#edb2b2}.day.future{opacity:.65}.day-num{font-weight:800}.day-min{font-size:.9rem;margin-top:12px;font-weight:750}.day-note{font-size:.69rem;color:var(--muted);margin-top:4px}
 
@@ -99,13 +101,12 @@ button,input,select{font:inherit}
 .leader-table td{padding:12px 14px;border-bottom:1px solid #edf2f5;vertical-align:middle}
 .leader-user{display:flex;align-items:center;gap:10px;min-width:0;max-width:180px}
 .leader-user strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block}
-.leader-rank{font-weight:800;font-size:1.1rem;color:var(--muted);width:26px}
+.leader-rank{font-weight:800;font-size:1.05rem;color:var(--muted);width:26px}
 .rank-1{color:#d99521}.rank-2{color:#8b9ba5}.rank-3{color:#b37648}
 
 .finishers-panel{border:2px solid #ecd38c;background:linear-gradient(180deg,#fffdf7,#ffffff);position:relative;overflow:hidden}
 .finishers-banner{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:14px}
 .finishers-badge-pill{background:#fdf5de;border:1px solid #f6df9d;color:#9b6e14;padding:4px 10px;border-radius:99px;font-size:0.80rem;font-weight:800;display:inline-flex;align-items:center;gap:5px}
-.finishers-empty{text-align:center;padding:24px 16px;color:var(--muted);font-size:0.90rem;background:#fbfaf6;border-radius:12px;border:1px dashed #e7dfcc}
 .bonus-min-pill{background:#ecf7ed;border:1px solid #c2e9c7;color:#207842;padding:3px 8px;border-radius:8px;font-size:0.85rem;font-weight:800;display:inline-flex;align-items:center;gap:4px}
 
 .movement-cell{width:36px;text-align:center;padding-left:4px;padding-right:4px}
@@ -120,7 +121,7 @@ button,input,select{font:inherit}
 .streak-tag{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:6px;font-size:.78rem;font-weight:800;background:#fff5eb;color:#c84f10;border:1px solid #fedbc0}
 .streak-tag-zero{background:#f4f6f8;color:var(--muted);border:1px solid var(--line)}
 
-.badges-cell{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+.badges-cell{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 
 .leader-charts{display:flex;align-items:center;gap:10px}
 .mini-donut-wrap{display:flex;flex-direction:column;align-items:center;gap:3px}
@@ -233,7 +234,7 @@ button,input,select{font:inherit}
         </div>
       </div>
     </div>
-    <div class="version-tag">v8.0</div>
+    <div class="version-tag">v8.1</div>
   </header>
 
   <div class="toolbar">
@@ -513,7 +514,7 @@ button,input,select{font:inherit}
       <span>👥 Challengers Enrolled:</span>
       <strong id="uniqueUsersCount">1 enrolled</strong>
     </div>
-    <div class="footer-version">September Fitness Challenge &bull; v8.0</div>
+    <div class="footer-version">September Fitness Challenge &bull; v8.1</div>
   </footer>
 </div>
 
@@ -574,7 +575,7 @@ button,input,select{font:inherit}
     catch (_) { memoryStorage[key] = String(val); }
   }
 
-  const APP_VERSION = "8.0";
+  const APP_VERSION = "8.1";
   const DAYS = 30;
   const ACTIVITY_TYPES = ["Bootcamp", "Cardio", "Cross Fit", "Weights", "Resistance Training", "Yoga", "Other"];
   const PALETTE = ['#d95b32', '#2674a8', '#d99521', '#2b9a66', '#8352b2', '#209699', '#8b9ba5'];
@@ -731,7 +732,7 @@ button,input,select{font:inherit}
       });
     }
 
-    // 2. 10-Day Streak (Perfect 10) - Can be earned multiple times!
+    // 2. 10-Day Streak (Perfect 10) - Repeatable
     let runStreak = 0;
     let tenStreakCount = 0;
     daysArray.forEach(d => {
@@ -740,7 +741,7 @@ button,input,select{font:inherit}
         runStreak++;
         if (runStreak === 10) {
           tenStreakCount++;
-          runStreak = 0; // Reset after awarding each 10-day block so a 20-day streak awards 2, 30-day streak awards 3!
+          runStreak = 0;
         }
       } else {
         runStreak = 0;
@@ -1209,7 +1210,8 @@ button,input,select{font:inherit}
     dashBadges.innerHTML = '';
     t.badges.forEach(b => {
       const span = document.createElement('span');
-      span.className = 'badge-chip';
+      const isPodium = b.id && b.id.startsWith('finisher_');
+      span.className = isPodium ? 'badge-chip badge-chip-lg' : 'badge-chip';
       span.textContent = b.icon;
       attachBadgeTooltip(span, b);
       dashBadges.appendChild(span);
@@ -1556,11 +1558,10 @@ button,input,select{font:inherit}
       tbody.innerHTML = '';
       rows.forEach((r, idx) => {
         const tr = document.createElement('tr');
-        const rankClass = idx === 0 ? 'rank-1' : idx === 1 ? 'rank-2' : idx === 2 ? 'rank-3' : '';
-        const rankDisplay = idx === 0 ? '👑 #1' : idx === 1 ? '🥈 #2' : idx === 2 ? '🥉 #3' : `#${idx + 1}`;
+        const rankDisplay = `#${idx + 1}`;
 
         tr.innerHTML = `
-          <td><span class="leader-rank ${rankClass}" style="width:auto">${rankDisplay}</span></td>
+          <td><span class="leader-rank" style="width:auto">#${idx + 1}</span></td>
           <td>
             <div class="leader-user" title="${r.fullName}">
               <img class="user-avatar" src="${r.photoURL}" alt="" onerror="this.src='https://via.placeholder.com/32'">
@@ -1765,8 +1766,6 @@ button,input,select{font:inherit}
         finishersRows.forEach((r, idx) => {
           const tr = document.createElement('tr');
           const currentRank = idx + 1;
-          const rankDisplay = idx === 0 ? '👑 #1' : idx === 1 ? '🥈 #2' : idx === 2 ? '🥉 #3' : `#${currentRank}`;
-          const rankClass = idx === 0 ? 'rank-1' : idx === 1 ? 'rank-2' : idx === 2 ? 'rank-3' : '';
 
           let movementHTML = `<span class="movement-indicator move-same" title="Holding steady">—</span>`;
           if (yesterdayLimit >= 1 && yesterdayRankMap[r.uid] !== undefined) {
@@ -1795,7 +1794,7 @@ button,input,select{font:inherit}
           }
 
           tr.innerHTML = `
-            <td><span class="leader-rank ${rankClass}" style="width:auto">${rankDisplay}</span></td>
+            <td><span class="leader-rank" style="width:auto;color:var(--ink);font-weight:800">#${currentRank}</span></td>
             <td class="movement-cell">${movementHTML}</td>
             <td>
               <div class="leader-user" title="${r.fullName}">
@@ -1844,7 +1843,8 @@ button,input,select{font:inherit}
           if (r.badges && r.badges.length > 0) {
             r.badges.forEach(b => {
               const span = document.createElement('span');
-              span.className = 'badge-chip';
+              const isPodiumBadge = b.id && b.id.startsWith('finisher_');
+              span.className = isPodiumBadge ? 'badge-chip badge-chip-lg' : 'badge-chip';
               span.textContent = b.icon;
               attachBadgeTooltip(span, b);
               badgesCell.appendChild(span);
@@ -1949,7 +1949,8 @@ button,input,select{font:inherit}
         if (r.badges && r.badges.length > 0) {
           r.badges.forEach(b => {
             const span = document.createElement('span');
-            span.className = 'badge-chip';
+            const isPodiumBadge = b.id && b.id.startsWith('finisher_');
+            span.className = isPodiumBadge ? 'badge-chip badge-chip-lg' : 'badge-chip';
             span.textContent = b.icon;
             attachBadgeTooltip(span, b);
             badgesCell.appendChild(span);
