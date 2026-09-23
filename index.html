@@ -208,6 +208,43 @@ button,input,select{font:inherit}
 .modal-btn-cancel{background:transparent;color:var(--muted);border:0;padding:8px}
 .modal-btn-cancel:hover{color:var(--ink)}
 
+.story-modal-overlay{position:fixed;inset:0;background:rgba(10,23,34,0.78);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;z-index:10001;padding:14px}
+.story-modal-overlay.show{display:flex}
+.story-shell{position:relative;max-width:390px;width:100%;max-height:92vh;display:flex;flex-direction:column;align-items:center}
+.story-card{width:100%;background:linear-gradient(165deg,#0c1d2d 0%,#15364e 45%,#1c4a68 100%);color:white;border-radius:24px;border:1.5px solid rgba(255,255,255,0.18);box-shadow:0 22px 55px rgba(0,0,0,0.45);padding:22px 20px;overflow-y:auto;position:relative}
+.story-card::-webkit-scrollbar{width:4px}
+.story-card::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.2);border-radius:99px}
+.story-top-tag{display:flex;justify-content:space-between;align-items:center;font-size:0.72rem;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:rgba(255,255,255,0.7);margin-bottom:12px}
+.story-profile-block{display:flex;align-items:center;gap:12px;margin-bottom:14px;background:rgba(255,255,255,0.07);padding:10px 12px;border-radius:14px;border:1px solid rgba(255,255,255,0.1)}
+.story-avatar{width:44px;height:44px;border-radius:50%;border:2px solid #24a7b6;object-fit:cover;flex-shrink:0}
+.story-status-pill{display:inline-block;padding:2px 8px;border-radius:99px;font-size:0.68rem;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;margin-top:2px}
+.story-status-finisher{background:#238255;color:#e8fdf0}
+.story-status-competitor{background:#3b6d8c;color:#e8f4fb}
+.story-hero-metric{text-align:center;padding:12px;background:radial-gradient(circle at center,rgba(36,167,182,0.22) 0%,rgba(23,59,87,0) 70%);margin-bottom:14px}
+.story-pct-huge{font-size:2.6rem;font-weight:900;line-height:1;background:linear-gradient(135deg,#5ce1e6,#6ee7b7);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.story-hero-sub{font-size:0.86rem;font-weight:700;color:rgba(255,255,255,0.9);margin-top:5px}
+.story-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.story-stat-cell{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:9px 11px}
+.story-stat-label{font-size:0.68rem;color:rgba(255,255,255,0.65);font-weight:750;text-transform:uppercase;letter-spacing:0.04em}
+.story-stat-val{font-size:1.15rem;font-weight:850;color:#fff;margin-top:2px}
+.story-stat-sub{font-size:0.68rem;color:rgba(255,255,255,0.55);margin-top:1px}
+.story-archetype-box{background:linear-gradient(135deg,rgba(217,149,33,0.18),rgba(131,82,178,0.18));border:1px solid rgba(236,211,140,0.35);border-radius:14px;padding:11px 13px;margin-bottom:14px}
+.story-arch-title{font-size:0.72rem;text-transform:uppercase;letter-spacing:0.05em;color:#ffd980;font-weight:800}
+.story-arch-name{font-size:1.05rem;font-weight:850;color:#fff;margin-top:2px;display:flex;align-items:center;gap:6px}
+.story-arch-desc{font-size:0.75rem;color:rgba(255,255,255,0.8);margin-top:3px}
+.story-cabinet{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.09);border-radius:14px;padding:10px 12px;margin-bottom:14px}
+.story-cabinet-title{font-size:0.68rem;font-weight:800;color:rgba(255,255,255,0.65);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:7px}
+.story-badge-row{display:flex;gap:6px;flex-wrap:wrap}
+.story-badge-item{display:inline-flex;align-items:center;gap:4px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.18);padding:3px 8px;border-radius:99px;font-size:0.75rem;font-weight:750}
+.story-lore-box{background:rgba(217,149,33,0.12);border:1px solid rgba(217,149,33,0.3);border-radius:14px;padding:10px 12px;margin-bottom:6px}
+.story-footer-copy{text-align:center;font-size:0.65rem;color:rgba(255,255,255,0.45);margin-top:12px;letter-spacing:0.05em;text-transform:uppercase}
+.story-actions-bar{display:flex;gap:8px;width:100%;margin-top:12px}
+.story-action-btn{flex:1;padding:10px;border-radius:12px;font-weight:800;font-size:0.84rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;border:0;transition:0.15s}
+.btn-story-share{background:linear-gradient(135deg,#24a7b6,#2b9a66);color:white}
+.btn-story-share:hover{filter:brightness(1.1)}
+.btn-story-close{background:rgba(255,255,255,0.16);color:white}
+.btn-story-close:hover{background:rgba(255,255,255,0.25)}
+
 @media(max-width:900px){.summary{grid-template-columns:repeat(2,1fr)}.layout{grid-template-columns:1fr}.summary .metric:last-child{grid-column:span 2}}
 @media(max-width:620px){.app{padding:12px}.hero{border-radius:17px;padding:19px}.hero-top{display:block}.hero-actions{margin-top:12px;flex-wrap:wrap}.calendar{gap:4px}.day{min-height:69px;padding:6px;border-radius:9px}.day-min{font-size:.76rem;margin-top:8px}.day-note{font-size:.59rem}.blank{min-height:69px}.panel{padding:13px}.metric{padding:13px}.metric .value{font-size:1.28rem}.pb-strip{grid-template-columns:1fr;gap:6px}.pb-item{padding:7px 10px}}
 </style>
@@ -514,8 +551,88 @@ button,input,select{font:inherit}
       <span>👥 Challengers Enrolled:</span>
       <strong id="uniqueUsersCount">1 enrolled</strong>
     </div>
-    <div class="footer-version">September Fitness Challenge &bull; v8.1</div>
+    <div id="footerVersion" class="footer-version" style="cursor:pointer;padding:4px 8px;border-radius:6px;transition:background 0.15s" title="Tap to preview End-of-Challenge Story Recap">
+      September Fitness Challenge &bull; v8.2
+    </div>
   </footer>
+</div>
+
+<div id="recapModal" class="story-modal-overlay">
+  <div class="story-shell">
+    <div class="story-card" id="storyCardContent">
+      <div class="story-top-tag">
+        <span>September Fitness Challenge</span>
+        <span id="recapYearLabel">2026</span>
+      </div>
+
+      <div class="story-profile-block">
+        <img id="recapAvatar" class="story-avatar" src="https://via.placeholder.com/44" alt="User">
+        <div style="flex:1;min-width:0">
+          <div id="recapName" style="font-weight:850;font-size:0.98rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Challenger</div>
+          <span id="recapStatusBadge" class="story-status-pill story-status-finisher">Challenge Finisher 🏆</span>
+        </div>
+      </div>
+
+      <div class="story-hero-metric">
+        <div id="recapPct" class="story-pct-huge">100%</div>
+        <div id="recapMinutesSub" class="story-hero-sub">900 Counted Min • 15.0 Hours</div>
+      </div>
+
+      <div class="story-grid">
+        <div class="story-stat-cell">
+          <div class="story-stat-label">Peak Streak</div>
+          <div id="recapStreak" class="story-stat-val">🔥 0 Days</div>
+          <div class="story-stat-sub">Consecutive discipline</div>
+        </div>
+        <div class="story-stat-cell">
+          <div class="story-stat-label">Active Days</div>
+          <div id="recapActiveDays" class="story-stat-val">0 / 30</div>
+          <div class="story-stat-sub">Days moved</div>
+        </div>
+        <div class="story-stat-cell">
+          <div class="story-stat-label">Biggest Day</div>
+          <div id="recapBiggestDay" class="story-stat-val">⏱️ 0 min</div>
+          <div id="recapBiggestDaySub" class="story-stat-sub">Peak single session</div>
+        </div>
+        <div class="story-stat-cell">
+          <div class="story-stat-label">Weekend Score</div>
+          <div id="recapWeekendScore" class="story-stat-val">0 / 8</div>
+          <div class="story-stat-sub">Weekend sessions</div>
+        </div>
+      </div>
+
+      <div class="story-archetype-box">
+        <div class="story-arch-title">Workout Archetype</div>
+        <div id="recapArchetypeName" class="story-arch-name">👟 The Hybrid Athlete</div>
+        <div id="recapArchetypeDesc" class="story-arch-desc">Balanced focus across multiple training styles.</div>
+      </div>
+
+      <div class="story-cabinet">
+        <div class="story-cabinet-title">Trophy Cabinet (<span id="recapBadgeCount">0</span> Unlocked)</div>
+        <div id="recapBadgesWrap" class="story-badge-row"></div>
+      </div>
+
+      <div class="story-lore-box">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:0.72rem;font-weight:800;color:#f3c267;text-transform:uppercase;letter-spacing:0.04em">Sweat-to-Sip Index</span>
+          <span id="recapDrinksCount" style="font-size:0.78rem;font-weight:800;color:#fff">🍺 0 Drinks</span>
+        </div>
+        <div id="recapJonTier" style="font-size:0.92rem;font-weight:850;color:#fff;margin-top:3px">🧘 The Monk (0 drinks)</div>
+        <div id="recapSipRatio" style="font-size:0.72rem;color:rgba(255,255,255,0.75);margin-top:2px">∞ min of sweat per drink</div>
+      </div>
+
+      <div class="story-footer-copy">Official 2026 Season Report Card</div>
+    </div>
+
+    <div class="story-actions-bar">
+      <button id="copyRecapBtn" class="story-action-btn btn-story-share">
+        <span>📋 Copy Text Summary</span>
+      </button>
+      <button id="closeRecapBtn" class="story-action-btn btn-story-close">
+        <span>✕ Close</span>
+      </button>
+    </div>
+  </div>
 </div>
 
 <div id="logoutModal" class="modal-overlay">
@@ -575,7 +692,7 @@ button,input,select{font:inherit}
     catch (_) { memoryStorage[key] = String(val); }
   }
 
-  const APP_VERSION = "8.1";
+  const APP_VERSION = "8.2";
   const DAYS = 30;
   const ACTIVITY_TYPES = ["Bootcamp", "Cardio", "Cross Fit", "Weights", "Resistance Training", "Yoga", "Other"];
   const PALETTE = ['#d95b32', '#2674a8', '#d99521', '#2b9a66', '#8352b2', '#209699', '#8b9ba5'];
@@ -1112,6 +1229,170 @@ button,input,select{font:inherit}
 
   function fmtHours(m) { const h = m / 60; return `${Number.isInteger(h) ? h : h.toFixed(1)} hours`; }
   function toast(msg) { $('toast').textContent = msg; $('toast').classList.add('show'); setTimeout(() => $('toast').classList.remove('show'), 1800); }
+
+  function openStoryRecapModal() {
+    const t = totals();
+    const pb = t.personalBests;
+    const name = currentUser ? cleanDisplayName(currentUser.displayName, currentUser.email) : 'Challenger';
+    const avatar = currentUser && currentUser.photoURL ? currentUser.photoURL : 'https://via.placeholder.com/44';
+
+    $('recapYearLabel').textContent = year;
+    $('recapName').textContent = name;
+    $('recapAvatar').src = avatar;
+
+    const isFinisher = t.counted >= t.target && t.target > 0;
+    const statusBadge = $('recapStatusBadge');
+    if (isFinisher) {
+      statusBadge.className = 'story-status-pill story-status-finisher';
+      statusBadge.textContent = 'Challenge Finisher 🏆';
+    } else {
+      statusBadge.className = 'story-status-pill story-status-competitor';
+      statusBadge.textContent = `${t.pct.toFixed(0)}% Completed 🎖️`;
+    }
+
+    $('recapPct').textContent = `${t.pct.toFixed(1)}%`;
+    $('recapMinutesSub').textContent = `${t.counted} Counted Min (${fmtHours(t.counted)}) • ${t.actual} Actual Min`;
+
+    $('recapStreak').textContent = `🔥 ${pb.maxStreak} Day${pb.maxStreak === 1 ? '' : 's'}`;
+
+    let activeDaysCount = 0;
+    let weekendDaysMet = 0;
+    let totalWeekendDays = 0;
+
+    data.forEach((d, idx) => {
+      const dayNum = idx + 1;
+      const dayMins = getDayTotalMinutes(d);
+      if (dayMins > 0) activeDaysCount++;
+
+      const dateObj = new Date(year, 8, dayNum);
+      const dow = dateObj.getDay();
+      if (dow === 0 || dow === 6) {
+        totalWeekendDays++;
+        if (dayMins >= t.dailyGoal) weekendDaysMet++;
+      }
+    });
+
+    $('recapActiveDays').textContent = `${activeDaysCount} / 30`;
+    $('recapWeekendScore').textContent = `${weekendDaysMet} / ${totalWeekendDays || 8}`;
+
+    if (pb.maxDayMinutes > 0) {
+      $('recapBiggestDay').textContent = `⏱️ ${pb.maxDayMinutes}m`;
+      $('recapBiggestDaySub').textContent = `Sept ${pb.bestDayIndex}`;
+    } else {
+      $('recapBiggestDay').textContent = `⏱️ 0m`;
+      $('recapBiggestDaySub').textContent = `No workouts logged`;
+    }
+
+    // Workout Archetype Assignment
+    const totalWorkoutMins = pb.totalWorkoutMinutes || 1;
+    const favType = pb.favType;
+    const favPct = pb.favPct;
+
+    let archName = '👟 The Hybrid Athlete';
+    let archDesc = 'Balanced discipline across multiple training styles.';
+
+    if (favType === 'Weights' && favPct >= 45) {
+      archName = '🦍 Iron Disciple';
+      archDesc = `${favPct}% of workout volume dedicated to heavy lifting and strength.`;
+    } else if (favType === 'Cardio' && favPct >= 45) {
+      archName = '⚡ Cardio Machine';
+      archDesc = `${favPct}% of training powered by running, biking, and endurance.`;
+    } else if (favType === 'Bootcamp' && favPct >= 40) {
+      archName = '🥾 Bootcamp Beast';
+      archDesc = `${favPct}% of sweat forged in high-intensity team training.`;
+    } else if (favType === 'Cross Fit' && favPct >= 40) {
+      archName = '💪 Functional Engine';
+      archDesc = `${favPct}% of sessions attacking CrossFit WODs and explosive reps.`;
+    } else if (favType === 'Yoga' && favPct >= 35) {
+      archName = '🌿 Zen Master';
+      archDesc = `${favPct}% of effort focused on mobility, breathing, and flexibility.`;
+    } else if (activeDaysCount >= 25) {
+      archName = '🛡️ The Iron Habit';
+      archDesc = `Logged activity on ${activeDaysCount} separate September days!`;
+    }
+
+    $('recapArchetypeName').textContent = archName;
+    $('recapArchetypeDesc').textContent = archDesc;
+
+    // Trophy Cabinet Badges
+    const badgeWrap = $('recapBadgesWrap');
+    badgeWrap.innerHTML = '';
+    $('recapBadgeCount').textContent = t.badges.length;
+
+    if (t.badges.length > 0) {
+      t.badges.forEach(b => {
+        const item = document.createElement('span');
+        item.className = 'story-badge-item';
+        item.innerHTML = `<span>${b.icon}</span> <span>${b.name}</span>`;
+        badgeWrap.appendChild(item);
+      });
+    } else {
+      badgeWrap.innerHTML = `<span style="font-size:0.75rem;color:rgba(255,255,255,0.5)">Log activity and streaks to unlock badges!</span>`;
+    }
+
+    // Beverage & Jon Lore
+    $('recapDrinksCount').textContent = `🍺 ${t.drinks} Drink${t.drinks === 1 ? '' : 's'}`;
+
+    let jonTier = '🧘 The Monk (Jon Starves)';
+    if (t.drinks === 0) {
+      jonTier = '🧘 The Monk (Jon Starves)';
+    } else if (t.drinks <= 4) {
+      jonTier = `🥪 Jon's Snack Sponsor (${t.drinks} drinks)`;
+    } else if (t.drinks <= 10) {
+      jonTier = `🍕 Jon's Gourmet Pizza Backer (${t.drinks} drinks)`;
+    } else {
+      jonTier = `🥩 Jon's Prime Wagyu Investor (${t.drinks} drinks)`;
+    }
+    $('recapJonTier').textContent = jonTier;
+
+    const sipRatio = t.drinks > 0 ? (t.counted / t.drinks).toFixed(1) : '∞';
+    $('recapSipRatio').textContent = `${sipRatio} min of sweat per drink logged`;
+
+    $('recapModal').classList.add('show');
+  }
+
+  function closeStoryRecapModal() {
+    $('recapModal').classList.remove('show');
+  }
+
+  function copyStoryTextSummary() {
+    const t = totals();
+    const pb = t.personalBests;
+    const name = currentUser ? cleanDisplayName(currentUser.displayName, currentUser.email) : 'Challenger';
+    const isFinisher = t.counted >= t.target && t.target > 0;
+    const badgesStr = t.badges.map(b => `${b.icon} ${b.name}`).join(', ') || 'None';
+
+    const text = [
+      `🏋️‍♂️ September Fitness Challenge ${year} Report Card`,
+      `Participant: ${name}`,
+      `Status: ${isFinisher ? '🏆 CHALLENGE FINISHER' : `${t.pct.toFixed(0)}% COMPLETED`}`,
+      `Activity: ${t.counted} counted min (${fmtHours(t.counted)}) • ${t.actual} actual min`,
+      `Peak Streak: 🔥 ${pb.maxStreak} Days`,
+      `Biggest Workout: ⏱️ ${pb.maxDayMinutes} min`,
+      `Trophy Cabinet: ${badgesStr}`,
+      `Beverage Lore: 🍺 ${t.drinks} drinks (${$('recapJonTier').textContent})`,
+      `Sweat Hard. Sip Harder. 🏁`
+    ].join('\n');
+
+    const tempInput = document.createElement('textarea');
+    tempInput.value = text;
+    tempInput.style.position = 'fixed';
+    tempInput.style.opacity = '0';
+    document.body.appendChild(tempInput);
+    tempInput.select();
+    try {
+      document.execCommand('copy');
+      toast("📋 Report card copied to clipboard!");
+    } catch {
+      toast("Could not copy automatically. Take a screenshot!");
+    }
+    document.body.removeChild(tempInput);
+  }
+
+  // Hook secret trigger to bottom version element
+  $('footerVersion').onclick = () => openStoryRecapModal();
+  $('closeRecapBtn').onclick = () => closeStoryRecapModal();
+  $('copyRecapBtn').onclick = () => copyStoryTextSummary();
 
   async function updateEnrolledUsersCount() {
     if (!db) {
