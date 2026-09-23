@@ -239,11 +239,15 @@ button,input,select{font:inherit}
 .story-lore-box{background:rgba(217,149,33,0.12);border:1px solid rgba(217,149,33,0.3);border-radius:14px;padding:10px 12px;margin-bottom:6px}
 .story-footer-copy{text-align:center;font-size:0.65rem;color:rgba(255,255,255,0.45);margin-top:12px;letter-spacing:0.05em;text-transform:uppercase}
 .story-actions-bar{display:flex;gap:8px;width:100%;margin-top:12px}
-.story-action-btn{flex:1;padding:10px;border-radius:12px;font-weight:800;font-size:0.84rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;border:0;transition:0.15s}
-.btn-story-share{background:linear-gradient(135deg,#24a7b6,#2b9a66);color:white}
-.btn-story-share:hover{filter:brightness(1.1)}
-.btn-story-close{background:rgba(255,255,255,0.16);color:white}
-.btn-story-close:hover{background:rgba(255,255,255,0.25)}
+.story-discipline-box{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:11px 13px;margin-bottom:14px}
+.story-discipline-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.story-discipline-title{font-size:0.68rem;font-weight:800;color:rgba(255,255,255,0.65);text-transform:uppercase;letter-spacing:0.04em}
+.story-discipline-totals{font-size:0.75rem;font-weight:750;color:#5ce1e6}
+.story-discipline-donuts-row{display:flex;align-items:center;justify-content:space-around;padding:6px 0 10px;border-bottom:1px solid rgba(255,255,255,0.1);margin-bottom:8px}
+.story-discipline-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.story-disc-item{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:6px 8px;display:flex;align-items:center;justify-content:space-between;font-size:0.75rem}
+.story-disc-left{display:flex;align-items:center;gap:5px;font-weight:700;color:#fff}
+.story-disc-right{text-align:right;font-size:0.70rem;color:rgba(255,255,255,0.8)}
 
 @media(max-width:900px){.summary{grid-template-columns:repeat(2,1fr)}.layout{grid-template-columns:1fr}.summary .metric:last-child{grid-column:span 2}}
 @media(max-width:620px){.app{padding:12px}.hero{border-radius:17px;padding:19px}.hero-top{display:block}.hero-actions{margin-top:12px;flex-wrap:wrap}.calendar{gap:4px}.day{min-height:69px;padding:6px;border-radius:9px}.day-min{font-size:.76rem;margin-top:8px}.day-note{font-size:.59rem}.blank{min-height:69px}.panel{padding:13px}.metric{padding:13px}.metric .value{font-size:1.28rem}.pb-strip{grid-template-columns:1fr;gap:6px}.pb-item{padding:7px 10px}}
@@ -271,7 +275,7 @@ button,input,select{font:inherit}
         </div>
       </div>
     </div>
-    <div class="version-tag">v8.1</div>
+    <div class="version-tag">v8.3</div>
   </header>
 
   <div class="toolbar">
@@ -552,7 +556,7 @@ button,input,select{font:inherit}
       <strong id="uniqueUsersCount">1 enrolled</strong>
     </div>
     <div id="footerVersion" class="footer-version" style="cursor:pointer;padding:4px 8px;border-radius:6px;transition:background 0.15s" title="Tap to preview End-of-Challenge Story Recap">
-      September Fitness Challenge &bull; v8.2
+      September Fitness Challenge &bull; v8.3
     </div>
   </footer>
 </div>
@@ -601,6 +605,30 @@ button,input,select{font:inherit}
         </div>
       </div>
 
+      <div class="story-discipline-box">
+        <div class="story-discipline-header">
+          <span class="story-discipline-title">Training Volume & Disciplines</span>
+          <span id="recapDisciplineTotals" class="story-discipline-totals">0 Sessions • 0m</span>
+        </div>
+        <div class="story-discipline-donuts-row">
+          <div style="display:flex;align-items:center;gap:8px">
+            <div id="recapDonutSessions" class="mini-donut" style="width:36px;height:36px"></div>
+            <div>
+              <div id="recapTotalSessionsVal" style="font-weight:800;font-size:0.95rem;color:#fff">0</div>
+              <div style="font-size:0.65rem;color:rgba(255,255,255,0.6);text-transform:uppercase;font-weight:750">Sessions</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <div id="recapDonutMinutes" class="mini-donut" style="width:36px;height:36px"></div>
+            <div>
+              <div id="recapTotalMinutesVal" style="font-weight:800;font-size:0.95rem;color:#fff">0m</div>
+              <div style="font-size:0.65rem;color:rgba(255,255,255,0.6);text-transform:uppercase;font-weight:750">Minutes</div>
+            </div>
+          </div>
+        </div>
+        <div id="recapDisciplineGrid" class="story-discipline-grid"></div>
+      </div>
+
       <div class="story-archetype-box">
         <div class="story-arch-title">Workout Archetype</div>
         <div id="recapArchetypeName" class="story-arch-name">👟 The Hybrid Athlete</div>
@@ -617,8 +645,7 @@ button,input,select{font:inherit}
           <span style="font-size:0.72rem;font-weight:800;color:#f3c267;text-transform:uppercase;letter-spacing:0.04em">Sweat-to-Sip Index</span>
           <span id="recapDrinksCount" style="font-size:0.78rem;font-weight:800;color:#fff">🍺 0 Drinks</span>
         </div>
-        <div id="recapJonTier" style="font-size:0.92rem;font-weight:850;color:#fff;margin-top:3px">🧘 The Monk (0 drinks)</div>
-        <div id="recapSipRatio" style="font-size:0.72rem;color:rgba(255,255,255,0.75);margin-top:2px">∞ min of sweat per drink</div>
+        <div id="recapSipRatio" style="font-size:0.86rem;font-weight:750;color:rgba(255,255,255,0.92);margin-top:4px">∞ min of sweat per drink</div>
       </div>
 
       <div class="story-footer-copy">Official 2026 Season Report Card</div>
@@ -692,7 +719,7 @@ button,input,select{font:inherit}
     catch (_) { memoryStorage[key] = String(val); }
   }
 
-  const APP_VERSION = "8.2";
+  const APP_VERSION = "8.3";
   const DAYS = 30;
   const ACTIVITY_TYPES = ["Bootcamp", "Cardio", "Cross Fit", "Weights", "Resistance Training", "Yoga", "Other"];
   const PALETTE = ['#d95b32', '#2674a8', '#d99521', '#2b9a66', '#8352b2', '#209699', '#8b9ba5'];
@@ -1283,8 +1310,47 @@ button,input,select{font:inherit}
       $('recapBiggestDaySub').textContent = `No workouts logged`;
     }
 
+    // Sessions & Minutes Donut & Grid Population
+    const totalSessions = ACTIVITY_TYPES.reduce((sum, type) => sum + (t.counts[type] || 0), 0);
+    const totalActualMins = ACTIVITY_TYPES.reduce((sum, type) => sum + (t.minutes[type] || 0), 0);
+
+    $('recapDisciplineTotals').textContent = `${totalSessions} Sessions • ${totalActualMins}m`;
+    $('recapTotalSessionsVal').textContent = totalSessions;
+    $('recapTotalMinutesVal').textContent = `${totalActualMins}m`;
+
+    $('recapDonutSessions').style.background = buildConicGradient(t.counts);
+    $('recapDonutMinutes').style.background = buildConicGradient(t.minutes);
+
+    const discGrid = $('recapDisciplineGrid');
+    discGrid.innerHTML = '';
+
+    const activeDisciplines = ACTIVITY_TYPES
+      .filter(type => (t.counts[type] > 0 || t.minutes[type] > 0))
+      .sort((a, b) => (t.minutes[b] || 0) - (t.minutes[a] || 0));
+
+    if (activeDisciplines.length > 0) {
+      activeDisciplines.forEach(type => {
+        const item = document.createElement('div');
+        item.className = 'story-disc-item';
+        const icon = ACTIVITY_ICONS[type] || '👟';
+        const sessCount = t.counts[type] || 0;
+        const mins = t.minutes[type] || 0;
+        item.innerHTML = `
+          <span class="story-disc-left">
+            <span>${icon}</span>
+            <span>${type}</span>
+          </span>
+          <span class="story-disc-right">
+            <strong>${mins}m</strong> (${sessCount}s)
+          </span>
+        `;
+        discGrid.appendChild(item);
+      });
+    } else {
+      discGrid.innerHTML = `<div style="grid-column:span 2;font-size:0.75rem;color:rgba(255,255,255,0.5);text-align:center;padding:4px">No activity sessions logged yet</div>`;
+    }
+
     // Workout Archetype Assignment
-    const totalWorkoutMins = pb.totalWorkoutMinutes || 1;
     const favType = pb.favType;
     const favPct = pb.favPct;
 
@@ -1330,21 +1396,8 @@ button,input,select{font:inherit}
       badgeWrap.innerHTML = `<span style="font-size:0.75rem;color:rgba(255,255,255,0.5)">Log activity and streaks to unlock badges!</span>`;
     }
 
-    // Beverage & Jon Lore
+    // Sweat-to-Sip Index (Cleaned - No Jon Pizza tagline)
     $('recapDrinksCount').textContent = `🍺 ${t.drinks} Drink${t.drinks === 1 ? '' : 's'}`;
-
-    let jonTier = '🧘 The Monk (Jon Starves)';
-    if (t.drinks === 0) {
-      jonTier = '🧘 The Monk (Jon Starves)';
-    } else if (t.drinks <= 4) {
-      jonTier = `🥪 Jon's Snack Sponsor (${t.drinks} drinks)`;
-    } else if (t.drinks <= 10) {
-      jonTier = `🍕 Jon's Gourmet Pizza Backer (${t.drinks} drinks)`;
-    } else {
-      jonTier = `🥩 Jon's Prime Wagyu Investor (${t.drinks} drinks)`;
-    }
-    $('recapJonTier').textContent = jonTier;
-
     const sipRatio = t.drinks > 0 ? (t.counted / t.drinks).toFixed(1) : '∞';
     $('recapSipRatio').textContent = `${sipRatio} min of sweat per drink logged`;
 
@@ -1362,16 +1415,27 @@ button,input,select{font:inherit}
     const isFinisher = t.counted >= t.target && t.target > 0;
     const badgesStr = t.badges.map(b => `${b.icon} ${b.name}`).join(', ') || 'None';
 
+    const totalSessions = ACTIVITY_TYPES.reduce((sum, type) => sum + (t.counts[type] || 0), 0);
+    const topDisciplines = ACTIVITY_TYPES
+      .filter(type => (t.minutes[type] || 0) > 0)
+      .sort((a, b) => (t.minutes[b] || 0) - (t.minutes[a] || 0))
+      .map(type => `${type} (${t.counts[type]}s • ${t.minutes[type]}m)`)
+      .join(', ') || 'None';
+
+    const sipRatio = t.drinks > 0 ? (t.counted / t.drinks).toFixed(1) : '∞';
+
     const text = [
       `🏋️‍♂️ September Fitness Challenge ${year} Report Card`,
       `Participant: ${name}`,
       `Status: ${isFinisher ? '🏆 CHALLENGE FINISHER' : `${t.pct.toFixed(0)}% COMPLETED`}`,
       `Activity: ${t.counted} counted min (${fmtHours(t.counted)}) • ${t.actual} actual min`,
+      `Sessions Logged: ${totalSessions} sessions`,
+      `Training Breakdown: ${topDisciplines}`,
       `Peak Streak: 🔥 ${pb.maxStreak} Days`,
       `Biggest Workout: ⏱️ ${pb.maxDayMinutes} min`,
       `Trophy Cabinet: ${badgesStr}`,
-      `Beverage Lore: 🍺 ${t.drinks} drinks (${$('recapJonTier').textContent})`,
-      `Sweat Hard. Sip Harder. 🏁`
+      `Sweat-to-Sip Index: 🍺 ${t.drinks} drinks (${sipRatio} min/drink)`,
+      `Finish Strong! 🏁`
     ].join('\n');
 
     const tempInput = document.createElement('textarea');
