@@ -6,6 +6,7 @@
 <meta name="theme-color" content="#173b57">
 <title>September Fitness Challenge</title>
 <script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 <style>
 :root {
@@ -31,6 +32,24 @@ button,input,select{font:inherit}
 .user-info{display:none;align-items:center;gap:10px;color:white;font-size:.9rem;font-weight:600}
 .user-avatar{width:32px;height:32px;border-radius:50%;border:2px solid white;object-fit:cover}
 .version-tag{position:absolute;right:18px;bottom:10px;font-size:0.68rem;opacity:0.65;font-weight:700;letter-spacing:0.04em}
+
+.btn-recap-launch{
+  display:none;
+  align-items:center;
+  gap:6px;
+  background:linear-gradient(135deg,#ffd778,#f3a93b);
+  color:#173042;
+  border:0;
+  border-radius:10px;
+  padding:8px 14px;
+  font-size:0.84rem;
+  font-weight:800;
+  cursor:pointer;
+  box-shadow:0 3px 10px rgba(0,0,0,0.18);
+  transition:transform 0.15s,filter 0.15s;
+}
+.btn-recap-launch:hover{transform:translateY(-1px);filter:brightness(1.05)}
+.btn-recap-launch.visible{display:inline-flex}
 
 .privacy-pill{display:none;align-items:center;gap:5px;background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.35);color:#fff;border-radius:8px;padding:4px 9px;font-size:0.75rem;font-weight:750;cursor:pointer;transition:background 0.15s}
 .privacy-pill:hover{background:rgba(255,255,255,0.28)}
@@ -210,44 +229,49 @@ button,input,select{font:inherit}
 
 .story-modal-overlay{position:fixed;inset:0;background:rgba(10,23,34,0.78);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;z-index:10001;padding:14px}
 .story-modal-overlay.show{display:flex}
-.story-shell{position:relative;max-width:390px;width:100%;max-height:92vh;display:flex;flex-direction:column;align-items:center}
-.story-card{width:100%;background:linear-gradient(165deg,#0c1d2d 0%,#15364e 45%,#1c4a68 100%);color:white;border-radius:24px;border:1.5px solid rgba(255,255,255,0.18);box-shadow:0 22px 55px rgba(0,0,0,0.45);padding:22px 20px;overflow-y:auto;position:relative}
-.story-card::-webkit-scrollbar{width:4px}
-.story-card::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.2);border-radius:99px}
-.story-top-tag{display:flex;justify-content:space-between;align-items:center;font-size:0.72rem;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:rgba(255,255,255,0.7);margin-bottom:12px}
-.story-profile-block{display:flex;align-items:center;gap:12px;margin-bottom:14px;background:rgba(255,255,255,0.07);padding:10px 12px;border-radius:14px;border:1px solid rgba(255,255,255,0.1)}
-.story-avatar{width:44px;height:44px;border-radius:50%;border:2px solid #24a7b6;object-fit:cover;flex-shrink:0}
-.story-status-pill{display:inline-block;padding:2px 8px;border-radius:99px;font-size:0.68rem;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;margin-top:2px}
+.story-shell{position:relative;max-width:390px;width:100%;max-height:96vh;display:flex;flex-direction:column;align-items:center}
+.story-card{width:100%;background:linear-gradient(165deg,#0c1d2d 0%,#15364e 45%,#1c4a68 100%);color:white;border-radius:22px;border:1.5px solid rgba(255,255,255,0.18);box-shadow:0 22px 55px rgba(0,0,0,0.45);padding:16px 16px 14px;position:relative}
+.story-top-tag{display:flex;justify-content:space-between;align-items:center;font-size:0.68rem;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:rgba(255,255,255,0.7);margin-bottom:8px}
+.story-profile-block{display:flex;align-items:center;gap:10px;margin-bottom:10px;background:rgba(255,255,255,0.07);padding:8px 10px;border-radius:12px;border:1px solid rgba(255,255,255,0.1)}
+.story-avatar{width:38px;height:38px;border-radius:50%;border:2px solid #24a7b6;object-fit:cover;flex-shrink:0}
+.story-status-pill{display:inline-block;padding:2px 7px;border-radius:99px;font-size:0.65rem;font-weight:800;letter-spacing:0.03em;text-transform:uppercase;margin-top:2px}
 .story-status-finisher{background:#238255;color:#e8fdf0}
 .story-status-competitor{background:#3b6d8c;color:#e8f4fb}
-.story-hero-metric{text-align:center;padding:12px;background:radial-gradient(circle at center,rgba(36,167,182,0.22) 0%,rgba(23,59,87,0) 70%);margin-bottom:14px}
-.story-pct-huge{font-size:2.6rem;font-weight:900;line-height:1;background:linear-gradient(135deg,#5ce1e6,#6ee7b7);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.story-hero-sub{font-size:0.86rem;font-weight:700;color:rgba(255,255,255,0.9);margin-top:5px}
-.story-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
-.story-stat-cell{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:9px 11px}
-.story-stat-label{font-size:0.68rem;color:rgba(255,255,255,0.65);font-weight:750;text-transform:uppercase;letter-spacing:0.04em}
-.story-stat-val{font-size:1.15rem;font-weight:850;color:#fff;margin-top:2px}
-.story-stat-sub{font-size:0.68rem;color:rgba(255,255,255,0.55);margin-top:1px}
-.story-archetype-box{background:linear-gradient(135deg,rgba(217,149,33,0.18),rgba(131,82,178,0.18));border:1px solid rgba(236,211,140,0.35);border-radius:14px;padding:11px 13px;margin-bottom:14px}
-.story-arch-title{font-size:0.72rem;text-transform:uppercase;letter-spacing:0.05em;color:#ffd980;font-weight:800}
-.story-arch-name{font-size:1.05rem;font-weight:850;color:#fff;margin-top:2px;display:flex;align-items:center;gap:6px}
-.story-arch-desc{font-size:0.75rem;color:rgba(255,255,255,0.8);margin-top:3px}
-.story-cabinet{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.09);border-radius:14px;padding:10px 12px;margin-bottom:14px}
-.story-cabinet-title{font-size:0.68rem;font-weight:800;color:rgba(255,255,255,0.65);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:7px}
-.story-badge-row{display:flex;gap:6px;flex-wrap:wrap}
-.story-badge-item{display:inline-flex;align-items:center;gap:4px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.18);padding:3px 8px;border-radius:99px;font-size:0.75rem;font-weight:750}
-.story-lore-box{background:rgba(217,149,33,0.12);border:1px solid rgba(217,149,33,0.3);border-radius:14px;padding:10px 12px;margin-bottom:6px}
-.story-footer-copy{text-align:center;font-size:0.65rem;color:rgba(255,255,255,0.45);margin-top:12px;letter-spacing:0.05em;text-transform:uppercase}
-.story-actions-bar{display:flex;gap:8px;width:100%;margin-top:12px}
-.story-discipline-box{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:11px 13px;margin-bottom:14px}
-.story-discipline-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
-.story-discipline-title{font-size:0.68rem;font-weight:800;color:rgba(255,255,255,0.65);text-transform:uppercase;letter-spacing:0.04em}
-.story-discipline-totals{font-size:0.75rem;font-weight:750;color:#5ce1e6}
-.story-discipline-donuts-row{display:flex;align-items:center;justify-content:space-around;padding:6px 0 10px;border-bottom:1px solid rgba(255,255,255,0.1);margin-bottom:8px}
-.story-discipline-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
-.story-disc-item{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:6px 8px;display:flex;align-items:center;justify-content:space-between;font-size:0.75rem}
-.story-disc-left{display:flex;align-items:center;gap:5px;font-weight:700;color:#fff}
-.story-disc-right{text-align:right;font-size:0.70rem;color:rgba(255,255,255,0.8)}
+.story-hero-metric{text-align:center;padding:8px;background:radial-gradient(circle at center,rgba(36,167,182,0.22) 0%,rgba(23,59,87,0) 70%);margin-bottom:10px}
+.story-pct-huge{font-size:2.25rem;font-weight:900;line-height:1;background:linear-gradient(135deg,#5ce1e6,#6ee7b7);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.story-hero-sub{font-size:0.78rem;font-weight:700;color:rgba(255,255,255,0.9);margin-top:3px}
+.story-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px}
+.story-stat-cell{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:7px 9px}
+.story-stat-label{font-size:0.63rem;color:rgba(255,255,255,0.65);font-weight:750;text-transform:uppercase;letter-spacing:0.03em}
+.story-stat-val{font-size:1.02rem;font-weight:850;color:#fff;margin-top:1px}
+.story-stat-sub{font-size:0.63rem;color:rgba(255,255,255,0.55);margin-top:1px}
+.story-archetype-box{background:linear-gradient(135deg,rgba(217,149,33,0.18),rgba(131,82,178,0.18));border:1px solid rgba(236,211,140,0.35);border-radius:12px;padding:8px 10px;margin-bottom:10px}
+.story-arch-title{font-size:0.65rem;text-transform:uppercase;letter-spacing:0.04em;color:#ffd980;font-weight:800}
+.story-arch-name{font-size:0.95rem;font-weight:850;color:#fff;margin-top:1px;display:flex;align-items:center;gap:5px}
+.story-arch-desc{font-size:0.70rem;color:rgba(255,255,255,0.8);margin-top:2px;line-height:1.3}
+.story-cabinet{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.09);border-radius:12px;padding:8px 10px;margin-bottom:10px}
+.story-cabinet-title{font-size:0.65rem;font-weight:800;color:rgba(255,255,255,0.65);text-transform:uppercase;letter-spacing:0.03em;margin-bottom:5px}
+.story-badge-row{display:flex;gap:5px;flex-wrap:wrap}
+.story-badge-item{display:inline-flex;align-items:center;gap:3px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.18);padding:2px 7px;border-radius:99px;font-size:0.70rem;font-weight:750}
+.story-lore-box{background:rgba(217,149,33,0.12);border:1px solid rgba(217,149,33,0.3);border-radius:12px;padding:7px 10px;margin-bottom:8px}
+.story-footer-copy{text-align:center;font-size:0.62rem;color:rgba(255,255,255,0.45);margin-top:8px;letter-spacing:0.04em;text-transform:uppercase}
+.story-actions-bar{display:flex;gap:6px;width:100%;margin-top:10px}
+.story-action-btn{flex:1;padding:9px 10px;border-radius:10px;font-weight:800;font-size:0.80rem;cursor:pointer;border:0;display:flex;align-items:center;justify-content:center;gap:5px;transition:filter 0.15s}
+.btn-story-image{background:linear-gradient(135deg,#34d399,#059669);color:#fff}
+.btn-story-image:hover{filter:brightness(1.1)}
+.btn-story-share{background:rgba(255,255,255,0.18);color:#fff;border:1px solid rgba(255,255,255,0.25)}
+.btn-story-share:hover{background:rgba(255,255,255,0.28)}
+.btn-story-close{background:transparent;color:rgba(255,255,255,0.7);max-width:70px}
+.btn-story-close:hover{color:#fff}
+.story-discipline-box{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:8px 10px;margin-bottom:10px}
+.story-discipline-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.story-discipline-title{font-size:0.65rem;font-weight:800;color:rgba(255,255,255,0.65);text-transform:uppercase;letter-spacing:0.03em}
+.story-discipline-totals{font-size:0.70rem;font-weight:750;color:#5ce1e6}
+.story-discipline-donuts-row{display:flex;align-items:center;justify-content:space-around;padding:4px 0 6px;border-bottom:1px solid rgba(255,255,255,0.1);margin-bottom:6px}
+.story-discipline-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.story-disc-item{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:7px;padding:4px 6px;display:flex;align-items:center;justify-content:space-between;font-size:0.70rem}
+.story-disc-left{display:flex;align-items:center;gap:4px;font-weight:700;color:#fff}
+.story-disc-right{text-align:right;font-size:0.67rem;color:rgba(255,255,255,0.8)}
 
 @media(max-width:900px){.summary{grid-template-columns:repeat(2,1fr)}.layout{grid-template-columns:1fr}.summary .metric:last-child{grid-column:span 2}}
 @media(max-width:620px){.app{padding:12px}.hero{border-radius:17px;padding:19px}.hero-top{display:block}.hero-actions{margin-top:12px;flex-wrap:wrap}.calendar{gap:4px}.day{min-height:69px;padding:6px;border-radius:9px}.day-min{font-size:.76rem;margin-top:8px}.day-note{font-size:.59rem}.blank{min-height:69px}.panel{padding:13px}.metric{padding:13px}.metric .value{font-size:1.28rem}.pb-strip{grid-template-columns:1fr;gap:6px}.pb-item{padding:7px 10px}}
@@ -265,6 +289,9 @@ button,input,select{font:inherit}
       <div class="hero-actions">
         <select id="year" class="year-select" aria-label="Challenge year"></select>
         <button id="authBtn" class="auth-btn">Sign in with Google</button>
+        <button id="launchRecapBtn" class="btn-recap-launch" title="View your final month-end challenge report card">
+          <span>📜</span> <span>Month-End Recap</span>
+        </button>
         <div id="userProfile" class="user-info">
           <img id="userImg" class="user-avatar" alt="Avatar">
           <span id="userName" style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
@@ -275,7 +302,7 @@ button,input,select{font:inherit}
         </div>
       </div>
     </div>
-    <div class="version-tag">v8.3</div>
+    <div class="version-tag">v8.4</div>
   </header>
 
   <div class="toolbar">
@@ -652,8 +679,11 @@ button,input,select{font:inherit}
     </div>
 
     <div class="story-actions-bar">
+      <button id="saveRecapImageBtn" class="story-action-btn btn-story-image" title="Save picture to upload to Instagram or share">
+        <span>📸 Save as Image</span>
+      </button>
       <button id="copyRecapBtn" class="story-action-btn btn-story-share">
-        <span>📋 Copy Text Summary</span>
+        <span>📋 Copy Text</span>
       </button>
       <button id="closeRecapBtn" class="story-action-btn btn-story-close">
         <span>✕ Close</span>
@@ -719,7 +749,7 @@ button,input,select{font:inherit}
     catch (_) { memoryStorage[key] = String(val); }
   }
 
-  const APP_VERSION = "8.3";
+  const APP_VERSION = "8.4";
   const DAYS = 30;
   const ACTIVITY_TYPES = ["Bootcamp", "Cardio", "Cross Fit", "Weights", "Resistance Training", "Yoga", "Other"];
   const PALETTE = ['#d95b32', '#2674a8', '#d99521', '#2b9a66', '#8352b2', '#209699', '#8b9ba5'];
@@ -1257,6 +1287,33 @@ button,input,select{font:inherit}
   function fmtHours(m) { const h = m / 60; return `${Number.isInteger(h) ? h : h.toFixed(1)} hours`; }
   function toast(msg) { $('toast').textContent = msg; $('toast').classList.add('show'); setTimeout(() => $('toast').classList.remove('show'), 1800); }
 
+  function isChallengeEnded(challengeYear) {
+    const curYear = now.getFullYear();
+    const curMonth = now.getMonth(); // 8 is Sept, 9 is Oct
+    if (challengeYear < curYear) return true;
+    if (challengeYear === curYear && curMonth >= 9) return true;
+    return false;
+  }
+
+  function checkAutoOpenRecap() {
+    const ended = isChallengeEnded(year);
+    const recapBtn = $('launchRecapBtn');
+    if (recapBtn) {
+      recapBtn.classList.toggle('visible', ended);
+    }
+    if (ended) {
+      const autoKey = `septChallenge_recapShown_${year}`;
+      try {
+        if (!sessionStorage.getItem(autoKey)) {
+          sessionStorage.setItem(autoKey, '1');
+          setTimeout(() => {
+            openStoryRecapModal();
+          }, 800);
+        }
+      } catch (_) {}
+    }
+  }
+
   function openStoryRecapModal() {
     const t = totals();
     const pb = t.personalBests;
@@ -1407,6 +1464,71 @@ button,input,select{font:inherit}
   function closeStoryRecapModal() {
     $('recapModal').classList.remove('show');
   }
+
+  async function saveStoryAsImage() {
+    const card = document.getElementById('storyCardContent');
+    const saveBtn = document.getElementById('saveRecapImageBtn');
+    if (!card || typeof html2canvas === 'undefined') {
+      toast("Image export unavailable. Try screenshotting instead!");
+      return;
+    }
+
+    const origText = saveBtn.innerHTML;
+    saveBtn.innerHTML = `<span>⏳ Generating...</span>`;
+    saveBtn.style.pointerEvents = 'none';
+
+    try {
+      const canvas = await html2canvas(card, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#0c1d2d',
+        logging: false
+      });
+
+      canvas.toBlob(async (blob) => {
+        if (!blob) throw new Error("Canvas blob conversion failed");
+        const filename = `september-challenge-recap-${year}.png`;
+
+        if (navigator.canShare && navigator.canShare({ files: [new File([blob], filename, { type: 'image/png' })] })) {
+          try {
+            await navigator.share({
+              files: [new File([blob], filename, { type: 'image/png' })],
+              title: `September Fitness Challenge ${year} Recap`
+            });
+            saveBtn.innerHTML = origText;
+            saveBtn.style.pointerEvents = 'auto';
+            return;
+          } catch (shareErr) {
+            if (shareErr.name === 'AbortError') {
+              saveBtn.innerHTML = origText;
+              saveBtn.style.pointerEvents = 'auto';
+              return;
+            }
+          }
+        }
+
+        const link = document.createElement('a');
+        link.download = filename;
+        link.href = URL.createObjectURL(blob);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(link.href);
+
+        toast("📸 Story image saved to device!");
+        saveBtn.innerHTML = origText;
+        saveBtn.style.pointerEvents = 'auto';
+      }, 'image/png');
+    } catch (err) {
+      console.warn("Screenshot capture error:", err);
+      toast("Could not save image automatically. Take a screenshot!");
+      saveBtn.innerHTML = origText;
+      saveBtn.style.pointerEvents = 'auto';
+    }
+  }
+
+  $('saveRecapImageBtn').onclick = () => saveStoryAsImage();
+  $('launchRecapBtn').onclick = () => openStoryRecapModal();
 
   function copyStoryTextSummary() {
     const t = totals();
@@ -1582,6 +1704,7 @@ button,input,select{font:inherit}
     if (fullReloadForm) {
       loadForm();
     }
+    checkAutoOpenRecap();
   }
 
   function buildCalendar(t) {
