@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#173b57">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>September Fitness Challenge</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -381,7 +384,7 @@ button,input,select{font:inherit}
         </div>
       </div>
     </div>
-    <div class="version-tag">v8.7</div>
+    <div class="version-tag">v8.8</div>
   </header>
 
   <div class="toolbar">
@@ -662,7 +665,7 @@ button,input,select{font:inherit}
       <strong id="uniqueUsersCount">1 enrolled</strong>
     </div>
     <div id="footerVersion" class="footer-version" style="cursor:pointer;padding:4px 8px;border-radius:6px;transition:background 0.15s" title="Tap to preview End-of-Challenge Story Recap">
-      September Fitness Challenge &bull; v8.7
+      September Fitness Challenge &bull; v8.8
     </div>
   </footer>
 </div>
@@ -833,7 +836,7 @@ button,input,select{font:inherit}
     catch (_) { memoryStorage[key] = String(val); }
   }
 
-  const APP_VERSION = "8.7";
+  const APP_VERSION = "8.8";
   const DAYS = 30;
   const ACTIVITY_TYPES = ["Bootcamp", "Cardio", "Cross Fit", "Weights", "Resistance Training", "Yoga", "Other"];
   const PALETTE = ['#d95b32', '#2674a8', '#d99521', '#2b9a66', '#8352b2', '#209699', '#8b9ba5'];
@@ -1393,6 +1396,39 @@ button,input,select{font:inherit}
 
   function fmtHours(m) { const h = m / 60; return `${Number.isInteger(h) ? h : h.toFixed(1)} hours`; }
   function toast(msg) { $('toast').textContent = msg; $('toast').classList.add('show'); setTimeout(() => $('toast').classList.remove('show'), 1800); }
+
+  async function checkForRemoteUpdate() {
+    if (window.location.protocol === 'file:' || !window.fetch) return;
+    try {
+      // Bust cache using timestamp query to check the latest deployed server version
+      const bustUrl = window.location.pathname + (window.location.pathname.endsWith('/') ? '' : '/') + `?_cb=${Date.now()}`;
+      const response = await fetch(bustUrl, {
+        method: 'GET',
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache'
+        }
+      });
+      if (!response.ok) return;
+
+      const html = await response.text();
+      const match = html.match(/const\s+APP_VERSION\s*=\s*["']([^"']+)["']/);
+      if (match && match[1]) {
+        const remoteVersion = match[1].trim();
+        if (remoteVersion && remoteVersion !== APP_VERSION) {
+          console.log(`Detected newer version (v${remoteVersion}). Upgrading from v${APP_VERSION}...`);
+          toast(`Updating to v${remoteVersion}...`);
+          setTimeout(() => {
+            window.location.reload();
+          }, 1200);
+        }
+      }
+    } catch (e) {
+      // Quiet fail if offline or fetch blocked
+      console.warn("Version check skipped:", e);
+    }
+  }
 
   function isChallengeEnded(challengeYear) {
     const curYear = now.getFullYear();
@@ -2748,6 +2784,7 @@ button,input,select{font:inherit}
   };
 
   loadData();
+  setTimeout(checkForRemoteUpdate, 2000);
 </script>
 </body>
 </html>
