@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>November Fitness & Habit Challenge</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <style>
+    body {
+      background-color: #0b0f19;
+      color: #f8fafc;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    .glass-panel {
+      background: rgba(18, 24, 38, 0.75);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .glass-card {
+      background: rgba(15, 23, 42, 0.65);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .radial-bg {
+      background: radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.12) 0%, rgba(11, 15, 25, 0) 70%),
+                  radial-gradient(circle at 100% 50%, rgba(99, 102, 241, 0.08) 0%, rgba(11, 15, 25, 0) 60%);
+    }
+    input[type="date"]::-webkit-calendar-picker-indicator {
+      filter: invert(0.8);
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body class="min-h-screen radial-bg pb-20 selection:bg-emerald-500 selection:text-white">
+
+  <!-- Top Navigation -->
+  <header class="border-b border-slate-800/80 bg-slate-950/60 sticky top-0 z-40 backdrop-blur-md px-4 py-3">
+    <div class="max-w-3xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <a href="index.html" class="text-slate-400 hover:text-white text-xs font-semibold px-2 py-1 rounded-lg hover:bg-slate-800/80 transition flex items-center gap-1">
+          <i class="fa-solid fa-arrow-left text-[11px]"></i> Hub
+        </a>
+        <div class="h-4 w-px bg-slate-800"></div>
+        <span class="text-xl">🍂</span>
+        <div>
+          <h1 class="text-sm font-black text-white tracking-tight leading-none">NOVEMBER CHALLENGE</h1>
+          <span class="text-[10px] text-emerald-400 font-semibold tracking-wide">Volume + Habit Breaker</span>
+        </div>
+      </div>
+
+      <!-- User Auth State -->
+      <div id="authSection" class="flex items-center gap-2">
+        <button id="loginBtn" class="flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white text-xs font-semibold px-3.5 py-1.5 rounded-xl transition shadow-lg shadow-indigo-600/30">
+          <i class="fa-brands fa-google text-xs"></i>
+          <span>Sign In</span>
+        </button>
+        <div id="userProfile" class="hidden flex items-center gap-2.5">
+          <div class="flex items-center gap-2 bg-slate-900/80 border border-slate-800 py-1 px-2.5 rounded-full">
+            <img id="userAvatar" class="w-6 h-6 rounded-full border border-slate-700 object-cover" src="https://placehold.co/40x40/1e293b/94a3b8?text=U" alt="Profile" />
+            <span id="navDisplayName" class="text-xs font-semibold text-slate-200 max-w-[100px] truncate">Athlete</span>
+          </div>
+          <button id="logoutBtn" title="Log Out" class="text-xs text-slate-400 hover:text-rose-400 p-1.5 transition">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-3xl mx-auto px-4 mt-6 space-y-6">
+
+    <!-- Toast Notification Banner -->
+    <div id="toastBanner" class="hidden fixed top-16 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-xl text-xs font-bold text-white shadow-2xl transition-all duration-300 flex items-center gap-2"></div>
+
+    <!-- Habit Setup Banner (Displays if user hasn't set their custom habit) -->
+    <div id="habitSetupCard" class="hidden glass-panel border border-amber-500/40 rounded-2xl p-5 bg-amber-500/5 shadow-xl">
+      <div class="flex items-start gap-3">
+        <div class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0 mt-0.5">
+          <i class="fa-solid fa-bolt"></i>
+        </div>
+        <div class="flex-grow">
+          <h3 class="text-sm font-bold text-amber-400">Set Your November Habit Breaker</h3>
+          <p class="text-xs text-slate-300 mt-1 leading-relaxed">
+            Choose 1 habit to eliminate or sustain this month (e.g., <em>"No refined sugar"</em>, <em>"No phone past 10 PM"</em>, <em>"10,000 steps"</em>). Slipping on any day adds a <strong>+30 minute penalty</strong> to your monthly requirement.
+          </p>
+          <div class="mt-3.5 flex gap-2">
+            <input id="habitInput" type="text" placeholder="Type your personal habit here..." class="bg-slate-900 border border-slate-700 text-xs rounded-xl px-3.5 py-2.5 flex-grow focus:outline-none focus:border-amber-400 text-white placeholder-slate-500" />
+            <button id="saveHabitBtn" class="bg-amber-500 hover:bg-amber-400 active:scale-95 text-slate-950 font-black text-xs px-4 py-2.5 rounded-xl transition shadow-lg shadow-amber-500/20">
+              Save Habit
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Overview Statistics Dashboard -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <!-- Target Volume -->
+      <div class="glass-panel rounded-2xl p-3.5 flex flex-col justify-between">
+        <div>
+          <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider block">Required Target</span>
+          <div class="text-xl font-black text-white mt-1" id="statTarget">-- min</div>
+        </div>
+        <div class="text-[10px] text-slate-500 mt-2 flex items-center gap-1" id="statBaseTarget">
+          <i class="fa-solid fa-flag text-[9px]"></i> Base: --m
+        </div>
+      </div>
+
+      <!-- Logged -->
+      <div class="glass-panel rounded-2xl p-3.5 flex flex-col justify-between">
+        <div>
+          <span class="text-[10px] uppercase font-bold text-emerald-400 tracking-wider block">Completed</span>
+          <div class="text-xl font-black text-emerald-400 mt-1" id="statLogged">0 min</div>
+        </div>
+        <div class="text-[10px] text-emerald-400/80 mt-2 font-bold flex items-center gap-1" id="statProgressPct">
+          <i class="fa-solid fa-chart-pie text-[9px]"></i> 0% done
+        </div>
+      </div>
+
+      <!-- Daily Workout Streak -->
+      <div class="glass-panel rounded-2xl p-3.5 flex flex-col justify-between">
+        <div>
+          <span class="text-[10px] uppercase font-bold text-orange-400 tracking-wider block">Daily Streak</span>
+          <div class="text-xl font-black text-orange-400 mt-1" id="statStreak">0 Days</div>
+        </div>
+        <div class="text-[10px] text-slate-500 mt-2 flex items-center gap-1">
+          <i class="fa-solid fa-fire text-orange-400 text-[9px]"></i> &ge;30 min/day
+        </div>
+      </div>
+
+      <!-- Penalties Accrued -->
+      <div class="glass-panel rounded-2xl p-3.5 flex flex-col justify-between">
+        <div>
+          <span class="text-[10px] uppercase font-bold text-rose-400 tracking-wider block">Penalty Debt</span>
+          <div class="text-xl font-black text-rose-400 mt-1" id="statPenalties">+0 min</div>
+        </div>
+        <div class="text-[10px] text-slate-400 mt-2 truncate" id="statPenaltyBreakdown">
+          0 miss &bull; 0 slip
+        </div>
+      </div>
+    </div>
+
+    <!-- Daily Logging Card -->
+    <div class="glass-panel rounded-2xl p-5 sm:p-6 shadow-2xl relative">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-800 gap-3">
+        <div>
+          <h2 class="font-bold text-base text-white flex items-center gap-2">
+            <span>📝</span> Daily Check-In
+          </h2>
+          <p class="text-xs text-slate-400 mt-0.5" id="dateSubtitle">Select date to log or update</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="prevDayBtn" class="p-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:text-white hover:bg-slate-800 text-xs transition">
+            <i class="fa-solid fa-chevron-left"></i>
+          </button>
+          <input type="date" id="logDate" class="bg-slate-900 border border-slate-700 text-xs font-semibold text-slate-200 rounded-xl px-3 py-1.5 focus:outline-none focus:border-emerald-500" />
+          <button id="nextDayBtn" class="p-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:text-white hover:bg-slate-800 text-xs transition">
+            <i class="fa-solid fa-chevron-right"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Logging Form -->
+      <div class="mt-5 space-y-4">
+        <!-- 1. Workout Entry -->
+        <div>
+          <div class="flex items-center justify-between mb-1.5">
+            <label class="text-xs font-bold text-slate-200 flex items-center gap-1.5">
+              <i class="fa-solid fa-dumbbell text-indigo-400"></i> Workout Minutes
+            </label>
+            <span class="text-[11px] text-slate-400 font-medium">Streak requires &ge; 30 min</span>
+          </div>
+          <div class="flex flex-col sm:flex-row gap-2">
+            <div class="relative flex-grow">
+              <input type="number" id="workoutInput" min="0" max="1440" placeholder="Minutes (e.g. 45)" class="w-full bg-slate-900/90 border border-slate-700/80 text-sm rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-indigo-500 text-white placeholder-slate-500" />
+              <span class="absolute right-3.5 top-3 text-xs text-slate-500 font-semibold pointer-events-none">min</span>
+            </div>
+            <input type="text" id="activityTypeInput" placeholder="Activity (e.g. Run, Strength, Yoga)" class="bg-slate-900/90 border border-slate-700/80 text-sm rounded-xl px-3.5 py-2.5 sm:w-1/2 focus:outline-none focus:border-indigo-500 text-white placeholder-slate-500" />
+          </div>
+        </div>
+
+        <!-- 2. Habit Tracker Toggle -->
+        <div class="p-4 bg-slate-900/70 border border-slate-800/80 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <div class="text-xs font-bold text-slate-200 flex items-center gap-1.5" id="habitDisplayLabel">
+              <i class="fa-solid fa-circle-check text-emerald-400"></i> Habit: <span class="text-amber-300" id="currentHabitName">Loading...</span>
+            </div>
+            <p class="text-[11px] text-slate-400 mt-0.5">Maintain your habit to prevent +30 min monthly penalty.</p>
+          </div>
+          <div class="flex items-center gap-2 shrink-0">
+            <button type="button" id="habitSuccessBtn" class="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-4 py-2 text-xs font-bold rounded-xl border border-slate-700 bg-slate-800/80 text-slate-400 hover:border-emerald-500 transition">
+              <i class="fa-solid fa-check"></i> Clean
+            </button>
+            <button type="button" id="habitFailBtn" class="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-4 py-2 text-xs font-bold rounded-xl border border-slate-700 bg-slate-800/80 text-slate-400 hover:border-rose-500 transition">
+              <i class="fa-solid fa-xmark"></i> Slipped (+30m)
+            </button>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <button id="saveDayLogBtn" class="w-full bg-emerald-600 hover:bg-emerald-500 active:scale-[0.99] font-bold text-xs py-3 rounded-xl text-white transition shadow-lg shadow-emerald-950 flex items-center justify-center gap-2">
+          <i class="fa-solid fa-cloud-arrow-up"></i>
+          <span>Save Entry for <span id="saveBtnDateLabel">Today</span></span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Leaderboard Section -->
+    <div class="glass-panel rounded-2xl p-5 sm:p-6 shadow-2xl">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-800 gap-2">
+        <div>
+          <h2 class="font-bold text-sm text-white flex items-center gap-2">
+            <span>🏆</span> Leaderboard (% Complete)
+          </h2>
+          <p class="text-[11px] text-slate-400">Ranked by actual minutes divided by total required target (including penalties)</p>
+        </div>
+        <button id="refreshBoardBtn" class="self-start sm:self-auto text-xs text-slate-400 hover:text-white px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 flex items-center gap-1.5 transition">
+          <i class="fa-solid fa-rotate-right text-[10px]"></i> Refresh
+        </button>
+      </div>
+
+      <div id="leaderboardList" class="divide-y divide-slate-800/80 mt-2">
+        <div class="py-6 text-center text-xs text-slate-500 flex items-center justify-center gap-2">
+          <i class="fa-solid fa-spinner fa-spin"></i> Loading standings...
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Login Gate Modal (if visited without signing in) -->
+  <div id="authPromptModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <div class="glass-panel border border-slate-700/80 rounded-2xl max-w-sm w-full p-6 text-center shadow-2xl relative">
+      <button id="closeAuthPromptBtn" class="absolute top-3.5 right-3.5 text-slate-400 hover:text-white text-sm">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-xl mx-auto mb-4">
+        <i class="fa-solid fa-dumbbell"></i>
+      </div>
+
+      <h3 class="text-base font-bold text-white">Join November Challenge</h3>
+      <p class="text-xs text-slate-400 mt-1.5 leading-relaxed">
+        Sign in with Google to sync your workouts, track your habit streak, and compete on the leaderboard.
+      </p>
+
+      <div class="mt-5 space-y-2">
+        <button id="modalLoginActionBtn" class="w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white font-bold text-xs py-2.5 rounded-xl transition shadow-lg shadow-indigo-600/30">
+          <i class="fa-brands fa-google"></i>
+          <span>Continue with Google</span>
+        </button>
+        <button id="modalDismissActionBtn" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold py-2 rounded-xl transition">
+          View Leaderboard as Guest
+        </button>
+      </div>
+
+      <div id="modalAuthError" class="hidden mt-3 text-[11px] text-rose-400"></div>
+    </div>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCbxoN1DLvMqxZb7FD4qu8p7k6lnD5ENP4",
+      authDomain: "fitness-challenge-smason.firebaseapp.com",
+      projectId: "fitness-challenge-smason",
+      storageBucket: "fitness-challenge-smason.firebasestorage.app",
+      messagingSenderId: "913152392975",
+      appId: "1:913152392975:web:293669fb86f2e0dd03487a",
+      measurementId: "G-PP4QLCW7Q4"
+    };
+
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    // Universal session persistence
+    auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(console.error);
+
+    let currentUser = null;
+    let selectedHabitState = null; // true = clean, false = slipped, null = unselected
+
+    // UI Toast Helper (Replaces standard alert)
+    function showToast(message, isError = false) {
+      const toast = document.getElementById('toastBanner');
+      toast.className = `fixed top-16 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-xl text-xs font-bold text-white shadow-2xl flex items-center gap-2 ${
+        isError ? 'bg-rose-600 border border-rose-500' : 'bg-emerald-600 border border-emerald-500'
+      }`;
+      toast.innerHTML = `<i class="fa-solid ${isError ? 'fa-triangle-exclamation' : 'fa-circle-check'}"></i> <span>${message}</span>`;
+      toast.classList.remove('hidden');
+      setTimeout(() => toast.classList.add('hidden'), 3500);
+    }
+
+    // Date Logic
+    const logDateInput = document.getElementById('logDate');
+    const saveBtnDateLabel = document.getElementById('saveBtnDateLabel');
+    const prevDayBtn = document.getElementById('prevDayBtn');
+    const nextDayBtn = document.getElementById('nextDayBtn');
+
+    function getTodayString() {
+      const d = new Date();
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    }
+
+    let activeDate = getTodayString();
+    logDateInput.value = activeDate;
+    updateDateDisplay(activeDate);
+
+    function updateDateDisplay(dStr) {
+      activeDate = dStr;
+      logDateInput.value = dStr;
+      saveBtnDateLabel.textContent = dStr === getTodayString() ? 'Today' : dStr;
+      if (currentUser) {
+        loadDailyEntry(dStr);
+      }
+    }
+
+    logDateInput.addEventListener('change', (e) => updateDateDisplay(e.target.value));
+
+    prevDayBtn.onclick = () => {
+      const curr = new Date(activeDate + 'T12:00:00');
+      curr.setDate(curr.getDate() - 1);
+      updateDateDisplay(curr.toISOString().split('T')[0]);
+    };
+
+    nextDayBtn.onclick = () => {
+      const curr = new Date(activeDate + 'T12:00:00');
+      curr.setDate(curr.getDate() + 1);
+      updateDateDisplay(curr.toISOString().split('T')[0]);
+    };
+
+    // Habit Clean / Slipped Toggle UI
+    const habitSuccessBtn = document.getElementById('habitSuccessBtn');
+    const habitFailBtn = document.getElementById('habitFailBtn');
+
+    function setHabitUI(isSuccess) {
+      selectedHabitState = isSuccess;
+      if (isSuccess === true) {
+        habitSuccessBtn.className = "flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-4 py-2 text-xs font-bold rounded-xl border border-emerald-500 bg-emerald-500/25 text-emerald-300 shadow-md transition";
+        habitFailBtn.className = "flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-4 py-2 text-xs font-bold rounded-xl border border-slate-700 bg-slate-800/80 text-slate-400 hover:border-rose-500 transition";
+      } else if (isSuccess === false) {
+        habitFailBtn.className = "flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-4 py-2 text-xs font-bold rounded-xl border border-rose-500 bg-rose-500/25 text-rose-300 shadow-md transition";
+        habitSuccessBtn.className = "flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-4 py-2 text-xs font-bold rounded-xl border border-slate-700 bg-slate-800/80 text-slate-400 hover:border-emerald-500 transition";
+      } else {
+        habitSuccessBtn.className = "flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-4 py-2 text-xs font-bold rounded-xl border border-slate-700 bg-slate-800/80 text-slate-400 hover:border-emerald-500 transition";
+        habitFailBtn.className = "flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-4 py-2 text-xs font-bold rounded-xl border border-slate-700 bg-slate-800/80 text-slate-400 hover:border-rose-500 transition";
+      }
+    }
+
+    habitSuccessBtn.onclick = () => setHabitUI(true);
+    habitFailBtn.onclick = () => setHabitUI(false);
+
+    // Authentication Handlers
+    const loginBtn = document.getElementById('loginBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const userProfile = document.getElementById('userProfile');
+    const userAvatar = document.getElementById('userAvatar');
+    const navDisplayName = document.getElementById('navDisplayName');
+    const authPromptModal = document.getElementById('authPromptModal');
+    const modalLoginActionBtn = document.getElementById('modalLoginActionBtn');
+    const modalDismissActionBtn = document.getElementById('modalDismissActionBtn');
+    const closeAuthPromptBtn = document.getElementById('closeAuthPromptBtn');
+    const modalAuthError = document.getElementById('modalAuthError');
+
+    async function handleLogin() {
+      modalAuthError.classList.add('hidden');
+      const provider = new firebase.auth.GoogleAuthProvider();
+      provider.setCustomParameters({ prompt: 'select_account' });
+      try {
+        await auth.signInWithPopup(provider);
+        authPromptModal.classList.add('hidden');
+      } catch (err) {
+        if (err.code === 'auth/popup-blocked' || err.code === 'auth/cancelled-popup-request') {
+          auth.signInWithRedirect(provider);
+        } else {
+          modalAuthError.textContent = err.message || "Failed to sign in. Please try again.";
+          modalAuthError.classList.remove('hidden');
+        }
+      }
+    }
+
+    loginBtn.onclick = handleLogin;
+    modalLoginActionBtn.onclick = handleLogin;
+    modalDismissActionBtn.onclick = () => authPromptModal.classList.add('hidden');
+    closeAuthPromptBtn.onclick = () => authPromptModal.classList.add('hidden');
+    logoutBtn.onclick = () => auth.signOut();
+
+    auth.getRedirectResult().catch(console.error);
+
+    auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        currentUser = user;
+        loginBtn.classList.add('hidden');
+        userProfile.classList.remove('hidden');
+        authPromptModal.classList.add('hidden');
+        navDisplayName.textContent = user.displayName || 'Athlete';
+        if (user.photoURL) userAvatar.src = user.photoURL;
+
+        await initNovemberProfile(user);
+        loadDailyEntry(activeDate);
+        loadLeaderboard();
+      } else {
+        currentUser = null;
+        loginBtn.classList.remove('hidden');
+        userProfile.classList.add('hidden');
+        document.getElementById('currentHabitName').textContent = "Sign in to activate";
+        
+        // Show prompt if not already dismissed during this visit
+        const dismissed = sessionStorage.getItem('nov_auth_dismissed');
+        if (!dismissed) {
+          setTimeout(() => {
+            authPromptModal.classList.remove('hidden');
+            sessionStorage.setItem('nov_auth_dismissed', 'true');
+          }, 600);
+        }
+        loadLeaderboard();
+      }
+    });
+
+    // Profile & September Baseline Calculation (+5%)
+    async function initNovemberProfile(user) {
+      try {
+        const userDocRef = db.collection('nov_users').doc(user.uid);
+        const docSnap = await userDocRef.get();
+
+        if (!docSnap.exists) {
+          let baseTarget = 900; // Default: 30 days * 30 min
+
+          // Check if participant was in the September challenge
+          try {
+            const septSnap = await db.collection('users').doc(user.uid).get();
+            if (septSnap.exists) {
+              const septData = septSnap.data();
+              const septTotal = septData.totalMinutes || septData.totalLogged || 0;
+              if (septTotal > 0) {
+                baseTarget = Math.round(septTotal * 1.05);
+              }
+            }
+          } catch (septErr) {
+            console.log("No previous September record found or permission deferred, using 900m baseline.", septErr);
+          }
+
+          await userDocRef.set({
+            displayName: user.displayName || 'Athlete',
+            photoURL: user.photoURL || '',
+            baseTarget: baseTarget,
+            habitName: "",
+            totalLogged: 0,
+            adjustedTarget: baseTarget,
+            progressPct: 0,
+            streak: 0,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+        }
+
+        const freshData = (await userDocRef.get()).data();
+        if (!freshData.habitName || freshData.habitName.trim() === "") {
+          document.getElementById('habitSetupCard').classList.remove('hidden');
+          document.getElementById('currentHabitName').textContent = "Not configured";
+        } else {
+          document.getElementById('habitSetupCard').classList.add('hidden');
+          document.getElementById('currentHabitName').textContent = freshData.habitName;
+        }
+
+        await refreshUserStats(user.uid, freshData);
+      } catch (err) {
+        console.error("Error initializing profile:", err);
+        showToast("Error loading profile: " + err.message, true);
+      }
+    }
+
+    // Save Habit Setting
+    document.getElementById('saveHabitBtn').onclick = async () => {
+      const habitVal = document.getElementById('habitInput').value.trim();
+      if (!habitVal) {
+        showToast("Please enter a habit description.", true);
+        return;
+      }
+      if (!currentUser) {
+        authPromptModal.classList.remove('hidden');
+        return;
+      }
+
+      try {
+        await db.collection('nov_users').doc(currentUser.uid).update({
+          habitName: habitVal
+        });
+        document.getElementById('habitSetupCard').classList.add('hidden');
+        document.getElementById('currentHabitName').textContent = habitVal;
+        showToast("November habit saved successfully!");
+      } catch (err) {
+        showToast("Error saving habit: " + err.message, true);
+      }
+    };
+
+    // Save Daily Entry
+    document.getElementById('saveDayLogBtn').onclick = async () => {
+      if (!currentUser) {
+        authPromptModal.classList.remove('hidden');
+        return;
+      }
+
+      const minutes = parseInt(document.getElementById('workoutInput').value) || 0;
+      const activity = document.getElementById('activityTypeInput').value.trim();
+
+      try {
+        await db.collection('nov_entries').doc(`${currentUser.uid}_${activeDate}`).set({
+          uid: currentUser.uid,
+          date: activeDate,
+          minutes: minutes,
+          activity: activity,
+          habitClean: selectedHabitState, // true, false, or null
+          timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        showToast(`Saved ${minutes}m for ${activeDate}!`);
+        const userData = (await db.collection('nov_users').doc(currentUser.uid).get()).data();
+        await refreshUserStats(currentUser.uid, userData);
+        loadLeaderboard();
+      } catch (err) {
+        console.error("Save error:", err);
+        showToast("Could not save: " + err.message, true);
+      }
+    };
+
+    // Load Existing Daily Entry
+    async function loadDailyEntry(dateStr) {
+      if (!currentUser) return;
+      try {
+        const snap = await db.collection('nov_entries').doc(`${currentUser.uid}_${dateStr}`).get();
+        if (snap.exists) {
+          const data = snap.data();
+          document.getElementById('workoutInput').value = data.minutes || '';
+          document.getElementById('activityTypeInput').value = data.activity || '';
+          setHabitUI(data.habitClean !== undefined ? data.habitClean : null);
+        } else {
+          document.getElementById('workoutInput').value = '';
+          document.getElementById('activityTypeInput').value = '';
+          setHabitUI(null);
+        }
+      } catch (err) {
+        console.warn("Daily entry load error:", err);
+      }
+    }
+
+    // Dynamic Calculation: Volume, Penalties, and Streak
+    async function refreshUserStats(uid, profile) {
+      try {
+        const entriesSnap = await db.collection('nov_entries').where('uid', '==', uid).get();
+        let totalMinutesLogged = 0;
+        let habitFails = 0;
+        let missedDays = 0;
+
+        const dayMap = {};
+        entriesSnap.forEach(doc => {
+          const d = doc.data();
+          dayMap[d.date] = d;
+          totalMinutesLogged += (d.minutes || 0);
+        });
+
+        // Compute streak backwards from today
+        let streak = 0;
+        let checkDate = new Date();
+        while (true) {
+          const dStr = checkDate.toISOString().split('T')[0];
+          if (dayMap[dStr] && dayMap[dStr].minutes >= 30) {
+            streak++;
+            checkDate.setDate(checkDate.getDate() - 1);
+          } else {
+            break;
+          }
+        }
+
+        // Tally penalties across logged records
+        Object.values(dayMap).forEach(entry => {
+          if (entry.habitClean === false) habitFails++;
+          // A missed day occurs if an entry for that date has < 30 minutes
+          if (entry.minutes !== undefined && entry.minutes < 30) missedDays++;
+        });
+
+        const penaltyMinutes = (habitFails + missedDays) * 30;
+        const baseTarget = profile.baseTarget || 900;
+        const adjustedTarget = baseTarget + penaltyMinutes;
+        const progressPct = adjustedTarget > 0 ? Math.min(100, Math.round((totalMinutesLogged / adjustedTarget) * 100)) : 0;
+
+        // Update Dashboard Elements
+        document.getElementById('statBaseTarget').innerHTML = `<i class="fa-solid fa-flag text-[9px]"></i> Base: ${baseTarget}m`;
+        document.getElementById('statTarget').textContent = `${adjustedTarget} min`;
+        document.getElementById('statLogged').textContent = `${totalMinutesLogged} min`;
+        document.getElementById('statProgressPct').innerHTML = `<i class="fa-solid fa-chart-pie text-[9px]"></i> ${progressPct}% done`;
+        document.getElementById('statStreak').textContent = `${streak} Days`;
+        document.getElementById('statPenalties').textContent = `+${penaltyMinutes} min`;
+        document.getElementById('statPenaltyBreakdown').textContent = `${missedDays} miss · ${habitFails} slip`;
+
+        // Update user record for sorting leaderboard without requiring extra composite index
+        await db.collection('nov_users').doc(uid).update({
+          totalLogged: totalMinutesLogged,
+          adjustedTarget: adjustedTarget,
+          progressPct: progressPct,
+          streak: streak,
+          displayName: currentUser.displayName || profile.displayName || 'Athlete',
+          photoURL: currentUser.photoURL || profile.photoURL || ''
+        });
+      } catch (err) {
+        console.error("Error refreshing stats:", err);
+      }
+    }
+
+    // Leaderboard (In-Memory Sort prevents index deployment errors)
+    async function loadLeaderboard() {
+      const boardEl = document.getElementById('leaderboardList');
+      try {
+        const snap = await db.collection('nov_users').get();
+        if (snap.empty) {
+          boardEl.innerHTML = `<div class="py-8 text-center text-xs text-slate-500">No athletes registered yet. Be the first to check in!</div>`;
+          return;
+        }
+
+        // Sort descending by completion % in JavaScript memory
+        const users = [];
+        snap.forEach(doc => users.push({ id: doc.id, ...doc.data() }));
+        users.sort((a, b) => (b.progressPct || 0) - (a.progressPct || 0));
+
+        boardEl.innerHTML = '';
+        users.forEach((u, idx) => {
+          const rank = idx + 1;
+          const isMe = currentUser && currentUser.uid === u.id;
+          const row = document.createElement('div');
+          row.className = `py-3 px-2 rounded-xl flex items-center justify-between transition ${
+            isMe ? 'bg-indigo-950/30 border border-indigo-500/30 my-1' : 'hover:bg-slate-900/50'
+          }`;
+
+          let medal = `<span class="text-xs font-bold text-slate-500 w-5">${rank}</span>`;
+          if (rank === 1) medal = `<span class="text-base w-5">🥇</span>`;
+          if (rank === 2) medal = `<span class="text-base w-5">🥈</span>`;
+          if (rank === 3) medal = `<span class="text-base w-5">🥉</span>`;
+
+          row.innerHTML = `
+            <div class="flex items-center gap-3">
+              ${medal}
+              <img src="${u.photoURL || 'https://placehold.co/40x40/1e293b/94a3b8?text=A'}" class="w-8 h-8 rounded-full border border-slate-700 object-cover" onerror="this.src='https://placehold.co/40x40/1e293b/94a3b8?text=A'" />
+              <div>
+                <div class="text-xs font-bold text-white flex items-center gap-1.5">
+                  <span>${u.displayName || 'Athlete'}</span>
+                  ${isMe ? '<span class="text-[9px] bg-indigo-500/30 text-indigo-300 px-1.5 py-0.2 rounded font-bold">YOU</span>' : ''}
+                  ${u.streak > 1 ? `<span class="text-[10px] bg-orange-500/20 text-orange-400 px-1.5 py-0.5 rounded-full border border-orange-500/30 flex items-center gap-1">🔥 ${u.streak}d</span>` : ''}
+                </div>
+                <div class="text-[10px] text-slate-400 mt-0.5">
+                  ${u.totalLogged || 0} / ${u.adjustedTarget || 900} min
+                  ${u.habitName ? `&bull; <span class="text-slate-500 italic">${u.habitName}</span>` : ''}
+                </div>
+              </div>
+            </div>
+            <div class="text-right">
+              <div class="text-sm font-black text-emerald-400">${u.progressPct || 0}%</div>
+              <div class="text-[10px] text-slate-500">progress</div>
+            </div>
+          `;
+          boardEl.appendChild(row);
+        });
+      } catch (err) {
+        console.error("Leaderboard load error:", err);
+        boardEl.innerHTML = `<div class="py-6 text-center text-xs text-rose-400">Error loading standings. Please click refresh.</div>`;
+      }
+    }
+
+    document.getElementById('refreshBoardBtn').onclick = loadLeaderboard;
+
+    // Initial Leaderboard Load
+    loadLeaderboard();
+  </script>
+</body>
+</html>
