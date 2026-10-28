@@ -461,39 +461,90 @@
     });
 
     // Profile & Baseline Calculation (September Total for returning, 900 for new)
+    async function calculateCountedMinutesFromSept(uid) {
+      try {
+        // September stores data under: users/{uid}/challenges/{year}
+        const challengeYears = ["2026", "2025", "2024"];
+        let septDocSnap = null;
+        
+        for (const y of challengeYears) {
+          const snap = await db.collection('users').doc(uid).collection('challenges').doc(y).get();
+          if (snap.exists) {
+            septDocSnap = snap;
+            break;
+          }
+        }
+
+        if (!septDocSnap || !septDocSnap.exists) {
+          // Direct fallback check if saved at users/{uid} root
+          const rootSnap = await db.collection('users').doc(uid).get();
+          if (rootSnap.exists && rootSnap.data().days) {
+            septDocSnap = rootSnap;
+          }
+        }
+
+        if (septDocSnap && septDocSnap.exists) {
+          const sData = septDocSnap.data();
+          if (Array.isArray(sData.days)) {
+            const userGoal = Number(sData.dailyGoal) || 30;
+            const cap = Math.max(120, userGoal);
+            let countedMinutes = 0;
+
+            sData.days.forEach(d => {
+              if (!d) return;
+              let dayTotal = 0;
+              if (Array.isArray(d.activities) && d.activities.length > 0) {
+                dayTotal = d.activities.reduce((sum, act) => sum + (Number(act.minutes) || 0), 0);
+              } else {
+                dayTotal = Number(d.minutes) || 0;
+              }
+              // September counting cap: min(dayTotal, cap)
+              countedMinutes += Math.min(dayTotal, cap);
+            });
+
+            if (countedMinutes > 0) {
+              return Math.round(countedMinutes);
+            }
+          }
+        }
+      } catch (err) {
+        console.warn("Could not retrieve September counted minutes:", err);
+      }
+      return 900; // Fallback to 900 for new participants
+    }
+
     async function initNovemberProfile(user) {
       try {
         const userDocRef = db.collection('nov_users').doc(user.uid);
         const docSnap = await userDocRef.get();
 
         if (!docSnap.exists) {
-          let baseTarget = 900; // Default for new members
-
-          // Query September data: Target is exact total minutes from September
-          try {
-            const septSnap = await db.collection('users').doc(user.uid).get();
-            if (septSnap.exists) {
-              const septData = septSnap.data();
-              const septTotal = septData.totalMinutes || septData.totalLogged || 0;
-              if (septTotal > 0) {
-                baseTarget = Math.round(septTotal); // Match September total
-              }
-            }
-          } catch (septErr) {
-            console.log("No previous September record, defaulting to 900m baseline.", septErr);
-          }
-
+          // First-time registration: Calculate September counted total once and save permanently
+          const septCountedTarget = await calculateCountedMinutesFromSept(user.uid);
           await userDocRef.set({
             displayName: user.displayName || 'Athlete',
             photoURL: user.photoURL || '',
-            baseTarget: baseTarget,
+            baseTarget: septCountedTarget,
             habitName: "",
             totalLogged: 0,
-            adjustedTarget: baseTarget,
+            adjustedTarget: septCountedTarget,
             progressPct: 0,
             streak: 0,
             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
           });
+        } else {
+          const existingData = docSnap.data();
+          // One-time self-heal: Only query September if the user was stuck on the 900 default
+          if (existingData.baseTarget === 900 || !existingData.baseTarget) {
+            const septCountedTarget = await calculateCountedMinutesFromSept(user.uid);
+            if (septCountedTarget !== 900) {
+              await userDocRef.update({
+                baseTarget: septCountedTarget,
+                adjustedTarget: septCountedTarget + (existingData.totalPenalties || 0)
+              });
+            }
+          }
+          // If baseTarget is already set (e.g. 1432), zero extra Firestore lookups are made!
         }
 
         const freshData = (await userDocRef.get()).data();
