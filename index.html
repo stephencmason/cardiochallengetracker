@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Fitness Challenge Hub</title>
+  <title>Fitness Challenge Hub - v9.0</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
@@ -46,7 +46,10 @@
           <i class="fa-solid fa-fire-flame-curved text-white text-base"></i>
         </div>
         <div>
-          <span class="text-sm font-black tracking-tight text-white block leading-tight">CHALLENGE HUB</span>
+          <div class="flex items-center gap-2">
+            <span class="text-sm font-black tracking-tight text-white block leading-tight">CHALLENGE HUB</span>
+            <span class="text-[9px] uppercase tracking-wider font-extrabold px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">v9.0</span>
+          </div>
           <span class="text-[10px] text-slate-400 font-medium tracking-wide">Community Performance League</span>
         </div>
       </div>
@@ -76,13 +79,13 @@
     <div class="text-center max-w-xl mx-auto mb-10">
       <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800/90 border border-slate-700/70 text-[11px] font-semibold text-indigo-300 mb-4 shadow-inner">
         <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-        Season Tracker Connected
+        Unified Athlete Portal Active
       </div>
       <h1 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight leading-tight">
         Crush Goals. Build Consistency.
       </h1>
       <p class="text-sm text-slate-400 mt-2 leading-relaxed">
-        Jump straight into your active daily logger, sync your habit ledger, or review the historical records and MVP honors.
+        Log into your active daily tracker, sync your habit ledger, or review historical honors and recaps.
       </p>
     </div>
 
@@ -96,7 +99,7 @@
         <div>
           <div class="flex items-center justify-between">
             <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
-              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> Active Season
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> Active Challenge
             </span>
             <span class="text-2xl p-2 rounded-xl bg-slate-800/80 border border-slate-700/60 shadow-inner group-hover:scale-110 transition-transform">🍂</span>
           </div>
@@ -105,17 +108,17 @@
             November Challenge
           </h2>
           <p class="text-xs text-slate-400 mt-2 leading-relaxed">
-            Personalized +5% volume targets, 30-min daily streaks, and the single-habit breaker penalty pool.
+            Sept match volume targets (or 900m baseline), 30-min daily streaks, and the personal habit breaker.
           </p>
 
           <div class="mt-5 grid grid-cols-2 gap-2 text-left">
             <div class="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800/80">
-              <span class="text-[10px] uppercase font-bold text-slate-500 block">Baseline</span>
-              <span class="text-xs font-bold text-slate-200 mt-0.5 block">Sept + 5% (or 900m)</span>
+              <span class="text-[10px] uppercase font-bold text-slate-500 block">Baseline Target</span>
+              <span class="text-xs font-bold text-slate-200 mt-0.5 block">Sept Total (or 900m)</span>
             </div>
             <div class="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800/80">
-              <span class="text-[10px] uppercase font-bold text-slate-500 block">Habit Slip</span>
-              <span class="text-xs font-bold text-rose-400 mt-0.5 block">+30 min penalty</span>
+              <span class="text-[10px] uppercase font-bold text-slate-500 block">Penalty Debt</span>
+              <span class="text-xs font-bold text-rose-400 mt-0.5 block">+30m / miss or slip</span>
             </div>
           </div>
         </div>
@@ -142,7 +145,7 @@
             September Challenge
           </h2>
           <p class="text-xs text-slate-400 mt-2 leading-relaxed">
-            Official September hall of fame, final workout logs, drink penalty ledgers, and Instagram recap cards.
+            Official September hall of fame, workout logs, drink penalty ledger, and final Instagram recap story cards.
           </p>
 
           <div class="mt-5 grid grid-cols-2 gap-2 text-left">
@@ -165,7 +168,7 @@
 
     </div>
 
-    <!-- Athlete Quick Bar (shown when signed in) -->
+    <!-- Quick Athlete Jump Card (shown when signed in) -->
     <div id="quickAthleteCard" class="hidden max-w-3xl mx-auto w-full mt-6 p-4 glass-panel rounded-2xl border border-indigo-500/20 flex flex-col sm:flex-row items-center justify-between gap-4">
       <div class="flex items-center gap-3 text-left">
         <div class="w-10 h-10 rounded-xl bg-indigo-500/20 border border-indigo-500/40 flex items-center justify-center text-indigo-400 text-lg">
@@ -175,12 +178,12 @@
           <h4 class="text-xs font-bold text-white flex items-center gap-1.5">
             Signed in as <span id="quickUserName" class="text-indigo-300">Athlete</span>
           </h4>
-          <p class="text-[11px] text-slate-400">Authentication is active across both challenges.</p>
+          <p class="text-[11px] text-slate-400">Authentication state synced across all challenges.</p>
         </div>
       </div>
       <div class="flex gap-2 w-full sm:w-auto">
         <a href="november.html" class="flex-1 sm:flex-initial text-center bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-4 py-2 rounded-xl transition shadow-md">
-          Go to Today's Log
+          Go to November Log
         </a>
       </div>
     </div>
@@ -188,10 +191,10 @@
 
   <!-- Footer -->
   <footer class="border-t border-slate-900 text-center py-5 text-[11px] text-slate-600">
-    Fitness Challenge Community &bull; Firebase Synchronized
+    Fitness Challenge Hub &bull; Version 9.0 &bull; Firebase Synchronized
   </footer>
 
-  <!-- Universal Auth Modal Overlay (Prompts sign in if not authenticated) -->
+  <!-- Universal Auth Modal Overlay -->
   <div id="loginPromptModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 hidden">
     <div class="glass-panel border border-slate-700/80 rounded-2xl max-w-sm w-full p-6 text-center shadow-2xl relative">
       <button id="closeModalBtn" class="absolute top-3.5 right-3.5 text-slate-400 hover:text-white text-sm">
@@ -204,7 +207,7 @@
 
       <h3 class="text-base font-bold text-white">Sign In to Continue</h3>
       <p class="text-xs text-slate-400 mt-1.5 leading-relaxed">
-        Sign in once to sync your workouts, recalculate your target, and update the community leaderboard across all challenges.
+        Sign in once to sync your workouts, target volume, and community standings across both challenges.
       </p>
 
       <div class="mt-5 space-y-2">
@@ -237,7 +240,6 @@
     }
 
     const auth = firebase.auth();
-    // Persist login state seamlessly across tabs, navigations, and subpages
     auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(console.error);
 
     const navLoginBtn = document.getElementById('navLoginBtn');
@@ -253,7 +255,6 @@
     const closeModalBtn = document.getElementById('closeModalBtn');
     const authErrorMsg = document.getElementById('authErrorMsg');
 
-    // Google Sign-In with popup + redirect fallback
     async function performLogin() {
       authErrorMsg.classList.add('hidden');
       const provider = new firebase.auth.GoogleAuthProvider();
@@ -263,7 +264,6 @@
         loginPromptModal.classList.add('hidden');
       } catch (err) {
         if (err.code === 'auth/popup-blocked' || err.code === 'auth/cancelled-popup-request') {
-          // Fall back gracefully to redirect for mobile devices/strict popups
           auth.signInWithRedirect(provider);
         } else {
           authErrorMsg.textContent = err.message || "Failed to sign in. Please try again.";
@@ -278,10 +278,8 @@
     modalDismissBtn.onclick = () => loginPromptModal.classList.add('hidden');
     closeModalBtn.onclick = () => loginPromptModal.classList.add('hidden');
 
-    // Handle incoming redirect auth if triggered
     auth.getRedirectResult().catch(console.error);
 
-    // Listen for authentication changes
     auth.onAuthStateChanged((user) => {
       if (user) {
         navLoginBtn.classList.add('hidden');
@@ -300,7 +298,6 @@
         userProfile.classList.add('hidden');
         quickAthleteCard.classList.add('hidden');
 
-        // Check if user dismissed prompt in this session
         const hasDismissed = sessionStorage.getItem('hub_auth_prompted');
         if (!hasDismissed) {
           setTimeout(() => {
