@@ -183,8 +183,14 @@ button, input, select { font: inherit; }
 .field input[type=number], .field input[type=text], .field select { width: 100%; padding: 9px 11px; border: 1px solid var(--line); border-radius: 10px; background: #fbfcfd; }
 .activity-list { display: grid; gap: 8px; }
 .activity-row-wrap { background: #f8fafb; border: 1px solid var(--line); border-radius: 10px; padding: 8px; }
-.activity-row { display: grid; grid-template-columns: 1.25fr 1fr 34px; gap: 6px; align-items: center; }
+.activity-row { display: grid; grid-template-columns: 1.3fr 1fr 34px 34px; gap: 6px; align-items: center; }
 .activity-row select, .activity-row input[type=number] { padding: 7px; border: 1px solid var(--line); border-radius: 8px; background: #fff; font-size: 0.84rem; }
+.btn-note-toggle { background: #f0f4f8; color: var(--navy); border: 1px solid var(--line); border-radius: 8px; height: 33px; cursor: pointer; font-size: 0.95rem; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+.btn-note-toggle:hover { background: #e1ebf2; }
+.btn-note-toggle.active { background: #e7f3fb; border-color: var(--blue); color: var(--blue); }
+.activity-note-box { margin-top: 7px; display: none; }
+.activity-note-box input { width: 100%; padding: 7px 9px; border: 1px solid var(--line); border-radius: 7px; font-size: 0.80rem; background: #fff; }
+.activity-note-box.show { display: block; }
 .btn-remove-row { background: #fff0f0; color: #c94d4d; border: 1px solid #fedede; border-radius: 8px; height: 33px; cursor: pointer; font-weight: bold; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; }
 .btn-remove-row:hover { background: #fedede; }
 .btn-add-activity { background: #eef7f8; color: var(--blue); border: 1px dashed var(--blue); border-radius: 99px; padding: 7px; font-size: 0.80rem; font-weight: 750; cursor: pointer; width: 100%; text-align: center; margin-top: 4px; }
@@ -537,7 +543,7 @@ button, input, select { font: inherit; }
 
   const $ = id => document.getElementById(id);
   const DAYS = 30;
-  const ACTIVITY_TYPES = ["Cardio", "Weights", "Bootcamp", "Cross Fit", "Resistance Training", "Yoga", "Other"];
+  const ACTIVITY_TYPES = ["Bootcamp", "Cardio", "Cross Fit", "Weights", "Resistance Training", "Yoga"];
 
   let currentUser = null;
   let userProfileDoc = null;
@@ -571,8 +577,8 @@ button, input, select { font: inherit; }
     return parseInt(parts[2], 10) || 1;
   }
 
-  // Activity Row Generation
-  function createActivityRow(type = "Cardio", minutes = 0) {
+  // Activity Row Generation with Note Support
+  function createActivityRow(type = "Cardio", minutes = 0, note = "") {
     const wrap = document.createElement('div');
     wrap.className = 'activity-row-wrap';
 
@@ -595,13 +601,48 @@ button, input, select { font: inherit; }
     input.placeholder = 'Min';
     input.value = minutes > 0 ? minutes : '';
 
+    const noteToggleBtn = document.createElement('button');
+    noteToggleBtn.type = 'button';
+    noteToggleBtn.className = 'btn-note-toggle';
+    noteToggleBtn.innerHTML = '📝';
+    noteToggleBtn.title = 'Add workout notes / details';
+    if (note && note.trim().length > 0) noteToggleBtn.classList.add('active');
+
     const removeBtn = document.createElement('button');
     removeBtn.type = 'button';
     removeBtn.className = 'btn-remove-row';
     removeBtn.innerHTML = '&times;';
+    removeBtn.title = 'Remove activity';
     removeBtn.onclick = () => {
       wrap.remove();
       updateDayWorkoutTotal();
+    };
+
+    const noteBox = document.createElement('div');
+    noteBox.className = 'activity-note-box';
+    if (note && note.trim().length > 0) noteBox.classList.add('show');
+
+    const noteInput = document.createElement('input');
+    noteInput.type = 'text';
+    noteInput.placeholder = 'Workout notes (e.g., 5k trail run, leg press 4x10, hot yoga)';
+    noteInput.value = note || '';
+
+    noteToggleBtn.onclick = () => {
+      noteBox.classList.toggle('show');
+      if (noteBox.classList.contains('show')) {
+        noteInput.focus();
+        noteToggleBtn.classList.add('active');
+      } else if (!noteInput.value.trim()) {
+        noteToggleBtn.classList.remove('active');
+      }
+    };
+
+    noteInput.oninput = () => {
+      if (noteInput.value.trim().length > 0) {
+        noteToggleBtn.classList.add('active');
+      } else if (!noteBox.classList.contains('show')) {
+        noteToggleBtn.classList.remove('active');
+      }
     };
 
     select.onchange = () => updateDayWorkoutTotal();
@@ -609,8 +650,12 @@ button, input, select { font: inherit; }
 
     row.appendChild(select);
     row.appendChild(input);
+    row.appendChild(noteToggleBtn);
     row.appendChild(removeBtn);
+
+    noteBox.appendChild(noteInput);
     wrap.appendChild(row);
+    wrap.appendChild(noteBox);
     return wrap;
   }
 
@@ -626,7 +671,7 @@ button, input, select { font: inherit; }
   }
 
   $('addActivityBtn').onclick = () => {
-    $('activityContainer').appendChild(createActivityRow("Cardio", 0));
+    $('activityContainer').appendChild(createActivityRow("Cardio", 0, ""));
   };
 
   // Habit Toggle Buttons
@@ -707,7 +752,10 @@ button, input, select { font: inherit; }
       else if (isMissed) b.classList.add('missed');
 
       let subNote = 'No entry';
-      if (dayTotal > 0) subNote = `${d.activities.length} act`;
+      if (dayTotal > 0) {
+        const hasNotes = Array.isArray(d.activities) && d.activities.some(a => a.note && a.note.trim().length > 0);
+        subNote = `${d.activities.length} act${hasNotes ? ' 📝' : ''}`;
+      }
       if (d.habitClean === false) subNote += ' ⚠️';
 
       b.innerHTML = `
@@ -734,9 +782,9 @@ button, input, select { font: inherit; }
     container.innerHTML = '';
 
     if (dayData.activities && dayData.activities.length > 0) {
-      dayData.activities.forEach(a => container.appendChild(createActivityRow(a.type, a.minutes)));
+      dayData.activities.forEach(a => container.appendChild(createActivityRow(a.type, a.minutes, a.note || "")));
     } else {
-      container.appendChild(createActivityRow("Cardio", 0));
+      container.appendChild(createActivityRow("Cardio", 0, ""));
     }
 
     updateDayWorkoutTotal();
@@ -896,7 +944,9 @@ button, input, select { font: inherit; }
     wraps.forEach(w => {
       const type = w.querySelector('.activity-row select').value;
       const mins = Math.max(0, parseInt(w.querySelector('.activity-row input[type=number]').value) || 0);
-      if (mins > 0) activities.push({ type, minutes: mins });
+      const noteInput = w.querySelector('.activity-note-box input');
+      const note = noteInput ? noteInput.value.trim() : "";
+      if (mins > 0) activities.push({ type, minutes: mins, note });
     });
 
     const dayEntry = {
@@ -930,8 +980,18 @@ button, input, select { font: inherit; }
       snap.forEach(docSnap => {
         const d = docSnap.data();
         if (d.dayNum >= 1 && d.dayNum <= 30) {
+          let acts = [];
+          if (Array.isArray(d.activities)) {
+            acts = d.activities.map(a => ({
+              type: ACTIVITY_TYPES.includes(a.type) ? a.type : "Cardio",
+              minutes: Number(a.minutes) || 0,
+              note: a.note || ""
+            }));
+          } else if (d.minutes) {
+            acts = [{ type: d.activity || 'Cardio', minutes: Number(d.minutes) || 0, note: d.note || "" }];
+          }
           currentMonthDays[d.dayNum - 1] = {
-            activities: Array.isArray(d.activities) ? d.activities : (d.minutes ? [{ type: d.activity || 'Cardio', minutes: d.minutes }] : []),
+            activities: acts,
             habitClean: d.habitClean !== undefined ? d.habitClean : null,
             logged: true
           };
