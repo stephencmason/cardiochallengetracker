@@ -1,224 +1,2349 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>September Fitness Challenge - v9.0</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Firebase SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
-  <style>
-    body {
-      background-color: #0b0f19;
-      color: #f8fafc;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    }
-    .glass-panel {
-      background: rgba(18, 24, 38, 0.85);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-    }
-    .radial-bg {
-      background: radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.15) 0%, rgba(11, 15, 25, 0) 70%),
-                  radial-gradient(circle at 100% 50%, rgba(245, 158, 11, 0.08) 0%, rgba(11, 15, 25, 0) 60%);
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#173b57">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>September Fitness Challenge - Archive</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<style>
+:root {
+  --navy:#173b57; --blue:#2674a8; --cyan:#24a7b6; --green:#2b9a66;
+  --amber:#d99521; --red:#c94d4d; --purple:#8352b2; --ink:#183042; --muted:#6b7c88;
+  --paper:#ffffff; --bg:#eef3f6; --line:#dce5ea; --shadow:0 12px 32px rgba(24,48,66,.10);
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:linear-gradient(145deg,#eaf2f5,#f7f9fa);color:var(--ink);min-height:100vh}
+button,input,select{font:inherit}
+.app{max-width:1180px;margin:auto;padding:22px}
+
+.hero{background:linear-gradient(125deg,var(--navy),#235d7c 62%,#258b96);color:white;border-radius:24px;padding:25px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.hero:after{content:"";position:absolute;width:260px;height:260px;border:40px solid rgba(255,255,255,.07);border-radius:50%;right:-90px;top:-110px;pointer-events:none}
+.hero h1{margin:0 0 7px;font-size:clamp(1.65rem,4vw,2.5rem);font-weight:800}
+.hero p{margin:0;opacity:.87}
+.hero-top{display:flex;justify-content:space-between;gap:15px;align-items:flex-start;position:relative;z-index:1}
+.hero-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.nav-hub-btn{
+  background:rgba(255,255,255,0.14);
+  border:1px solid rgba(255,255,255,0.30);
+  color:white;
+  border-radius:10px;
+  padding:8px 14px;
+  font-size:0.84rem;
+  font-weight:800;
+  text-decoration:none;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  transition:background 0.15s, transform 0.12s;
+}
+.nav-hub-btn:hover{background:rgba(255,255,255,0.25);transform:translateX(-2px);color:white}
+.year-select{border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.12);color:white;border-radius:10px;padding:9px;outline:none;cursor:pointer}
+.year-select option{color:var(--ink);background:#fff}
+.auth-btn{background:white;color:var(--navy);border:0;border-radius:10px;padding:9px 15px;font-weight:750;cursor:pointer;display:flex;align-items:center;gap:8px;transition:background 0.15s}
+.auth-btn:hover{background:#eef3f6}
+.user-info{display:none;align-items:center;gap:10px;color:white;font-size:.9rem;font-weight:600}
+.user-avatar{width:32px;height:32px;border-radius:50%;border:2px solid white;object-fit:cover}
+.version-tag{position:absolute;right:18px;bottom:10px;font-size:0.68rem;opacity:0.85;font-weight:800;letter-spacing:0.04em;background:rgba(0,0,0,0.2);padding:2px 8px;border-radius:6px}
+
+.btn-recap-launch{
+  display:none;
+  align-items:center;
+  gap:6px;
+  background:linear-gradient(135deg,#ffd778,#f3a93b);
+  color:#173042;
+  border:0;
+  border-radius:10px;
+  padding:8px 14px;
+  font-size:0.84rem;
+  font-weight:800;
+  cursor:pointer;
+  box-shadow:0 3px 10px rgba(0,0,0,0.18);
+  transition:transform 0.15s,filter 0.15s;
+}
+.btn-recap-launch:hover{transform:translateY(-1px);filter:brightness(1.05)}
+.btn-recap-launch.visible{display:inline-flex}
+
+.archive-pill{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  background:#fffdf6;
+  border:1px solid #fedbc0;
+  color:#b45309;
+  border-radius:99px;
+  padding:4px 11px;
+  font-size:0.75rem;
+  font-weight:800;
+}
+
+.privacy-pill{display:none;align-items:center;gap:5px;background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.35);color:#fff;border-radius:8px;padding:4px 9px;font-size:0.75rem;font-weight:750;cursor:pointer;transition:background 0.15s}
+.privacy-pill:hover{background:rgba(255,255,255,0.28)}
+
+.toolbar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin:18px 0 12px}
+.tabs{display:flex;gap:8px;flex-wrap:wrap}
+.tab-btn{background:var(--paper);border:1px solid rgba(220,229,234,.8);border-radius:12px;padding:10px 18px;font-weight:700;color:var(--muted);cursor:pointer;transition:.15s}
+.tab-btn:hover{color:var(--ink)}
+.tab-btn.active{background:var(--navy);color:white;border-color:var(--navy)}
+.options-pill{background:var(--paper);border:1px solid rgba(220,229,234,.8);border-radius:12px;padding:8px 14px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.opt-field{display:flex;align-items:center;gap:7px;font-size:0.85rem;font-weight:750;color:var(--muted)}
+.opt-field input[type=number]{width:58px;padding:5px 8px;border:1px solid var(--line);border-radius:8px;background:#fbfcfd;color:var(--ink);font-weight:750;text-align:center}
+
+.summary{display:grid;grid-template-columns:repeat(5,1fr);gap:13px;margin:0 0 18px 0}
+.card,.panel{background:var(--paper);border:1px solid rgba(220,229,234,.8);border-radius:18px;box-shadow:var(--shadow)}
+.metric{padding:17px}.metric .label{color:var(--muted);font-size:.81rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em}.metric .value{font-size:1.55rem;font-weight:800;margin-top:6px}.metric .sub{color:var(--muted);font-size:.78rem;margin-top:3px}
+.layout{display:grid;grid-template-columns:1.55fr .9fr;gap:16px}.panel{padding:19px;margin-bottom:16px}.panel h2{margin:0 0 15px;font-size:1.1rem;font-weight:750}
+.progress-shell{height:17px;background:#e7eef1;border-radius:99px;overflow:hidden}.progress-bar{height:100%;width:0;background:linear-gradient(90deg,var(--cyan),var(--green));transition:width .3s}.progress-copy{display:flex;justify-content:space-between;gap:10px;margin-top:9px;color:var(--muted);font-size:.85rem}
+
+.pb-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
+.pb-item{background:#f8fafb;border:1px solid rgba(220,229,234,.8);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:2px}
+.pb-label{font-size:0.72rem;font-weight:750;text-transform:uppercase;letter-spacing:0.04em;color:var(--muted)}
+.pb-val{font-size:1.18rem;font-weight:800;color:var(--ink);display:flex;align-items:center;gap:6px;margin-top:2px}
+.pb-sub{font-size:0.73rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+
+.panel-header-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:8px;flex-wrap:wrap}
+.panel-header-row h2{margin:0;font-size:1.1rem;font-weight:750}
+.header-badges-wrap{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.streak-pill{display:inline-flex;align-items:center;gap:5px;background:#fff5eb;border:1px solid #fedbc0;color:#c84f10;padding:4px 10px;border-radius:99px;font-size:0.82rem;font-weight:800;letter-spacing:0.01em;transition:all .15s}
+.streak-pill.streak-zero{background:#f4f6f8;border-color:var(--line);color:var(--muted)}
+
+.dashboard-badges{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap}
+.badge-chip{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;background:#f4f7f9;border:1px solid var(--line);border-radius:50%;font-size:0.95rem;cursor:pointer;transition:transform 0.15s ease,box-shadow 0.15s ease}
+.badge-chip:hover{transform:scale(1.18);box-shadow:0 3px 8px rgba(24,48,66,0.14)}
+.badge-chip-lg{width:42px;height:42px;font-size:1.6rem;background:#fffdf6;border:1.5px solid #ecd38c;box-shadow:0 3px 10px rgba(24,48,66,0.12)}
+.badge-chip-lg:hover{transform:scale(1.18);box-shadow:0 5px 14px rgba(217,149,33,0.28)}
+
+.calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}.dow{text-align:center;color:var(--muted);font-size:.72rem;font-weight:800;padding-bottom:2px}.blank{min-height:85px}.day{min-height:85px;padding:9px;border:1px solid var(--line);border-radius:13px;background:#fbfcfd;cursor:pointer;transition:.15s;text-align:left;color:var(--ink)}.day:hover,.day:focus{transform:translateY(-2px);box-shadow:0 7px 16px rgba(24,48,66,.1);outline:none}.day.today{box-shadow:0 0 0 2px var(--blue)}.day.complete{background:#e8f6ee;border-color:#a8d9be}.day.partial{background:#fff7e7;border-color:#efcf91}.day.missed{background:#fdecec;border-color:#edb2b2}.day.future{opacity:.65}.day-num{font-weight:800}.day-min{font-size:.9rem;margin-top:12px;font-weight:750}.day-note{font-size:.69rem;color:var(--muted);margin-top:4px}
+
+.today-form{display:grid;gap:13px}
+.field label{display:block;font-weight:750;font-size:.85rem;margin-bottom:6px}
+.field input[type=number], .field select{width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;background:#fbfcfd}
+.activity-list{display:grid;gap:10px}
+.activity-row-wrap{background:#f8fafb;border:1px solid var(--line);border-radius:10px;padding:8px}
+.activity-row{display:grid;grid-template-columns:1.3fr 1fr;gap:6px;align-items:center}
+.activity-row select{padding:8px;border:1px solid var(--line);border-radius:8px;background:#fff;font-size:.85rem}
+.activity-row input[type=number]{padding:8px;border:1px solid var(--line);border-radius:8px;background:#fff;font-size:.85rem}
+.activity-note-box{margin-top:7px}
+.activity-note-box input{width:100%;padding:7px 9px;border:1px solid var(--line);border-radius:7px;font-size:.8rem;background:#fff}
+.day-total-banner{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:#f4f8fa;border-radius:8px;font-size:.86rem;font-weight:750}
+.check{display:flex;align-items:center;gap:9px;padding:11px;background:#f5f8f9;border-radius:10px;font-size:.88rem;cursor:pointer}.check input{width:18px;height:18px;cursor:pointer}
+.btn{border:0;border-radius:11px;padding:11px 13px;font-weight:800;cursor:pointer;width:100%}.primary{background:var(--blue);color:white}.btn:hover{filter:brightness(.96)}
+.status{padding:13px;border-radius:12px;background:#eef7f8;line-height:1.45;font-size:.9rem}.legend{display:flex;flex-wrap:wrap;gap:12px;color:var(--muted);font-size:.76rem}.dot{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:5px}.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(70px);background:#173b57;color:white;padding:11px 18px;border-radius:99px;opacity:0;transition:.25s;z-index:9999}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.notice{font-size:.79rem;color:var(--muted);line-height:1.45}
+.hidden{display:none !important}
+
+.table-wrap{overflow-x:auto}
+.leader-table{width:100%;border-collapse:collapse;text-align:left;font-size:.9rem}
+.leader-table th{background:#f4f7f9;color:var(--muted);font-size:.78rem;font-weight:750;text-transform:uppercase;padding:12px 14px;border-bottom:1px solid var(--line)}
+.leader-table td{padding:12px 14px;border-bottom:1px solid #edf2f5;vertical-align:middle}
+.leader-user{display:flex;align-items:center;gap:10px;min-width:0;max-width:180px}
+.leader-user strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block}
+.leader-rank{font-weight:800;font-size:1.05rem;color:var(--muted);width:26px}
+.rank-1{color:#d99521}.rank-2{color:#8b9ba5}.rank-3{color:#b37648}
+
+.finishers-panel{border:2px solid #ecd38c;background:linear-gradient(180deg,#fffdf7,#ffffff);position:relative;overflow:hidden}
+.finishers-banner{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.finishers-badge-pill{background:#fdf5de;border:1px solid #f6df9d;color:#9b6e14;padding:4px 10px;border-radius:99px;font-size:0.80rem;font-weight:800;display:inline-flex;align-items:center;gap:5px}
+.bonus-min-pill{background:#ecf7ed;border:1px solid #c2e9c7;color:#207842;padding:3px 8px;border-radius:8px;font-size:0.85rem;font-weight:800;display:inline-flex;align-items:center;gap:4px}
+
+.movement-cell{width:36px;text-align:center;padding-left:4px;padding-right:4px}
+.movement-indicator{display:inline-flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:800;border-radius:6px;padding:2px 5px;min-width:26px}
+.move-up{color:#238255;background:#e7f7ed}
+.move-down{color:#c94d4d;background:#feecec}
+.move-same{color:var(--muted);background:#f2f5f7}
+
+.tag{display:inline-block;padding:3px 8px;border-radius:6px;font-size:.76rem;font-weight:700}
+.tag-good{background:#e8f6ee;color:#2b9a66}.tag-warn{background:#fff7e7;color:#d99521}.tag-neutral{background:#eef3f6;color:var(--muted)}
+
+.streak-tag{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:6px;font-size:.78rem;font-weight:800;background:#fff5eb;color:#c84f10;border:1px solid #fedbc0}
+.streak-tag-zero{background:#f4f6f8;color:var(--muted);border:1px solid var(--line)}
+
+.badges-cell{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+
+.leader-charts{display:flex;align-items:center;gap:10px}
+.mini-donut-wrap{display:flex;flex-direction:column;align-items:center;gap:3px}
+.mini-donut-sub{font-size:0.65rem;color:var(--muted);font-weight:750;text-transform:uppercase;letter-spacing:0.04em}
+.mini-donut{
+  width:40px;
+  height:40px;
+  border-radius:50%;
+  position:relative;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  box-shadow:0 2px 6px rgba(24,48,66,0.12);
+  flex-shrink:0;
+  transition:transform 0.12s ease;
+}
+.mini-donut:hover{transform:scale(1.1)}
+.mini-donut::after{
+  content:"";
+  position:absolute;
+  width:22px;
+  height:22px;
+  border-radius:50%;
+  background:var(--paper);
+}
+
+.chart-custom-tooltip{
+  position:fixed;
+  pointer-events:none;
+  background:#173b57;
+  color:white;
+  padding:9px 13px;
+  border-radius:10px;
+  font-size:0.80rem;
+  font-weight:550;
+  box-shadow:0 10px 28px rgba(23,59,87,0.36);
+  z-index:99999;
+  white-space:nowrap;
+  transform:translate(-50%, -115%);
+  transition:opacity 0.15s ease;
+  min-width:130px;
+}
+
+.feed-container{display:grid;gap:12px;margin-top:14px}
+.feed-item{display:flex;align-items:flex-start;gap:14px;padding:14px;background:#fbfcfd;border:1px solid var(--line);border-radius:14px}
+.feed-avatar{width:42px;height:42px;border-radius:50%;border:2px solid var(--line);object-fit:cover;flex-shrink:0}
+.feed-content{flex:1}
+.feed-header{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.feed-user{font-weight:750;color:var(--navy);max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.feed-date{font-size:0.75rem;color:var(--muted)}
+.feed-activity{margin-top:4px;font-size:0.92rem}
+.feed-type-badge{display:inline-block;padding:2px 7px;border-radius:6px;font-size:0.75rem;font-weight:700;margin-left:4px}
+.feed-type-Bootcamp{background:#feebe6;color:#c8421a}
+.feed-type-Cardio{background:#e7f3fb;color:#2674a8}
+.feed-type-CrossFit{background:#fef5e7;color:#d99521}
+.feed-type-Weights{background:#eaf6ee;color:#2b9a66}
+.feed-type-ResistanceTraining{background:#f4edf9;color:#8352b2}
+.feed-type-Yoga{background:#e5f7f6;color:#187a82}
+.feed-type-Other{background:#f0f4f7;color:#6b7c88}
+.feed-type-Drinks{background:#fef3e7;color:#d99521}
+.feed-type-MissedDay{background:#fdecec;color:#c94d4d}
+.feed-note{margin-top:6px;padding:8px 12px;background:#ffffff;border-left:3px solid var(--blue);border-radius:4px 8px 8px 4px;font-size:0.82rem;color:var(--ink);font-style:italic}
+
+.rules-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;margin-top:14px}
+.rule-card{padding:16px;background:#fbfcfd;border:1px solid var(--line);border-radius:14px}
+.rule-card h3{margin:0 0 8px;font-size:1rem;color:var(--navy);display:flex;align-items:center;gap:8px}
+.rule-card p{margin:0;font-size:.88rem;color:var(--ink);line-height:1.45}
+
+.app-footer{margin-top:24px;padding:16px;text-align:center;color:var(--muted);font-size:0.85rem;display:flex;flex-direction:column;align-items:center;gap:8px}
+.user-count-badge{background:var(--paper);border:1px solid var(--line);border-radius:99px;padding:6px 16px;font-weight:750;color:var(--navy);display:inline-flex;align-items:center;gap:6px;box-shadow:0 4px 12px rgba(24,48,66,0.04)}
+
+.modal-overlay{position:fixed;inset:0;background:rgba(23,59,87,0.55);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;z-index:10000;padding:16px}
+.modal-overlay.show{display:flex}
+.modal-card{background:var(--paper);border-radius:20px;padding:24px;max-width:440px;width:100%;box-shadow:0 16px 40px rgba(24,48,66,0.22);border:1px solid var(--line);position:relative}
+.modal-card h3{margin:0 0 8px;font-size:1.25rem;color:var(--navy)}
+.modal-card p{margin:0 0 18px;font-size:0.88rem;color:var(--muted);line-height:1.45}
+.modal-actions{display:grid;gap:10px}
+.modal-btn{padding:11px 16px;border-radius:11px;font-weight:750;cursor:pointer;border:1px solid transparent;font-size:0.88rem;display:flex;align-items:center;justify-content:center;gap:8px;transition:0.15s}
+.modal-btn-standard{background:#f0f4f8;color:var(--ink);border-color:var(--line)}
+.modal-btn-standard:hover{background:#e3ebf2}
+.modal-btn-hide{background:#fdecec;color:var(--red);border-color:#f6c3c3}
+.modal-btn-hide:hover{background:#fadbdc}
+.modal-btn-cancel{background:transparent;color:var(--muted);border:0;padding:8px}
+.modal-btn-cancel:hover{color:var(--ink)}
+
+/* Story Modal Compact Instagram Proportion Overhaul */
+.story-modal-overlay{position:fixed;inset:0;background:rgba(10,23,34,0.85);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;z-index:10001;padding:12px;overflow-y:auto}
+.story-modal-overlay.show{display:flex}
+.story-shell{position:relative;max-width:390px;width:100%;display:flex;flex-direction:column;align-items:center;margin:auto}
+.story-card{
+  width:100%;
+  background:linear-gradient(165deg,#0c1d2d 0%,#15364e 45%,#1c4a68 100%);
+  color:white;
+  border-radius:22px;
+  border:1.5px solid rgba(255,255,255,0.20);
+  box-shadow:0 20px 50px rgba(0,0,0,0.50);
+  padding:15px 14px 13px;
+  position:relative;
+  box-sizing:border-box;
+}
+
+.story-header-compact{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  padding-bottom:10px;
+  border-bottom:1px solid rgba(255,255,255,0.14);
+  margin-bottom:10px;
+}
+.story-profile-mini{display:flex;align-items:center;gap:9px;min-width:0}
+.story-avatar{width:38px;height:38px;border-radius:50%;border:2px solid #24a7b6;object-fit:cover;flex-shrink:0}
+.story-user-meta{min-width:0}
+.story-user-name{font-weight:850;font-size:0.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#fff}
+.story-status-pill{display:inline-block;padding:2px 7px;border-radius:99px;font-size:0.68rem;font-weight:800;letter-spacing:0.02em;text-transform:uppercase}
+.story-status-finisher{background:#238255;color:#ffffff}
+.story-status-competitor{background:#3b6d8c;color:#ffffff}
+.story-brand-tag{text-align:right;flex-shrink:0}
+.story-brand-tag-title{font-size:0.65rem;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;color:rgba(255,255,255,0.75)}
+.story-brand-tag-year{font-size:0.90rem;font-weight:900;color:#67e8f9;line-height:1}
+
+.story-hero-split{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  background:radial-gradient(circle at left center,rgba(36,167,182,0.22) 0%,rgba(23,59,87,0) 70%);
+  padding:6px 8px 10px;
+  margin-bottom:10px;
+  gap:10px;
+}
+.story-pct-huge{font-size:2.55rem;font-weight:900;line-height:1;background:linear-gradient(135deg,#67e8f9,#6ee7b7);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.story-hero-right{text-align:right}
+.story-hero-sub{font-size:0.86rem;font-weight:800;color:#ffffff;line-height:1.2}
+.story-arch-pill{
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  background:linear-gradient(135deg,rgba(217,149,33,0.30),rgba(131,82,178,0.30));
+  border:1px solid rgba(236,211,140,0.50);
+  border-radius:99px;
+  padding:3px 9px;
+  margin-top:4px;
+  font-size:0.75rem;
+  font-weight:800;
+  color:#ffe299;
+}
+
+.story-grid-6{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:6px;
+  margin-bottom:10px;
+}
+.story-stat-cell{
+  background:rgba(255,255,255,0.08);
+  border:1px solid rgba(255,255,255,0.12);
+  border-radius:10px;
+  padding:6px 7px;
+  text-align:center;
+}
+.story-stat-label{font-size:0.65rem;color:rgba(255,255,255,0.75);font-weight:800;text-transform:uppercase;letter-spacing:0.03em}
+.story-stat-val{font-size:1.02rem;font-weight:850;color:#ffffff;margin-top:1px;white-space:nowrap}
+.story-stat-sub{font-size:0.66rem;color:rgba(255,255,255,0.65);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+.story-discipline-box{
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.11);
+  border-radius:12px;
+  padding:8px 10px;
+  margin-bottom:10px;
+}
+.story-discipline-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.story-discipline-title{font-size:0.68rem;font-weight:800;color:rgba(255,255,255,0.8);text-transform:uppercase;letter-spacing:0.04em}
+.story-discipline-totals{font-size:0.74rem;font-weight:800;color:#67e8f9}
+.story-discipline-compact-row{display:flex;align-items:center;gap:10px}
+.story-donuts-mini-pair{display:flex;gap:7px;align-items:center;flex-shrink:0}
+.story-discipline-grid{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.story-disc-item{
+  background:rgba(255,255,255,0.07);
+  border:1px solid rgba(255,255,255,0.09);
+  border-radius:7px;
+  padding:4px 6px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  font-size:0.72rem;
+}
+.story-disc-left{display:flex;align-items:center;gap:4px;font-weight:750;color:#ffffff;overflow:hidden;white-space:nowrap}
+.story-disc-right{text-align:right;font-size:0.70rem;color:rgba(255,255,255,0.9);flex-shrink:0}
+
+.story-cabinet{
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.11);
+  border-radius:12px;
+  padding:8px 10px;
+  margin-bottom:8px;
+}
+.story-cabinet-title{font-size:0.68rem;font-weight:800;color:rgba(255,255,255,0.8);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:5px}
+.story-badge-row{display:flex;gap:5px;flex-wrap:wrap}
+.story-badge-item{display:inline-flex;align-items:center;gap:4px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.20);padding:3px 7px;border-radius:99px;font-size:0.72rem;font-weight:800;color:#ffffff}
+
+.story-footer-copy{text-align:center;font-size:0.65rem;color:rgba(255,255,255,0.55);letter-spacing:0.06em;text-transform:uppercase;font-weight:750;margin-top:4px}
+
+.story-actions-bar{display:flex;gap:8px;width:100%;margin-top:10px}
+.story-action-btn{flex:1;padding:11px 14px;border-radius:11px;font-weight:800;font-size:0.90rem;cursor:pointer;border:0;display:flex;align-items:center;justify-content:center;gap:6px;transition:filter 0.15s,transform 0.12s}
+.btn-story-image{background:linear-gradient(135deg,#34d399,#059669);color:#ffffff;box-shadow:0 4px 14px rgba(5,150,105,0.38)}
+.btn-story-image:hover{filter:brightness(1.08);transform:translateY(-1px)}
+.btn-story-close{background:rgba(255,255,255,0.15);color:#ffffff;max-width:90px;border:1px solid rgba(255,255,255,0.22)}
+.btn-story-close:hover{background:rgba(255,255,255,0.24)}
+
+@media(max-width:900px){.summary{grid-template-columns:repeat(2,1fr)}.layout{grid-template-columns:1fr}.summary .metric:last-child{grid-column:span 2}}
+@media(max-width:620px){.app{padding:12px}.hero{border-radius:17px;padding:19px}.hero-top{display:block}.hero-actions{margin-top:12px;flex-wrap:wrap}.calendar{gap:4px}.day{min-height:69px;padding:6px;border-radius:9px}.day-min{font-size:.76rem;margin-top:8px}.day-note{font-size:.59rem}.blank{min-height:69px}.panel{padding:13px}.metric{padding:13px}.metric .value{font-size:1.28rem}.pb-strip{grid-template-columns:1fr;gap:6px}.pb-item{padding:7px 10px}}
+</style>
 </head>
-<body class="min-h-screen radial-bg pb-20 selection:bg-indigo-500 selection:text-white">
+<body>
 
-  <!-- Top Navigation with Back to Hub Button -->
-  <header class="border-b border-slate-800/80 bg-slate-950/70 sticky top-0 z-40 backdrop-blur-md px-4 py-3">
-    <div class="max-w-3xl mx-auto flex items-center justify-between">
-      <div class="flex items-center gap-2.5">
-        <a href="index.html" class="text-slate-400 hover:text-white text-xs font-semibold px-2.5 py-1.5 rounded-xl hover:bg-slate-800/80 border border-slate-800 transition flex items-center gap-1.5 shadow-sm">
-          <i class="fa-solid fa-arrow-left text-[11px]"></i>
-          <span>Hub</span>
-        </a>
-        <div class="h-4 w-px bg-slate-800"></div>
-        <span class="text-xl">🏆</span>
-        <div>
-          <div class="flex items-center gap-1.5">
-            <h1 class="text-sm font-black text-white tracking-tight leading-none">SEPTEMBER CHALLENGE</h1>
-            <span class="text-[9px] uppercase tracking-wider font-extrabold px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">v9.0</span>
-          </div>
-          <span class="text-[10px] text-amber-400 font-semibold tracking-wide">Archived Season Record</span>
+<div class="app">
+  <header class="hero">
+    <div class="hero-top">
+      <div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+          <a href="index.html" class="nav-hub-btn">
+            <span>&larr;</span> <span>Hub</span>
+          </a>
+          <span class="archive-pill">🔒 Locked Season Archive</span>
         </div>
+        <h1>September Fitness Challenge</h1>
+        <p>Official verified records, group standings, daily entries, and final report cards.</p>
       </div>
-
-      <!-- User Auth State -->
-      <div id="authSection" class="flex items-center gap-2">
-        <button id="loginBtn" class="flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white text-xs font-semibold px-3.5 py-1.5 rounded-xl transition shadow-lg shadow-indigo-600/30">
-          <i class="fa-brands fa-google text-xs"></i>
-          <span>Sign In</span>
+      <div class="hero-actions">
+        <select id="year" class="year-select" aria-label="Challenge year"></select>
+        <button id="authBtn" class="auth-btn">Sign in with Google</button>
+        <button id="launchRecapBtn" class="btn-recap-launch" title="View your final month-end challenge report card">
+          <span>📜</span> <span>Month-End Recap</span>
         </button>
-        <div id="userProfile" class="hidden flex items-center gap-2.5">
-          <div class="flex items-center gap-2 bg-slate-900/80 border border-slate-800 py-1 px-2.5 rounded-full">
-            <img id="userAvatar" class="w-6 h-6 rounded-full border border-slate-700 object-cover" src="https://placehold.co/40x40/1e293b/94a3b8?text=U" alt="Profile" />
-            <span id="navDisplayName" class="text-xs font-semibold text-slate-200 max-w-[100px] truncate">Athlete</span>
-          </div>
-          <button id="logoutBtn" title="Log Out" class="text-xs text-slate-400 hover:text-rose-400 p-1.5 transition">
-            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+        <div id="userProfile" class="user-info">
+          <img id="userImg" class="user-avatar" alt="Avatar">
+          <span id="userName" style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
+          <button id="privacyPill" class="privacy-pill" title="You are hidden from the group standings. Click to re-join!">
+            <span>🙈 Hidden</span> &bull; <span>Re-join</span>
           </button>
+          <button id="signOutBtn" style="background:none;border:0;color:#ffd1d1;cursor:pointer;font-size:0.8rem;text-decoration:underline;">Logout</button>
         </div>
       </div>
     </div>
+    <div class="version-tag">v9.0 Archive</div>
   </header>
 
-  <main class="max-w-3xl mx-auto px-4 mt-6 space-y-6">
-
-    <!-- Archived Season Banner -->
-    <div class="glass-panel border border-amber-500/30 rounded-2xl p-5 bg-amber-500/5">
-      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/40 flex items-center justify-center text-lg">
-            🏆
-          </div>
-          <div>
-            <h3 class="text-sm font-bold text-white flex items-center gap-2">
-              <span>Season Completed & Locked</span>
-              <span class="text-[10px] bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full border border-amber-500/40 font-bold">MVP: Dimitri</span>
-            </h3>
-            <p class="text-xs text-slate-400 mt-0.5">
-              September data is locked and serves as your baseline for the active November challenge.
-            </p>
-          </div>
-        </div>
-        <a href="november.html" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-4 py-2 rounded-xl transition shadow-md">
-          Open November &rarr;
-        </a>
+  <div class="toolbar">
+    <nav class="tabs">
+      <button id="tabDashboard" class="tab-btn active">Dashboard & History</button>
+      <button id="tabLeaderboard" class="tab-btn">Final Standings</button>
+      <button id="tabFeed" class="tab-btn">Activity Feed</button>
+      <button id="tabRules" class="tab-btn">Season Rules</button>
+      <button id="tabDrinkLeaderboard" class="tab-btn hidden" style="border-color:var(--amber);color:var(--amber)">🍻 Sweat Hard, Sip Harder Standings</button>
+    </nav>
+    <div class="options-pill">
+      <div class="opt-field" title="Your daily activity goal for September.">
+        <label for="dailyGoalInput">Daily Goal:</label>
+        <input id="dailyGoalInput" type="number" min="15" max="180" step="5" value="30" disabled title="Locked in archive mode">
+        <span>min</span>
       </div>
+      <label class="check" style="background:transparent;padding:0;gap:7px">
+        <input id="enableDrinkPenalty" type="checkbox" checked disabled title="Locked in archive mode">
+        <span style="font-weight:750;font-size:0.85rem;color:var(--muted)">Drink Penalty Active (+30m)</span>
+      </label>
     </div>
+  </div>
 
-    <!-- September Final Leaderboard & Records -->
-    <div class="glass-panel rounded-2xl p-5 sm:p-6 shadow-2xl">
-      <div class="flex items-center justify-between pb-4 border-b border-slate-800">
-        <div>
-          <h2 class="font-bold text-sm text-white flex items-center gap-2">
-            <span>🎖️</span> Official September Leaderboard
-          </h2>
-          <p class="text-[11px] text-slate-400">Final verified minutes logged and achievement honors</p>
-        </div>
-        <button id="refreshSeptBoardBtn" class="text-xs text-slate-400 hover:text-white px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 transition">
-          <i class="fa-solid fa-rotate-right text-[10px]"></i>
-        </button>
-      </div>
+  <div id="dashboardView">
+    <section class="summary">
+      <div class="card metric"><div class="label">Counted activity</div><div class="value" id="completed">0 min</div><div class="sub" id="actualMinutes">0 actual minutes</div></div>
+      <div class="card metric"><div class="label">Adjusted target</div><div class="value" id="target">900 min</div><div class="sub" id="baseTargetSub">Base: 900 minutes (30m/day)</div></div>
+      <div class="card metric"><div class="label">Remaining</div><div class="value" id="remaining">0 min</div><div class="sub" id="remainingHours">0 hours</div></div>
+      <div class="card metric"><div class="label">Drinks logged <span id="secretDrinkTrigger" style="cursor:pointer;user-select:none" title="Secret Standings">🍺</span></div><div class="value" id="drinksTotal">0</div><div class="sub" id="drinkPenalty">+0 min</div></div>
+      <div class="card metric"><div class="label">Missed days</div><div class="value" id="missedTotal">0</div><div class="sub" id="missPenalty">+0 min</div></div>
+    </section>
 
-      <div id="septLeaderboardList" class="divide-y divide-slate-800/80 mt-2">
-        <div class="py-6 text-center text-xs text-slate-500 flex items-center justify-center gap-2">
-          <i class="fa-solid fa-spinner fa-spin"></i> Loading archive standings...
-        </div>
-      </div>
-    </div>
-
-  </main>
-
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyCbxoN1DLvMqxZb7FD4qu8p7k6lnD5ENP4",
-      authDomain: "fitness-challenge-smason.firebaseapp.com",
-      projectId: "fitness-challenge-smason",
-      storageBucket: "fitness-challenge-smason.firebasestorage.app",
-      messagingSenderId: "913152392975",
-      appId: "1:913152392975:web:293669fb86f2e0dd03487a",
-      measurementId: "G-PP4QLCW7Q4"
-    };
-
-    if (!firebase.apps.length) {
-      firebase.initializeApp(firebaseConfig);
-    }
-
-    const auth = firebase.auth();
-    const db = firebase.firestore();
-
-    auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(console.error);
-
-    const loginBtn = document.getElementById('loginBtn');
-    const logoutBtn = document.getElementById('logoutBtn');
-    const userProfile = document.getElementById('userProfile');
-    const userAvatar = document.getElementById('userAvatar');
-    const navDisplayName = document.getElementById('navDisplayName');
-
-    loginBtn.onclick = () => {
-      const provider = new firebase.auth.GoogleAuthProvider();
-      auth.signInWithPopup(provider).catch(() => auth.signInWithRedirect(provider));
-    };
-
-    logoutBtn.onclick = () => auth.signOut();
-
-    auth.onAuthStateChanged((user) => {
-      if (user) {
-        loginBtn.classList.add('hidden');
-        userProfile.classList.remove('hidden');
-        navDisplayName.textContent = user.displayName || 'Athlete';
-        if (user.photoURL) userAvatar.src = user.photoURL;
-      } else {
-        loginBtn.classList.remove('hidden');
-        userProfile.classList.add('hidden');
-      }
-      loadSeptemberLeaderboard();
-    });
-
-    async function loadSeptemberLeaderboard() {
-      const boardEl = document.getElementById('septLeaderboardList');
-      try {
-        const snap = await db.collection('users').get();
-        if (snap.empty) {
-          boardEl.innerHTML = `<div class="py-8 text-center text-xs text-slate-500">No records found.</div>`;
-          return;
-        }
-
-        const users = [];
-        snap.forEach(doc => users.push({ id: doc.id, ...doc.data() }));
-        // Rank by September total minutes
-        users.sort((a, b) => (b.totalMinutes || b.totalLogged || 0) - (a.totalMinutes || a.totalLogged || 0));
-
-        boardEl.innerHTML = '';
-        users.forEach((u, idx) => {
-          const rank = idx + 1;
-          const isDimitri = (u.displayName && u.displayName.toLowerCase().includes('dimitri')) || rank === 1;
-          const row = document.createElement('div');
-          row.className = "py-3 px-2 rounded-xl flex items-center justify-between hover:bg-slate-900/50 transition";
-
-          let medal = `<span class="text-xs font-bold text-slate-500 w-5">${rank}</span>`;
-          if (rank === 1) medal = `<span class="text-base w-5">🥇</span>`;
-          if (rank === 2) medal = `<span class="text-base w-5">🥈</span>`;
-          if (rank === 3) medal = `<span class="text-base w-5">🥉</span>`;
-
-          const totalMins = u.totalMinutes || u.totalLogged || 0;
-
-          row.innerHTML = `
-            <div class="flex items-center gap-3">
-              ${medal}
-              <img src="${u.photoURL || 'https://placehold.co/40x40/1e293b/94a3b8?text=A'}" class="w-8 h-8 rounded-full border border-slate-700 object-cover" onerror="this.src='https://placehold.co/40x40/1e293b/94a3b8?text=A'" />
-              <div>
-                <div class="text-xs font-bold text-white flex items-center gap-1.5">
-                  <span>${u.displayName || 'Athlete'}</span>
-                  ${isDimitri ? '<span class="text-[10px] bg-amber-500/20 text-amber-300 px-1.5 py-0.2 rounded font-bold border border-amber-500/30">🏆 MVP</span>' : ''}
-                </div>
-                <div class="text-[10px] text-slate-400 mt-0.5">
-                  Final Volume: <span class="text-slate-200 font-semibold">${totalMins} min</span>
-                  ${u.drinkCount !== undefined ? `&bull; ${u.drinkCount} drinks` : ''}
-                </div>
+    <div class="layout">
+      <main>
+        <section class="panel">
+          <div class="panel-header-row">
+            <h2>Challenge progress</h2>
+            <div class="header-badges-wrap">
+              <div id="dashboardBadges" class="dashboard-badges"></div>
+              <div id="streakPill" class="streak-pill streak-zero" title="Consecutive days meeting your daily goal">
+                <span>🔥</span> <span id="streakCount">0-day streak</span>
               </div>
             </div>
-            <div class="text-right">
-              <div class="text-sm font-black text-amber-400">${totalMins}m</div>
-              <div class="text-[10px] text-slate-500">recorded</div>
+          </div>
+          <div class="progress-shell"><div id="progressBar" class="progress-bar"></div></div>
+          <div class="progress-copy"><span id="progressText">0% complete</span><span id="paceText">Season Completed</span></div>
+
+          <div class="pb-strip" id="pbStrip">
+            <div class="pb-item">
+              <div class="pb-label">Longest Streak</div>
+              <div class="pb-val" id="pbStreak">🔥 0 Days</div>
+              <div class="pb-sub" id="pbStreakSub">Personal record</div>
             </div>
-          `;
-          boardEl.appendChild(row);
+            <div class="pb-item">
+              <div class="pb-label">Biggest Day</div>
+              <div class="pb-val" id="pbBiggestDay">⏱️ 0 min</div>
+              <div class="pb-sub" id="pbBiggestDaySub">No activity yet</div>
+            </div>
+            <div class="pb-item">
+              <div class="pb-label">Favorite Workout</div>
+              <div class="pb-val" id="pbFavWorkout">👟 —</div>
+              <div class="pb-sub" id="pbFavWorkoutSub">0 min logged</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h2>September calendar (Tap to inspect day)</h2>
+          <div class="calendar" id="calendar"></div>
+          <div class="legend" style="margin-top:14px">
+            <span id="legendComplete"><i class="dot" style="background:#7bc99d"></i>30+ min</span>
+            <span id="legendPartial"><i class="dot" style="background:#ebbd5f"></i>1–29 min</span>
+            <span><i class="dot" style="background:#dd7777"></i>Missed</span>
+            <span>Tap any calendar day to inspect recorded workouts</span>
+          </div>
+        </section>
+      </main>
+
+      <aside>
+        <section class="panel">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+            <h2 id="entryTitle" style="margin:0">September Entry</h2>
+            <span style="font-size:0.72rem;background:#f0f4f8;border:1px solid var(--line);padding:2px 8px;border-radius:6px;font-weight:750;color:var(--muted)">Read-Only</span>
+          </div>
+          <div class="today-form">
+            <div class="field">
+              <label>Recorded Activities</label>
+              <div id="activityContainer" class="activity-list"></div>
+            </div>
+
+            <div class="day-total-banner">
+              <span>Day total:</span>
+              <span id="dayTotalDisplay">0 min</span>
+            </div>
+
+            <div class="field">
+              <label for="drinks">Drinks logged</label>
+              <input id="drinks" type="number" min="0" step="1" inputmode="numeric" disabled>
+            </div>
+
+            <label class="check" style="opacity:0.8;cursor:default"><input id="missed" type="checkbox" disabled> Marked as missed day</label>
+            
+            <div style="background:#fdf6e7;border:1px solid #fae1b4;border-radius:10px;padding:10px;text-align:center;font-size:0.80rem;color:#92510b;font-weight:750">
+              🔒 September entries are locked. Head to the Hub for active challenges.
+            </div>
+          </div>
+        </section>
+        
+        <section class="panel">
+          <h2>Season Summary</h2>
+          <div class="status" id="forecast">Reviewing official verified records for September.</div>
+        </section>
+      </aside>
+    </div>
+  </div>
+
+  <div id="leaderboardView" class="hidden">
+    <section id="finishersPanel" class="panel finishers-panel hidden" style="margin-top:0">
+      <div class="finishers-banner">
+        <div>
+          <h2 style="margin:0;color:#855c0c;display:flex;align-items:center;gap:8px">
+            <span>🏆</span> Finishers Circle (100% Target Met)
+          </h2>
+        </div>
+        <span class="finishers-badge-pill" id="finishersCountBadge">🎖️ 0 Finishers</span>
+      </div>
+
+      <div class="table-wrap hidden" id="finishersTableWrap">
+        <table class="leader-table">
+          <thead>
+            <tr>
+              <th style="width:36px">Rank</th>
+              <th style="width:36px;text-align:center">+/-</th>
+              <th>Participant</th>
+              <th>Goal / Mode</th>
+              <th>Progress</th>
+              <th>Bonus Minutes</th>
+              <th>Streak</th>
+              <th>Sessions/Minutes</th>
+              <th>Penalties</th>
+              <th>Badges</th>
+            </tr>
+          </thead>
+          <tbody id="finishersLeaderboardBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel" style="margin-top:16px">
+      <div style="margin-bottom:12px">
+        <h2 style="margin:0">🏃 Final Standings (<span id="leaderboardYear">2026</span>)</h2>
+        <p style="margin:3px 0 0;color:var(--muted);font-size:0.84rem">Verified participant standings from the September Challenge.</p>
+      </div>
+      <div class="table-wrap">
+        <table class="leader-table">
+          <thead>
+            <tr>
+              <th style="width:36px">Rank</th>
+              <th style="width:36px;text-align:center" title="Rank change compared to yesterday">+/-</th>
+              <th>Participant</th>
+              <th>Goal / Mode</th>
+              <th>Progress</th>
+              <th>Streak</th>
+              <th>Sessions/Minutes</th>
+              <th>Penalties</th>
+              <th>Badges</th>
+            </tr>
+          </thead>
+          <tbody id="leaderboardBody">
+            <tr><td colspan="9" style="text-align:center;color:var(--muted)">Loading standings...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <div id="rulesView" class="hidden">
+    <section class="panel" style="margin-top:0">
+      <h2>Challenge Rules & Guidelines</h2>
+      <p style="margin-top:0;color:var(--muted);font-size:0.92rem">The goal of the September Fitness Challenge was sustained daily discipline and consistency.</p>
+      
+      <div class="rules-grid">
+        <div class="rule-card">
+          <h3>👟 Multi-Activity Tracking</h3>
+          <p>Participants logged multiple activity sessions per day (Bootcamp, Cardio, Cross Fit, Weights, Resistance Training, Yoga, Other) with optional notes.</p>
+        </div>
+
+        <div class="rule-card">
+          <h3>⏱️ Daily Baseline</h3>
+          <p>The standard baseline was <strong>30 minutes per day</strong> (30 days &times; 30 min = <strong>900 min base</strong>).</p>
+        </div>
+
+        <div class="rule-card">
+          <h3>🏅 Achievement Badges</h3>
+          <p>Milestone badges were awarded dynamically throughout September, including Dimitri's MVP award and the Finishers podium.</p>
+        </div>
+
+        <div class="rule-card">
+          <h3>🍺 Drink Penalty</h3>
+          <p>Each alcoholic drink added a <strong>+30 minute penalty</strong> to the participant's overall September volume.</p>
+        </div>
+
+        <div class="rule-card">
+          <h3>❌ Missed-Day Policy</h3>
+          <p>Any September day with 0 logged minutes counted as a missed day (+your daily target penalty).</p>
+        </div>
+
+        <div class="rule-card">
+          <h3>🎯 Adjusted Target Formula</h3>
+          <p><strong>Total Target = (30 &times; Daily Goal) + Drink Penalties + Missed Day Penalties</strong>.</p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div id="feedView" class="hidden">
+    <section class="panel" style="margin-top:0">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+        <div>
+          <h2 style="margin:0">Verified Season Activity Feed</h2>
+          <p style="margin:4px 0 0;color:var(--muted);font-size:0.86rem">The chronological feed of workouts logged across the group during September.</p>
+        </div>
+        <button id="refreshFeedBtn" class="tab-btn" style="padding:7px 14px;font-size:0.82rem">🔄 Refresh Feed</button>
+      </div>
+      <div id="feedContainer" class="feed-container">
+        <div style="text-align:center;color:var(--muted);padding:30px">Loading activity stream...</div>
+      </div>
+    </section>
+  </div>
+
+  <div id="drinkLeaderboardView" class="hidden">
+    <section class="panel" style="margin-top:0">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:14px">
+        <div>
+          <h2 style="margin:0">🍻 Sweat Hard, Sip Harder Standings (<span id="drinkLeaderboardYear">2026</span>)</h2>
+        </div>
+        <button id="closeDrinkLeaderboardBtn" class="tab-btn" style="padding:7px 14px;font-size:0.82rem">✕ Close Secret Board</button>
+      </div>
+      <div class="table-wrap">
+        <table class="leader-table">
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>Participant</th>
+              <th>Drinks Logged</th>
+              <th>Sweat Proof</th>
+            </tr>
+          </thead>
+          <tbody id="drinkLeaderboardBody">
+            <tr><td colspan="4" style="text-align:center;color:var(--muted);padding:20px">Loading secret standings...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <footer class="app-footer">
+    <div class="user-count-badge">
+      <span>👥 Challengers Enrolled:</span>
+      <strong id="uniqueUsersCount">1 enrolled</strong>
+    </div>
+    <div id="footerVersion" class="footer-version" style="cursor:pointer;padding:4px 8px;border-radius:6px;transition:background 0.15s" title="Tap to preview End-of-Challenge Story Recap">
+      September Fitness Challenge &bull; v9.0 Archive
+    </div>
+  </footer>
+</div>
+
+<!-- Compact Instagram-Proportioned Story Recap Modal -->
+<div id="recapModal" class="story-modal-overlay">
+  <div class="story-shell">
+    <div class="story-card" id="storyCardContent">
+      
+      <!-- Top Profile & Challenge Tag -->
+      <div class="story-header-compact">
+        <div class="story-profile-mini">
+          <img id="recapAvatar" class="story-avatar" src="https://placehold.co/38x38/1e293b/94a3b8?text=U" alt="User">
+          <div class="story-user-meta">
+            <div id="recapName" class="story-user-name">Challenger</div>
+            <span id="recapStatusBadge" class="story-status-pill story-status-finisher">Challenge Finisher 🏆</span>
+          </div>
+        </div>
+        <div class="story-brand-tag">
+          <div class="story-brand-tag-title">September Challenge</div>
+          <div id="recapYearLabel" class="story-brand-tag-year">2026</div>
+        </div>
+      </div>
+
+      <!-- High-Density Hero Section -->
+      <div class="story-hero-split">
+        <div id="recapPct" class="story-pct-huge">100%</div>
+        <div class="story-hero-right">
+          <div id="recapMinutesSub" class="story-hero-sub">900m Counted (15.0h)</div>
+          <div class="story-arch-pill">
+            <span id="recapArchetypeName">👟 Hybrid Athlete</span>
+          </div>
+          <div id="recapArchetypeDesc" class="hidden"></div>
+        </div>
+      </div>
+
+      <!-- 6-Cell Compact Metrics Grid -->
+      <div class="story-grid-6">
+        <div class="story-stat-cell">
+          <div class="story-stat-label">Peak Streak</div>
+          <div id="recapStreak" class="story-stat-val">🔥 0 Days</div>
+          <div class="story-stat-sub">Consecutive</div>
+        </div>
+        <div class="story-stat-cell">
+          <div class="story-stat-label">Active Days</div>
+          <div id="recapActiveDays" class="story-stat-val">0 / 30</div>
+          <div class="story-stat-sub">Days moved</div>
+        </div>
+        <div class="story-stat-cell">
+          <div class="story-stat-label">Biggest Day</div>
+          <div id="recapBiggestDay" class="story-stat-val">⏱️ 0m</div>
+          <div id="recapBiggestDaySub" class="story-stat-sub">Single session</div>
+        </div>
+        <div class="story-stat-cell">
+          <div class="story-stat-label">Weekends</div>
+          <div id="recapWeekendScore" class="story-stat-val">0 / 8</div>
+          <div class="story-stat-sub">Days met</div>
+        </div>
+        <div class="story-stat-cell">
+          <div class="story-stat-label">Drinks</div>
+          <div id="recapDrinksCount" class="story-stat-val">🍺 0</div>
+          <div class="story-stat-sub">Total logged</div>
+        </div>
+        <div class="story-stat-cell">
+          <div class="story-stat-label">Sweat / Sip</div>
+          <div id="recapSipRatio" class="story-stat-val">∞ m</div>
+          <div class="story-stat-sub">Min per drink</div>
+        </div>
+      </div>
+
+      <!-- Compact Training Volume & Disciplines -->
+      <div class="story-discipline-box">
+        <div class="story-discipline-header">
+          <span class="story-discipline-title">Training Split</span>
+          <span id="recapDisciplineTotals" class="story-discipline-totals">0 Sessions • 0m</span>
+        </div>
+        <div class="story-discipline-compact-row">
+          <div class="story-donuts-mini-pair">
+            <div class="mini-donut-wrap">
+              <div id="recapDonutSessions" class="mini-donut" style="width:34px;height:34px"></div>
+              <span id="recapTotalSessionsVal" style="font-size:0.65rem;color:rgba(255,255,255,0.7);font-weight:800;margin-top:2px">0s</span>
+            </div>
+            <div class="mini-donut-wrap">
+              <div id="recapDonutMinutes" class="mini-donut" style="width:34px;height:34px"></div>
+              <span id="recapTotalMinutesVal" style="font-size:0.65rem;color:rgba(255,255,255,0.7);font-weight:800;margin-top:2px">0m</span>
+            </div>
+          </div>
+          <div id="recapDisciplineGrid" class="story-discipline-grid"></div>
+        </div>
+      </div>
+
+      <!-- Trophy Cabinet -->
+      <div class="story-cabinet">
+        <div class="story-cabinet-title">Trophy Cabinet (<span id="recapBadgeCount">0</span> Badges)</div>
+        <div id="recapBadgesWrap" class="story-badge-row"></div>
+      </div>
+
+      <div class="story-footer-copy">Official 2026 Challenge Report Card</div>
+    </div>
+
+    <!-- Modal Action Buttons -->
+    <div class="story-actions-bar">
+      <button id="saveRecapImageBtn" class="story-action-btn btn-story-image" title="Save picture to upload to Instagram Stories">
+        <span>📸 Save as Image</span>
+      </button>
+      <button id="closeRecapBtn" class="story-action-btn btn-story-close">
+        <span>✕ Close</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div id="logoutModal" class="modal-overlay">
+  <div class="modal-card">
+    <h3 id="modalHeading">Account & Leaderboard Options</h3>
+    <p id="modalDesc">Choose how you would like to log out.</p>
+    <div class="modal-actions">
+      <button id="btnStandardLogout" class="modal-btn modal-btn-standard">
+        <span>🚪 Just Log Out</span>
+        <span style="font-size:0.75rem;color:var(--muted);font-weight:normal">(Stay on Leaderboard)</span>
+      </button>
+      <button id="btnHideAndLogout" class="modal-btn modal-btn-hide">
+        <span>🙈 Hide from Leaderboard & Log Out</span>
+      </button>
+      <button id="btnCancelLogout" class="modal-btn modal-btn-cancel">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+  import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+  import { getFirestore, doc, getDoc, collectionGroup, query, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCbxoN1DLvMqxZb7FD4qu8p7k6lnD5ENP4",
+    authDomain: "fitness-challenge-smason.firebaseapp.com",
+    projectId: "fitness-challenge-smason",
+    storageBucket: "fitness-challenge-smason.firebasestorage.app",
+    messagingSenderId: "913152392975",
+    appId: "1:913152392975:web:293669fb86f2e0dd03487a",
+    measurementId: "G-PP4QLCW7Q4"
+  };
+
+  let auth = null;
+  let db = null;
+  let provider = null;
+
+  try {
+    const app = initializeApp(firebaseConfig);
+    auth = getAuth(app);
+    db = getFirestore(app);
+    provider = new GoogleAuthProvider();
+  } catch (initErr) {
+    console.warn("Firebase initialization deferred:", initErr);
+  }
+
+  const memoryStorage = {};
+  function safeGet(key) {
+    try { return localStorage.getItem(key); }
+    catch (_) { return memoryStorage[key] || null; }
+  }
+
+  const APP_VERSION = "9.0";
+  const DAYS = 30;
+  const ACTIVITY_TYPES = ["Bootcamp", "Cardio", "Cross Fit", "Weights", "Resistance Training", "Yoga", "Other"];
+  const PALETTE = ['#d95b32', '#2674a8', '#d99521', '#2b9a66', '#8352b2', '#209699', '#8b9ba5'];
+  const ACTIVITY_ICONS = {
+    "Bootcamp": "🥾",
+    "Cardio": "🏃‍♂️",
+    "Cross Fit": "💪",
+    "Weights": "🏋",
+    "Resistance Training": "⚡",
+    "Yoga": "🧘",
+    "Other": "👟"
+  };
+
+  const MVP_BADGE = {
+    id: 'mvp',
+    icon: '🏆',
+    name: 'MVP',
+    desc: 'Awarded to Dimitri: Most Valuable Participant of the September Challenge!'
+  };
+
+  function isDimitriUser(name, email) {
+    const combined = `${name || ''} ${email || ''}`.toLowerCase();
+    return combined.includes('dimitri') || combined.includes('dmitri');
+  }
+
+  const $ = id => document.getElementById(id);
+  const now = new Date();
+  let selectedDay = 30; // Archive view defaults to end of September
+  let year = 2026;
+  let currentUser = null;
+  let enableDrinkPenalty = true;
+  let dailyGoal = 30;
+  let hideFromLeaderboard = false;
+  let cachedWorldNumberOneUids = new Set();
+  let cachedPodiumBadges = {};
+
+  function cleanDisplayName(name, email) {
+    if (name && name.trim()) {
+      const trimmed = name.trim();
+      if (trimmed.includes('@')) return trimmed.split('@')[0];
+      return trimmed;
+    }
+    if (email && email.includes('@')) return email.split('@')[0];
+    return email || 'Participant';
+  }
+
+  function getPastDaysCount(challengeYear) {
+    return 30; // Archive is completed
+  }
+
+  function calculateActiveStreak(daysArray, goal, challengeYear) {
+    let streak = 0;
+    let checkDay = 30;
+    while (checkDay >= 1) {
+      const dayTotal = getDayTotalMinutes(daysArray[checkDay - 1]);
+      if (dayTotal >= goal) {
+        streak++;
+        checkDay--;
+      } else {
+        break;
+      }
+    }
+    return streak;
+  }
+
+  function calculatePersonalBests(daysArray, goal) {
+    let maxStreak = 0;
+    let curStreak = 0;
+    daysArray.forEach(d => {
+      const dayTotal = getDayTotalMinutes(d);
+      if (dayTotal >= goal) {
+        curStreak++;
+        if (curStreak > maxStreak) maxStreak = curStreak;
+      } else {
+        curStreak = 0;
+      }
+    });
+
+    let maxDayMinutes = 0;
+    let bestDayIndex = -1;
+    let bestDayTypes = [];
+    daysArray.forEach((d, idx) => {
+      const dayTotal = getDayTotalMinutes(d);
+      if (dayTotal > maxDayMinutes) {
+        maxDayMinutes = dayTotal;
+        bestDayIndex = idx + 1;
+        if (Array.isArray(d.activities)) {
+          bestDayTypes = [...new Set(d.activities.map(a => a.type).filter(Boolean))];
+        }
+      }
+    });
+
+    const typeMinutes = {};
+    let totalWorkoutMinutes = 0;
+    ACTIVITY_TYPES.forEach(t => { typeMinutes[t] = 0; });
+    daysArray.forEach(d => {
+      if (Array.isArray(d.activities)) {
+        d.activities.forEach(a => {
+          const m = Number(a.minutes) || 0;
+          const type = ACTIVITY_TYPES.includes(a.type) ? a.type : "Other";
+          if (m > 0) {
+            typeMinutes[type] = (typeMinutes[type] || 0) + m;
+            totalWorkoutMinutes += m;
+          }
         });
+      }
+    });
+
+    let favType = null;
+    let favMinutes = 0;
+    Object.entries(typeMinutes).forEach(([t, mins]) => {
+      if (mins > favMinutes) {
+        favMinutes = mins;
+        favType = t;
+      }
+    });
+
+    const favPct = (totalWorkoutMinutes > 0 && favType) ? Math.round((favMinutes / totalWorkoutMinutes) * 100) : 0;
+
+    return {
+      maxStreak,
+      maxDayMinutes,
+      bestDayIndex,
+      bestDayTypes,
+      favType,
+      favMinutes,
+      favPct,
+      totalWorkoutMinutes
+    };
+  }
+
+  function calculateBadges(daysArray, totalDrinks, cap, goal = 30) {
+    const badges = [];
+
+    const hasCentury = daysArray.some(d => {
+      const dayMins = getDayTotalMinutes(d);
+      return Math.min(dayMins, cap) >= 100;
+    });
+    if (hasCentury) {
+      badges.push({
+        id: 'century',
+        icon: '💯',
+        name: 'Century Club',
+        desc: 'Logged 100+ counted minutes in a single day'
+      });
+    }
+
+    let runStreak = 0;
+    let tenStreakCount = 0;
+    daysArray.forEach(d => {
+      const dayMins = getDayTotalMinutes(d);
+      if (dayMins >= goal) {
+        runStreak++;
+        if (runStreak === 10) {
+          tenStreakCount++;
+          runStreak = 0;
+        }
+      } else {
+        runStreak = 0;
+      }
+    });
+
+    for (let s = 1; s <= tenStreakCount; s++) {
+      badges.push({
+        id: `streak10_${s}`,
+        icon: '🔟',
+        name: tenStreakCount > 1 ? `Perfect 10 (#${s})` : 'Perfect 10',
+        desc: `Logged 10 consecutive days meeting your daily goal${tenStreakCount > 1 ? ` (Streak #${s})` : ''}`
+      });
+    }
+
+    const hasPerfectGame = daysArray.length === DAYS && daysArray.every(d => getDayTotalMinutes(d) > 0);
+    if (hasPerfectGame) {
+      badges.push({
+        id: 'perfect_game',
+        icon: '⚾',
+        name: 'Perfect Game',
+        desc: 'Logged a workout on all 30 days of September (30 for 30)'
+      });
+    }
+
+    const hasRestDay = daysArray.some(d => {
+      const dayMins = getDayTotalMinutes(d);
+      return dayMins === 0 && (d.missed || d.edited);
+    });
+    if (hasRestDay) {
+      badges.push({
+        id: 'rest',
+        icon: '🛡️',
+        name: 'Well Deserved Rest',
+        desc: 'Took an intentional rest day for recovery'
+      });
+    }
+
+    if (totalDrinks >= 10) {
+      badges.push({
+        id: 'party',
+        icon: '🥳',
+        name: 'Party Hard',
+        desc: 'Logged 10 or more drinks during the challenge'
+      });
+    }
+
+    const weeks = [
+      [0, 6],
+      [7, 13],
+      [14, 20],
+      [21, 27],
+      [28, 29]
+    ];
+
+    const hasTripleThreat = weeks.some(([start, end]) => {
+      const weeklyTypes = new Set();
+      for (let i = start; i <= end; i++) {
+        const dayObj = daysArray[i];
+        if (dayObj && Array.isArray(dayObj.activities)) {
+          dayObj.activities.forEach(act => {
+            const m = Number(act.minutes) || 0;
+            if (m > 0 && act.type && act.type !== 'Other') {
+              weeklyTypes.add(act.type);
+            }
+          });
+        }
+      }
+      return weeklyTypes.size >= 3;
+    });
+
+    if (hasTripleThreat) {
+      badges.push({
+        id: 'triple',
+        icon: '⚡',
+        name: 'Triple Threat',
+        desc: 'Logged 3 distinct workout types in a single week'
+      });
+    }
+
+    return badges;
+  }
+
+  let customTooltipEl = null;
+  function getOrCreateTooltip() {
+    if (!customTooltipEl) {
+      customTooltipEl = document.createElement('div');
+      customTooltipEl.className = 'chart-custom-tooltip';
+      customTooltipEl.style.opacity = '0';
+      document.body.appendChild(customTooltipEl);
+    }
+    return customTooltipEl;
+  }
+
+  function buildConicGradient(valMap) {
+    const total = ACTIVITY_TYPES.reduce((sum, t) => sum + (valMap[t] || 0), 0);
+    if (total === 0) return '#e7eef1';
+
+    let cur = 0;
+    const slices = [];
+    ACTIVITY_TYPES.forEach((t, i) => {
+      const val = valMap[t] || 0;
+      if (val > 0) {
+        const pct = (val / total) * 100;
+        const start = cur;
+        const end = cur + pct;
+        slices.push(`${PALETTE[i]} ${start.toFixed(2)}% ${end.toFixed(2)}%`);
+        cur = end;
+      }
+    });
+
+    if (slices.length === 0) return '#e7eef1';
+    return `conic-gradient(${slices.join(', ')})`;
+  }
+
+  function attachDonutTooltip(el, title, valMap, unit) {
+    const total = ACTIVITY_TYPES.reduce((sum, t) => sum + (valMap[t] || 0), 0);
+    const show = () => {
+      const tt = getOrCreateTooltip();
+      if (total === 0) {
+        tt.innerHTML = `<div><strong>${title}:</strong> No activity recorded</div>`;
+      } else {
+        let rows = `<div style="font-weight:750;margin-bottom:5px;border-bottom:1px solid rgba(255,255,255,0.22);padding-bottom:3px">${title} (${total} ${unit})</div>`;
+        ACTIVITY_TYPES.forEach((t, i) => {
+          const v = valMap[t] || 0;
+          if (v > 0) {
+            rows += `
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:2px;">
+                <span style="display:flex;align-items:center;gap:6px">
+                  <span style="width:8px;height:8px;border-radius:50%;background:${PALETTE[i]}"></span>
+                  <span>${t}</span>
+                </span>
+                <strong>${v}${unit === 'min' ? 'm' : ''}</strong>
+              </div>`;
+          }
+        });
+        tt.innerHTML = rows;
+      }
+      tt.style.opacity = '1';
+      const rect = el.getBoundingClientRect();
+      tt.style.left = `${rect.left + rect.width / 2}px`;
+      tt.style.top = `${rect.top - 6}px`;
+    };
+    const hide = () => { if (customTooltipEl) customTooltipEl.style.opacity = '0'; };
+    el.addEventListener('mouseenter', show);
+    el.addEventListener('mouseleave', hide);
+    el.addEventListener('click', (e) => { e.stopPropagation(); show(); });
+  }
+
+  function attachBadgeTooltip(el, badge) {
+    const show = () => {
+      const tt = getOrCreateTooltip();
+      tt.innerHTML = `
+        <div style="display:flex;align-items:center;gap:6px;font-weight:800;font-size:0.85rem">
+          <span>${badge.icon}</span> <span>${badge.name}</span>
+        </div>
+        <div style="font-size:0.75rem;opacity:0.9;margin-top:2px">${badge.desc}</div>
+      `;
+      tt.style.opacity = '1';
+      const rect = el.getBoundingClientRect();
+      tt.style.left = `${rect.left + rect.width / 2}px`;
+      tt.style.top = `${rect.top - 6}px`;
+    };
+    const hide = () => { if (customTooltipEl) customTooltipEl.style.opacity = '0'; };
+    el.addEventListener('mouseenter', show);
+    el.addEventListener('mouseleave', hide);
+    el.addEventListener('click', (e) => { e.stopPropagation(); show(); });
+  }
+
+  function localDataKey() { return `septFitnessChallenge_v4_${year}_days`; }
+  function localOptionsKey() { return `septFitnessChallenge_v4_${year}_options`; }
+  
+  function getDayTotalMinutes(dayObj) {
+    if (!dayObj) return 0;
+    if (Array.isArray(dayObj.activities) && dayObj.activities.length > 0) {
+      return dayObj.activities.reduce((sum, act) => sum + (Number(act.minutes) || 0), 0);
+    }
+    return Number(dayObj.minutes) || 0;
+  }
+
+  function normalizeDayData(d) {
+    let activities = [];
+    if (Array.isArray(d.activities)) {
+      activities = d.activities.map(a => ({
+        type: ACTIVITY_TYPES.includes(a.type) ? a.type : "Cardio",
+        minutes: clampInt(a.minutes),
+        note: (typeof a.note === 'string') ? a.note : '',
+        loggedAt: a.loggedAt || null
+      }));
+    } else if (Number(d.minutes) > 0) {
+      activities = [{ type: "Cardio", minutes: clampInt(d.minutes), note: '', loggedAt: null }];
+    }
+    return {
+      activities,
+      drinks: clampInt(d.drinks),
+      missed: !!d.missed,
+      edited: !!d.edited
+    };
+  }
+
+  function emptyData() { 
+    return Array.from({ length: DAYS }, () => ({ activities: [], drinks: 0, missed: false, edited: false })); 
+  }
+  
+  let data = emptyData();
+
+  function calculateUserTotals(daysArray, hasDrinkPenalty = true, userDailyGoal = 30, targetYear = year, asOfDayLimit = 30) {
+    const goal = Math.max(10, userDailyGoal || 30);
+    const cap = Math.max(120, goal);
+    const baseTarget = DAYS * goal;
+    const effectivePastDays = 30;
+    let counted = 0, actual = 0, drinks = 0, missed = 0;
+    
+    const counts = {};
+    const minutes = {};
+    ACTIVITY_TYPES.forEach(t => { counts[t] = 0; minutes[t] = 0; });
+    
+    daysArray.forEach((d, idx) => {
+      const dayNum = idx + 1;
+      const dayObj = (dayNum <= asOfDayLimit) ? d : { activities: [], drinks: 0, missed: false, edited: false };
+      const dayTotal = getDayTotalMinutes(dayObj);
+      actual += dayTotal;
+      counted += Math.min(dayTotal, cap);
+      drinks += (dayObj.drinks || 0);
+
+      const isPast = dayNum <= effectivePastDays;
+      const isMissed = (dayTotal === 0) && (dayObj.missed || isPast);
+      if (isMissed) missed++;
+
+      if (Array.isArray(dayObj.activities)) {
+        dayObj.activities.forEach(a => {
+          const type = ACTIVITY_TYPES.includes(a.type) ? a.type : "Cardio";
+          const m = Number(a.minutes) || 0;
+          if (m > 0) {
+            counts[type] = (counts[type] || 0) + 1;
+            minutes[type] = (minutes[type] || 0) + m;
+          }
+        });
+      }
+    });
+
+    const drinkPenaltyMinutes = hasDrinkPenalty ? (drinks * 30) : 0;
+    const missedPenaltyMinutes = missed * goal;
+    const target = baseTarget + drinkPenaltyMinutes + missedPenaltyMinutes;
+    const pct = target ? Math.min(100, (counted / target) * 100) : 0;
+    const streak = calculateActiveStreak(daysArray, goal, targetYear);
+    const badges = calculateBadges(daysArray, drinks, cap, goal);
+    const personalBests = calculatePersonalBests(daysArray, goal);
+
+    return {
+      counted,
+      actual,
+      drinks,
+      missed,
+      dailyGoal: goal,
+      baseTarget,
+      cap,
+      target,
+      drinkPenaltyMinutes,
+      missedPenaltyMinutes,
+      remaining: Math.max(0, target - counted),
+      pct,
+      streak,
+      badges,
+      personalBests,
+      hasDrinkPenalty,
+      counts,
+      minutes
+    };
+  }
+
+  async function loadData() {
+    if (currentUser && db) {
+      try {
+        const docRef = doc(db, "users", currentUser.uid, "challenges", String(year));
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          const cloudData = docSnap.data();
+          if (Array.isArray(cloudData.days)) {
+            data = cloudData.days.map(normalizeDayData);
+          }
+          enableDrinkPenalty = cloudData.enableDrinkPenalty !== undefined ? cloudData.enableDrinkPenalty : true;
+          dailyGoal = cloudData.dailyGoal !== undefined ? Number(cloudData.dailyGoal) : 30;
+          hideFromLeaderboard = !!cloudData.hideFromLeaderboard;
+        } else {
+          const saved = JSON.parse(safeGet(localDataKey()));
+          data = Array.isArray(saved) && saved.length === DAYS ? saved.map(normalizeDayData) : emptyData();
+          const savedOpts = JSON.parse(safeGet(localOptionsKey()) || '{}');
+          enableDrinkPenalty = savedOpts.enableDrinkPenalty !== false;
+          dailyGoal = Number(savedOpts.dailyGoal) || 30;
+          hideFromLeaderboard = !!savedOpts.hideFromLeaderboard;
+        }
       } catch (err) {
-        console.error("September leaderboard error:", err);
-        boardEl.innerHTML = `<div class="py-6 text-center text-xs text-rose-400">Error loading standings.</div>`;
+        console.warn("Cloud load fallback to memory/local:", err);
+        data = emptyData();
+      }
+    } else {
+      try {
+        const saved = JSON.parse(safeGet(localDataKey()));
+        data = Array.isArray(saved) && saved.length === DAYS ? saved.map(normalizeDayData) : emptyData();
+        const savedOpts = JSON.parse(safeGet(localOptionsKey()) || '{}');
+        enableDrinkPenalty = savedOpts.enableDrinkPenalty !== false;
+        dailyGoal = Number(savedOpts.dailyGoal) || 30;
+        hideFromLeaderboard = !!savedOpts.hideFromLeaderboard;
+      } catch (_) {
+        data = emptyData();
+      }
+    }
+    $('enableDrinkPenalty').checked = enableDrinkPenalty;
+    $('dailyGoalInput').value = dailyGoal;
+    updatePrivacyUI();
+    render(true);
+    updateEnrolledUsersCount().catch(() => {});
+  }
+
+  function updatePrivacyUI() {
+    const pill = $('privacyPill');
+    if (currentUser && hideFromLeaderboard) {
+      pill.style.display = 'inline-flex';
+    } else {
+      pill.style.display = 'none';
+    }
+  }
+
+  function clampInt(v) { return Math.max(0, Math.floor(Number(v) || 0)); }
+  function totals() { return calculateUserTotals(data, enableDrinkPenalty, dailyGoal, year); }
+  function fmtHours(m) { const h = m / 60; return `${Number.isInteger(h) ? h : h.toFixed(1)} hours`; }
+  function toast(msg) { $('toast').textContent = msg; $('toast').classList.add('show'); setTimeout(() => $('toast').classList.remove('show'), 1800); }
+
+  function openStoryRecapModal() {
+    const t = totals();
+    const pb = t.personalBests;
+    const name = currentUser ? cleanDisplayName(currentUser.displayName, currentUser.email) : 'Challenger';
+    const avatar = currentUser && currentUser.photoURL ? currentUser.photoURL : 'https://placehold.co/38x38/1e293b/94a3b8?text=U';
+
+    $('recapYearLabel').textContent = year;
+    $('recapName').textContent = name;
+    $('recapAvatar').src = avatar;
+
+    const isFinisher = t.counted >= t.target && t.target > 0;
+    const statusBadge = $('recapStatusBadge');
+    if (isFinisher) {
+      statusBadge.className = 'story-status-pill story-status-finisher';
+      statusBadge.textContent = 'Challenge Finisher 🏆';
+    } else {
+      statusBadge.className = 'story-status-pill story-status-competitor';
+      statusBadge.textContent = `${t.pct.toFixed(0)}% Completed 🎖️`;
+    }
+
+    $('recapPct').textContent = `${t.pct.toFixed(1)}%`;
+    $('recapMinutesSub').textContent = `${t.counted}m Counted (${(t.counted / 60).toFixed(1)}h)`;
+
+    $('recapStreak').textContent = `🔥 ${pb.maxStreak}d`;
+
+    let activeDaysCount = 0;
+    let weekendDaysMet = 0;
+    let totalWeekendDays = 0;
+
+    data.forEach((d, idx) => {
+      const dayNum = idx + 1;
+      const dayMins = getDayTotalMinutes(d);
+      if (dayMins > 0) activeDaysCount++;
+
+      const dateObj = new Date(year, 8, dayNum);
+      const dow = dateObj.getDay();
+      if (dow === 0 || dow === 6) {
+        totalWeekendDays++;
+        if (dayMins >= t.dailyGoal) weekendDaysMet++;
+      }
+    });
+
+    $('recapActiveDays').textContent = `${activeDaysCount}/30`;
+    $('recapWeekendScore').textContent = `${weekendDaysMet}/${totalWeekendDays || 8}`;
+
+    if (pb.maxDayMinutes > 0) {
+      $('recapBiggestDay').textContent = `⏱️ ${pb.maxDayMinutes}m`;
+      $('recapBiggestDaySub').textContent = `Sept ${pb.bestDayIndex}`;
+    } else {
+      $('recapBiggestDay').textContent = `⏱️ 0m`;
+      $('recapBiggestDaySub').textContent = `No workouts`;
+    }
+
+    const totalSessions = ACTIVITY_TYPES.reduce((sum, type) => sum + (t.counts[type] || 0), 0);
+    const totalActualMins = ACTIVITY_TYPES.reduce((sum, type) => sum + (t.minutes[type] || 0), 0);
+
+    $('recapDisciplineTotals').textContent = `${totalSessions}s • ${totalActualMins}m`;
+    $('recapTotalSessionsVal').textContent = `${totalSessions}s`;
+    $('recapTotalMinutesVal').textContent = `${totalActualMins}m`;
+
+    $('recapDonutSessions').style.background = buildConicGradient(t.counts);
+    $('recapDonutMinutes').style.background = buildConicGradient(t.minutes);
+
+    const discGrid = $('recapDisciplineGrid');
+    discGrid.innerHTML = '';
+
+    const activeDisciplines = ACTIVITY_TYPES
+      .filter(type => (t.counts[type] > 0 || t.minutes[type] > 0))
+      .sort((a, b) => (t.minutes[b] || 0) - (t.minutes[a] || 0))
+      .slice(0, 4);
+
+    if (activeDisciplines.length > 0) {
+      activeDisciplines.forEach(type => {
+        const item = document.createElement('div');
+        item.className = 'story-disc-item';
+        const icon = ACTIVITY_ICONS[type] || '👟';
+        const sessCount = t.counts[type] || 0;
+        const mins = t.minutes[type] || 0;
+        item.innerHTML = `
+          <span class="story-disc-left" title="${type}">
+            <span>${icon}</span>
+            <span>${type.length > 8 ? type.slice(0, 7) + '…' : type}</span>
+          </span>
+          <span class="story-disc-right">
+            <strong>${mins}m</strong> (${sessCount})
+          </span>
+        `;
+        discGrid.appendChild(item);
+      });
+    } else {
+      discGrid.innerHTML = `<div style="grid-column:span 2;font-size:0.70rem;color:rgba(255,255,255,0.5);text-align:center;padding:2px">No sessions logged yet</div>`;
+    }
+
+    const favType = pb.favType;
+    const favPct = pb.favPct;
+
+    let archName = '👟 Hybrid Athlete';
+    let archDesc = 'Balanced discipline across multiple training styles.';
+
+    if (favType === 'Weights' && favPct >= 45) {
+      archName = '🦍 Iron Disciple';
+      archDesc = `${favPct}% of workout volume dedicated to heavy lifting.`;
+    } else if (favType === 'Cardio' && favPct >= 45) {
+      archName = '⚡ Cardio Machine';
+      archDesc = `${favPct}% of training powered by running & endurance.`;
+    } else if (favType === 'Bootcamp' && favPct >= 40) {
+      archName = '🥾 Bootcamp Beast';
+      archDesc = `${favPct}% of sweat forged in high-intensity training.`;
+    } else if (favType === 'Cross Fit' && favPct >= 40) {
+      archName = '💪 Functional Engine';
+      archDesc = `${favPct}% of sessions attacking CrossFit WODs.`;
+    } else if (favType === 'Yoga' && favPct >= 35) {
+      archName = '🌿 Zen Master';
+      archDesc = `${favPct}% of effort focused on mobility and recovery.`;
+    } else if (activeDaysCount >= 25) {
+      archName = '🛡️ The Iron Habit';
+      archDesc = `Logged activity on ${activeDaysCount} separate September days!`;
+    }
+
+    $('recapArchetypeName').textContent = archName;
+    $('recapArchetypeDesc').textContent = archDesc;
+
+    if (currentUser && isDimitriUser(currentUser.displayName, currentUser.email)) {
+      if (!t.badges.some(b => b.id === 'mvp')) {
+        t.badges.unshift(MVP_BADGE);
+      }
+    }
+    if (currentUser && cachedWorldNumberOneUids.has(currentUser.uid)) {
+      if (!t.badges.some(b => b.id === 'world1')) {
+        t.badges.unshift({
+          id: 'world1',
+          icon: '👑',
+          name: 'World #1',
+          desc: 'Held 1st place on the leaderboard at the close of a day (after Sept 3rd)'
+        });
+      }
+    }
+    if (currentUser && cachedPodiumBadges[currentUser.uid]) {
+      const pBadge = cachedPodiumBadges[currentUser.uid];
+      if (!t.badges.some(b => b.id === pBadge.id)) {
+        t.badges.unshift(pBadge);
       }
     }
 
-    document.getElementById('refreshSeptBoardBtn').onclick = loadSeptemberLeaderboard;
-  </script>
+    const badgeWrap = $('recapBadgesWrap');
+    badgeWrap.innerHTML = '';
+    $('recapBadgeCount').textContent = t.badges.length;
+
+    if (t.badges.length > 0) {
+      t.badges.forEach(b => {
+        const item = document.createElement('span');
+        item.className = 'story-badge-item';
+        item.innerHTML = `<span>${b.icon}</span> <span>${b.name}</span>`;
+        badgeWrap.appendChild(item);
+      });
+    } else {
+      badgeWrap.innerHTML = `<span style="font-size:0.72rem;color:rgba(255,255,255,0.5)">Log activity and streaks to unlock badges!</span>`;
+    }
+
+    $('recapDrinksCount').textContent = `🍺 ${t.drinks}`;
+    const sipRatio = t.drinks > 0 ? `${(t.counted / t.drinks).toFixed(1)}m` : '∞ m';
+    $('recapSipRatio').textContent = sipRatio;
+
+    $('recapModal').classList.add('show');
+  }
+
+  function closeStoryRecapModal() {
+    $('recapModal').classList.remove('show');
+  }
+
+  async function saveStoryAsImage() {
+    const card = document.getElementById('storyCardContent');
+    const saveBtn = document.getElementById('saveRecapImageBtn');
+    if (!card || typeof html2canvas === 'undefined') {
+      toast("Image export unavailable. Try screenshotting instead!");
+      return;
+    }
+
+    const origText = saveBtn.innerHTML;
+    saveBtn.innerHTML = `<span>⏳ Saving...</span>`;
+    saveBtn.style.pointerEvents = 'none';
+
+    try {
+      const canvas = await html2canvas(card, {
+        scale: 2.8,
+        useCORS: true,
+        backgroundColor: '#0c1d2d',
+        logging: false
+      });
+
+      canvas.toBlob(async (blob) => {
+        if (!blob) throw new Error("Canvas blob conversion failed");
+        const filename = `september-challenge-recap-${year}.png`;
+
+        if (navigator.canShare && navigator.canShare({ files: [new File([blob], filename, { type: 'image/png' })] })) {
+          try {
+            await navigator.share({
+              files: [new File([blob], filename, { type: 'image/png' })],
+              title: `September Fitness Challenge ${year} Recap`
+            });
+            saveBtn.innerHTML = origText;
+            saveBtn.style.pointerEvents = 'auto';
+            return;
+          } catch (shareErr) {
+            if (shareErr.name === 'AbortError') {
+              saveBtn.innerHTML = origText;
+              saveBtn.style.pointerEvents = 'auto';
+              return;
+            }
+          }
+        }
+
+        const link = document.createElement('a');
+        link.download = filename;
+        link.href = URL.createObjectURL(blob);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(link.href);
+
+        toast("📸 Story image saved to device!");
+        saveBtn.innerHTML = origText;
+        saveBtn.style.pointerEvents = 'auto';
+      }, 'image/png');
+    } catch (err) {
+      console.warn("Screenshot capture error:", err);
+      toast("Could not save image automatically. Take a screenshot!");
+      saveBtn.innerHTML = origText;
+      saveBtn.style.pointerEvents = 'auto';
+    }
+  }
+
+  $('saveRecapImageBtn').onclick = () => saveStoryAsImage();
+  $('launchRecapBtn').onclick = () => openStoryRecapModal();
+  $('footerVersion').onclick = () => openStoryRecapModal();
+  $('closeRecapBtn').onclick = () => closeStoryRecapModal();
+
+  async function updateEnrolledUsersCount() {
+    if (!db) {
+      $('uniqueUsersCount').textContent = currentUser ? '1 enrolled (you)' : '1 enrolled';
+      return;
+    }
+    try {
+      const q = query(collectionGroup(db, 'challenges'));
+      const querySnapshot = await getDocs(q);
+      const uniqueUserIds = new Set();
+      querySnapshot.forEach(docSnap => {
+        if (docSnap.id === String(year)) {
+          const uData = docSnap.data();
+          if (uData.hideFromLeaderboard) return;
+          if (uData.userId) uniqueUserIds.add(uData.userId);
+          else uniqueUserIds.add(docSnap.ref.parent.parent ? docSnap.ref.parent.parent.id : docSnap.id);
+        }
+      });
+      const count = uniqueUserIds.size;
+      $('uniqueUsersCount').textContent = count > 0 ? `${count} ${count === 1 ? 'participant' : 'participants'}` : '1 enrolled (you)';
+    } catch {
+      $('uniqueUsersCount').textContent = currentUser ? '1 enrolled (you)' : '1 enrolled';
+    }
+  }
+
+  function render(fullReloadForm = false) {
+    const t = totals();
+    $('completed').textContent = `${t.counted} min`;
+    $('actualMinutes').textContent = `${t.actual} actual minutes`;
+    $('target').textContent = `${t.target} min`;
+    $('baseTargetSub').textContent = `Base: ${t.baseTarget} min (${t.dailyGoal}m/day)`;
+    $('remaining').textContent = `${t.remaining} min`;
+    $('remainingHours').textContent = fmtHours(t.remaining);
+    $('drinksTotal').textContent = t.drinks;
+    $('drinkPenalty').textContent = enableDrinkPenalty ? `+${t.drinkPenaltyMinutes} min` : 'Penalty off';
+    $('missedTotal').textContent = t.missed;
+    $('missPenalty').textContent = `+${t.missedPenaltyMinutes} min (+${t.dailyGoal}m/ea)`;
+    $('progressBar').style.width = `${t.pct}%`;
+    $('progressText').textContent = `${t.pct.toFixed(1)}% complete`;
+    
+    $('streakCount').textContent = `${t.streak}-day streak`;
+    $('streakPill').classList.toggle('streak-zero', t.streak === 0);
+
+    const pb = t.personalBests;
+    $('pbStreak').textContent = `🔥 ${pb.maxStreak} Day${pb.maxStreak === 1 ? '' : 's'}`;
+    $('pbStreakSub').textContent = 'All-time best streak';
+
+    if (pb.maxDayMinutes > 0) {
+      $('pbBiggestDay').textContent = `⏱️ ${pb.maxDayMinutes} min`;
+      const typesCopy = pb.bestDayTypes.length > 0 ? ` (${pb.bestDayTypes.slice(0, 2).join(' + ')})` : '';
+      $('pbBiggestDaySub').textContent = `Sept ${pb.bestDayIndex}${typesCopy}`;
+    } else {
+      $('pbBiggestDay').textContent = '⏱️ 0 min';
+      $('pbBiggestDaySub').textContent = 'No workouts logged';
+    }
+
+    if (pb.favType) {
+      const icon = ACTIVITY_ICONS[pb.favType] || '👟';
+      $('pbFavWorkout').textContent = `${icon} ${pb.favType}`;
+      $('pbFavWorkoutSub').textContent = `${pb.favPct}% of total time (${pb.favMinutes}m)`;
+    } else {
+      $('pbFavWorkout').textContent = '👟 —';
+      $('pbFavWorkoutSub').textContent = '0 min logged';
+    }
+
+    if (currentUser && isDimitriUser(currentUser.displayName, currentUser.email)) {
+      if (!t.badges.some(b => b.id === 'mvp')) {
+        t.badges.unshift(MVP_BADGE);
+      }
+    }
+
+    if (currentUser && cachedWorldNumberOneUids.has(currentUser.uid)) {
+      if (!t.badges.some(b => b.id === 'world1')) {
+        t.badges.unshift({
+          id: 'world1',
+          icon: '👑',
+          name: 'World #1',
+          desc: 'Held 1st place on the leaderboard at the close of a day (after Sept 3rd)'
+        });
+      }
+    }
+
+    if (currentUser) {
+      if (t.counted >= t.target && t.target > 0 && cachedPodiumBadges[currentUser.uid]) {
+        const pBadge = cachedPodiumBadges[currentUser.uid];
+        if (!t.badges.some(b => b.id === pBadge.id)) {
+          t.badges.unshift(pBadge);
+        }
+      }
+    }
+
+    const dashBadges = $('dashboardBadges');
+    dashBadges.innerHTML = '';
+    t.badges.forEach(b => {
+      const span = document.createElement('span');
+      const isPodium = b.id && b.id.startsWith('finisher_');
+      span.className = isPodium ? 'badge-chip badge-chip-lg' : 'badge-chip';
+      span.textContent = b.icon;
+      attachBadgeTooltip(span, b);
+      dashBadges.appendChild(span);
+    });
+
+    $('legendComplete').innerHTML = `<i class="dot" style="background:#7bc99d"></i>${t.dailyGoal}+ min`;
+    $('legendPartial').innerHTML = `<i class="dot" style="background:#ebbd5f"></i>1–${t.dailyGoal - 1} min`;
+
+    $('forecast').textContent = t.remaining === 0 
+      ? 'Challenge complete! Target reached and recorded in the season archive.' 
+      : `Challenge complete. Season finished with ${t.counted} counted minutes.`;
+      
+    buildCalendar(t);
+    if (fullReloadForm) {
+      loadForm();
+    }
+    $('launchRecapBtn').classList.add('visible');
+  }
+
+  function buildCalendar(t) {
+    const cal = $('calendar');
+    cal.innerHTML = '';
+    ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].forEach(x => {
+      const e = document.createElement('div');
+      e.className = 'dow';
+      e.textContent = x;
+      cal.appendChild(e);
+    });
+    const first = new Date(year, 8, 1).getDay();
+    for (let i = 0; i < first; i++) {
+      const b = document.createElement('div');
+      b.className = 'blank';
+      cal.appendChild(b);
+    }
+    const pastDays = 30;
+    data.forEach((d, i) => {
+      const day = i + 1, b = document.createElement('button');
+      b.className = 'day';
+      const dayTotal = getDayTotalMinutes(d);
+      const isMissed = (dayTotal === 0) && (d.missed || day <= pastDays);
+
+      if (isMissed) b.classList.add('missed');
+      else if (dayTotal >= t.dailyGoal) b.classList.add('complete');
+      else if (dayTotal > 0) b.classList.add('partial');
+      
+      const hasNotes = Array.isArray(d.activities) && d.activities.some(a => a.note && a.note.trim().length > 0);
+      let noteText = 'No entry';
+      if (d.drinks) noteText = `${d.drinks} drink${d.drinks === 1 ? '' : 's'}`;
+      else if (isMissed) noteText = 'Missed';
+      else if (d.edited || dayTotal > 0) {
+        const count = d.activities.length || (dayTotal > 0 ? 1 : 0);
+        noteText = `${count} act${hasNotes ? ' 📝' : ''}`;
+      }
+
+      b.innerHTML = `<div class="day-num">${day}</div><div class="day-min">${Math.min(dayTotal, t.cap)} min</div><div class="day-note">${noteText}</div>`;
+      b.onclick = () => { 
+        selectedDay = day; 
+        loadForm(); 
+        window.scrollTo({ top: 0, behavior: 'smooth' }); 
+      };
+      cal.appendChild(b);
+    });
+  }
+
+  function loadForm() {
+    const d = data[selectedDay - 1];
+    $('entryTitle').textContent = `September ${selectedDay} entry`;
+    $('drinks').value = d.drinks || 0;
+    
+    const dayTotal = getDayTotalMinutes(d);
+    $('missed').checked = dayTotal === 0 ? !!d.missed : false;
+
+    const container = $('activityContainer');
+    container.innerHTML = '';
+
+    if (Array.isArray(d.activities) && d.activities.length > 0) {
+      d.activities.forEach(a => {
+        const wrap = document.createElement('div');
+        wrap.className = 'activity-row-wrap';
+        wrap.innerHTML = `
+          <div class="activity-row">
+            <select disabled>
+              <option selected>${a.type || 'Cardio'}</option>
+            </select>
+            <input type="number" value="${a.minutes || 0}" disabled>
+          </div>
+          ${a.note ? `<div class="activity-note-box"><input type="text" value="${a.note}" disabled></div>` : ''}
+        `;
+        container.appendChild(wrap);
+      });
+    } else {
+      container.innerHTML = `<div style="font-size:0.80rem;color:var(--muted);padding:8px 0;font-style:italic">No workouts logged for this day.</div>`;
+    }
+    $('dayTotalDisplay').textContent = `${dayTotal} min`;
+  }
+
+  function showTab(activeBtnId, activeViewId) {
+    ['tabDashboard', 'tabLeaderboard', 'tabFeed', 'tabRules', 'tabDrinkLeaderboard'].forEach(id => {
+      if ($(id)) $(id).classList.toggle('active', id === activeBtnId);
+    });
+    ['dashboardView', 'leaderboardView', 'feedView', 'rulesView', 'drinkLeaderboardView'].forEach(id => {
+      if ($(id)) $(id).classList.toggle('hidden', id !== activeViewId);
+    });
+  }
+
+  $('tabDashboard').onclick = () => showTab('tabDashboard', 'dashboardView');
+  $('tabLeaderboard').onclick = () => {
+    showTab('tabLeaderboard', 'leaderboardView');
+    loadLeaderboard();
+  };
+  $('tabFeed').onclick = () => {
+    showTab('tabFeed', 'feedView');
+    loadActivityFeed();
+  };
+  $('tabRules').onclick = () => showTab('tabRules', 'rulesView');
+
+  $('secretDrinkTrigger').onclick = () => {
+    $('tabDrinkLeaderboard').classList.remove('hidden');
+    showTab('tabDrinkLeaderboard', 'drinkLeaderboardView');
+    loadDrinkLeaderboard();
+    toast("🍻 'Sweat Hard, Sip Harder Standings' Unlocked!");
+  };
+
+  $('tabDrinkLeaderboard').onclick = () => {
+    showTab('tabDrinkLeaderboard', 'drinkLeaderboardView');
+    loadDrinkLeaderboard();
+  };
+
+  $('closeDrinkLeaderboardBtn').onclick = () => {
+    $('tabDrinkLeaderboard').classList.add('hidden');
+    showTab('tabDashboard', 'dashboardView');
+  };
+
+  async function loadDrinkLeaderboard() {
+    $('drinkLeaderboardYear').textContent = year;
+    const tbody = $('drinkLeaderboardBody');
+    tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:20px">Fetching beverage rankings...</td></tr>`;
+
+    if (!db) {
+      tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:20px">Connect or sign in to load group standings.</td></tr>`;
+      return;
+    }
+
+    try {
+      const q = query(collectionGroup(db, 'challenges'));
+      const querySnapshot = await getDocs(q);
+      const rows = [];
+
+      querySnapshot.forEach(docSnap => {
+        if (docSnap.id === String(year)) {
+          const uData = docSnap.data();
+          if (uData.hideFromLeaderboard) return;
+
+          if (Array.isArray(uData.days)) {
+            const normalized = uData.days.map(normalizeDayData);
+            const hasPenaltyOption = uData.enableDrinkPenalty !== undefined ? uData.enableDrinkPenalty : true;
+            const userGoal = uData.dailyGoal !== undefined ? Number(uData.dailyGoal) : 30;
+            const stats = calculateUserTotals(normalized, hasPenaltyOption, userGoal, year);
+            const displayName = cleanDisplayName(uData.displayName, uData.email);
+            rows.push({
+              name: displayName,
+              fullName: uData.displayName || uData.email || 'Participant',
+              photoURL: uData.photoURL || 'https://placehold.co/32x32/1e293b/94a3b8?text=U',
+              ...stats
+            });
+          }
+        }
+      });
+
+      rows.sort((a, b) => b.drinks - a.drinks || b.counted - a.counted);
+
+      if (rows.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:20px">No entries found for September ${year}.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = '';
+      rows.forEach((r, idx) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><span class="leader-rank" style="width:auto">#${idx + 1}</span></td>
+          <td>
+            <div class="leader-user" title="${r.fullName}">
+              <img class="user-avatar" src="${r.photoURL}" alt="" onerror="this.src='https://placehold.co/32x32/1e293b/94a3b8?text=U'">
+              <strong>${r.name}</strong>
+            </div>
+          </td>
+          <td><strong style="font-size:1.05rem;color:var(--amber)">🍺 ${r.drinks} drink${r.drinks === 1 ? '' : 's'}</strong></td>
+          <td>
+            <span style="font-weight:750">${r.counted} min</span>
+            <span style="font-size:0.75rem;color:var(--muted)">(${r.pct.toFixed(0)}% to target)</span>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    } catch (err) {
+      console.warn("Drink leaderboard load issue:", err);
+      tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:20px">No beverage data found or connection unavailable.</td></tr>`;
+    }
+  }
+
+  async function loadLeaderboard() {
+    $('leaderboardYear').textContent = year;
+    const tbody = $('leaderboardBody');
+    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:20px">Loading standings...</td></tr>`;
+
+    if (!db) {
+      tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:20px">Sign in or refresh to load live standings.</td></tr>`;
+      return;
+    }
+
+    try {
+      const q = query(collectionGroup(db, 'challenges'));
+      const querySnapshot = await getDocs(q);
+      const rows = [];
+      const finishersList = [];
+
+      querySnapshot.forEach(docSnap => {
+        if (docSnap.id === String(year)) {
+          const uData = docSnap.data();
+          if (uData.hideFromLeaderboard) return;
+
+          if (Array.isArray(uData.days)) {
+            const uid = uData.userId || docSnap.ref.parent.parent?.id || docSnap.id;
+            const normalized = uData.days.map(normalizeDayData);
+            const hasPenaltyOption = uData.enableDrinkPenalty !== undefined ? uData.enableDrinkPenalty : true;
+            const userGoal = uData.dailyGoal !== undefined ? Number(uData.dailyGoal) : 30;
+
+            const stats = calculateUserTotals(normalized, hasPenaltyOption, userGoal, year);
+            const displayName = cleanDisplayName(uData.displayName, uData.email);
+            
+            if (isDimitriUser(uData.displayName, uData.email) && !stats.badges.some(b => b.id === 'mvp')) {
+              stats.badges.unshift(MVP_BADGE);
+            }
+
+            let finishDay = null;
+            let finishTime = Infinity;
+            if (stats.counted >= stats.target && stats.target > 0) {
+              let cumulative = 0;
+              for (let d = 0; d < normalized.length; d++) {
+                const dayMins = getDayTotalMinutes(normalized[d]);
+                cumulative += Math.min(dayMins, stats.cap);
+                if (cumulative >= stats.target) {
+                  finishDay = d + 1;
+                  finishTime = finishDay * 86400000;
+                  break;
+                }
+              }
+              finishersList.push({ uid, finishDay, finishTime });
+            }
+
+            rows.push({
+              uid,
+              name: displayName,
+              fullName: uData.displayName || uData.email || 'Participant',
+              photoURL: uData.photoURL || 'https://placehold.co/32x32/1e293b/94a3b8?text=U',
+              finishDay,
+              bonusMinutes: Math.max(0, stats.counted - stats.target),
+              isFinished: stats.counted >= stats.target && stats.target > 0,
+              ...stats
+            });
+          }
+        }
+      });
+
+      finishersList.sort((a, b) => a.finishDay - b.finishDay || a.finishTime - b.finishTime);
+      const podiumBadges = {};
+      if (finishersList.length >= 1) {
+        podiumBadges[finishersList[0].uid] = {
+          id: 'finisher_1st',
+          icon: '🥇',
+          name: 'First to Finish',
+          desc: `1st challenger to enter the Finishers Circle (Sept ${finishersList[0].finishDay})`
+        };
+      }
+      if (finishersList.length >= 2) {
+        podiumBadges[finishersList[1].uid] = {
+          id: 'finisher_2nd',
+          icon: '🥈',
+          name: 'Second to Finish',
+          desc: `2nd challenger to enter the Finishers Circle (Sept ${finishersList[1].finishDay})`
+        };
+      }
+      if (finishersList.length >= 3) {
+        podiumBadges[finishersList[2].uid] = {
+          id: 'finisher_3rd',
+          icon: '🥉',
+          name: 'Third to Finish',
+          desc: `3rd challenger to enter the Finishers Circle (Sept ${finishersList[2].finishDay})`
+        };
+      }
+      cachedPodiumBadges = podiumBadges;
+
+      const finishersRows = rows.filter(r => r.isFinished);
+      const chaserRows = rows.filter(r => !r.isFinished);
+
+      finishersRows.sort((a, b) => b.bonusMinutes - a.bonusMinutes || b.counted - a.counted || a.finishDay - b.finishDay);
+      chaserRows.sort((a, b) => b.pct - a.pct || b.counted - a.counted);
+
+      const finishersPanel = $('finishersPanel');
+      const finishersWrap = $('finishersTableWrap');
+      const finishersTbody = $('finishersLeaderboardBody');
+      $('finishersCountBadge').textContent = `🎖️ ${finishersRows.length} Finisher${finishersRows.length === 1 ? '' : 's'}`;
+
+      if (finishersRows.length === 0) {
+        if (finishersPanel) finishersPanel.classList.add('hidden');
+        finishersWrap.classList.add('hidden');
+        finishersTbody.innerHTML = '';
+      } else {
+        if (finishersPanel) finishersPanel.classList.remove('hidden');
+        finishersWrap.classList.remove('hidden');
+        finishersTbody.innerHTML = '';
+
+        finishersRows.forEach((r, idx) => {
+          const tr = document.createElement('tr');
+          const currentRank = idx + 1;
+
+          const countGradient = buildConicGradient(r.counts);
+          const minGradient = buildConicGradient(r.minutes);
+          const streakBadge = r.streak > 0
+            ? `<span class="streak-tag" title="${r.streak} consecutive days meeting ${r.dailyGoal}m goal">🔥 ${r.streak}d</span>`
+            : `<span class="streak-tag streak-tag-zero" title="No active streak">0d</span>`;
+
+          if (podiumBadges[r.uid] && !r.badges.some(b => b.id === podiumBadges[r.uid].id)) {
+            r.badges.unshift(podiumBadges[r.uid]);
+          }
+
+          tr.innerHTML = `
+            <td><span class="leader-rank" style="width:auto;color:var(--ink);font-weight:800">#${currentRank}</span></td>
+            <td class="movement-cell"><span class="movement-indicator move-same">—</span></td>
+            <td>
+              <div class="leader-user" title="${r.fullName}">
+                <img class="user-avatar" src="${r.photoURL}" alt="" onerror="this.src='https://placehold.co/32x32/1e293b/94a3b8?text=U'">
+                <strong>${r.name}</strong>
+              </div>
+            </td>
+            <td>
+              <span class="tag tag-neutral">${r.dailyGoal}m/d</span>
+              ${r.hasDrinkPenalty ? `<span class="tag tag-warn">+Drinks</span>` : ''}
+            </td>
+            <td>
+              <div style="font-weight:800;font-size:1rem;color:#238255">100.0%</div>
+              <div style="font-size:0.75rem;color:var(--muted)">Target Completed 🎉</div>
+            </td>
+            <td>
+              <span class="bonus-min-pill">+${r.bonusMinutes} min</span>
+              <div style="font-size:0.72rem;color:var(--muted);margin-top:2px">${r.counted} total min</div>
+            </td>
+            <td>${streakBadge}</td>
+            <td>
+              <div class="leader-charts">
+                <div class="mini-donut-wrap">
+                  <div class="mini-donut donut-sessions" style="background:${countGradient}"></div>
+                  <span class="mini-donut-sub">Sessions</span>
+                </div>
+                <div class="mini-donut-wrap">
+                  <div class="mini-donut donut-minutes" style="background:${minGradient}"></div>
+                  <span class="mini-donut-sub">Minutes</span>
+                </div>
+              </div>
+            </td>
+            <td>
+              <span class="tag ${r.drinks > 0 && r.hasDrinkPenalty ? 'tag-warn' : 'tag-good'}">${r.drinks} drink${r.drinks === 1 ? '' : 's'}</span>
+              <span class="tag ${r.missed > 0 ? 'tag-warn' : 'tag-good'}">${r.missed} missed</span>
+            </td>
+            <td><div class="badges-cell"></div></td>
+          `;
+
+          const sessionsEl = tr.querySelector('.donut-sessions');
+          const minutesEl = tr.querySelector('.donut-minutes');
+          attachDonutTooltip(sessionsEl, `${r.name}'s Sessions`, r.counts, 'sessions');
+          attachDonutTooltip(minutesEl, `${r.name}'s Minutes`, r.minutes, 'min');
+
+          const badgesCell = tr.querySelector('.badges-cell');
+          if (r.badges && r.badges.length > 0) {
+            r.badges.forEach(b => {
+              const span = document.createElement('span');
+              const isPodiumBadge = b.id && b.id.startsWith('finisher_');
+              span.className = isPodiumBadge ? 'badge-chip badge-chip-lg' : 'badge-chip';
+              span.textContent = b.icon;
+              attachBadgeTooltip(span, b);
+              badgesCell.appendChild(span);
+            });
+          } else {
+            badgesCell.innerHTML = `<span style="color:var(--muted);font-size:0.75rem">—</span>`;
+          }
+
+          finishersTbody.appendChild(tr);
+        });
+      }
+
+      if (chaserRows.length === 0) {
+        tbody.innerHTML = finishersRows.length > 0
+          ? `<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:24px">🎉 Every enrolled challenger completed the challenge and entered the Finishers Circle!</td></tr>`
+          : `<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:20px">No participant entries found for September ${year}.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = '';
+
+      chaserRows.forEach((r, idx) => {
+        const tr = document.createElement('tr');
+        const rankClass = idx === 0 ? 'rank-1' : idx === 1 ? 'rank-2' : idx === 2 ? 'rank-3' : '';
+        const currentRank = idx + 1;
+
+        const goalBadge = `<span class="tag tag-neutral" title="Daily Goal">${r.dailyGoal}m/d</span>`;
+        const penaltyBadge = r.hasDrinkPenalty 
+          ? `<span class="tag tag-warn" title="Drink penalties active">+Drinks</span>` 
+          : '';
+
+        const countGradient = buildConicGradient(r.counts);
+        const minGradient = buildConicGradient(r.minutes);
+
+        const streakBadge = r.streak > 0
+          ? `<span class="streak-tag" title="${r.streak} consecutive days meeting ${r.dailyGoal}m goal">🔥 ${r.streak}d</span>`
+          : `<span class="streak-tag streak-tag-zero" title="No active streak">0d</span>`;
+
+        tr.innerHTML = `
+          <td><span class="leader-rank ${rankClass}">#${currentRank}</span></td>
+          <td class="movement-cell"><span class="movement-indicator move-same">—</span></td>
+          <td>
+            <div class="leader-user" title="${r.fullName}">
+              <img class="user-avatar" src="${r.photoURL}" alt="" onerror="this.src='https://placehold.co/32x32/1e293b/94a3b8?text=U'">
+              <strong>${r.name}</strong>
+            </div>
+          </td>
+          <td>${goalBadge} ${penaltyBadge}</td>
+          <td>
+            <div style="font-weight:800;font-size:1rem">${r.pct.toFixed(1)}%</div>
+            <div style="font-size:0.75rem;color:var(--muted)">${r.counted} / ${r.target} min</div>
+          </td>
+          <td>${streakBadge}</td>
+          <td>
+            <div class="leader-charts">
+              <div class="mini-donut-wrap">
+                <div class="mini-donut donut-sessions" style="background:${countGradient}"></div>
+                <span class="mini-donut-sub">Sessions</span>
+              </div>
+              <div class="mini-donut-wrap">
+                <div class="mini-donut donut-minutes" style="background:${minGradient}"></div>
+                <span class="mini-donut-sub">Minutes</span>
+              </div>
+            </div>
+          </td>
+          <td>
+            <span class="tag ${r.drinks > 0 && r.hasDrinkPenalty ? 'tag-warn' : 'tag-good'}">${r.drinks} drink${r.drinks === 1 ? '' : 's'}</span>
+            <span class="tag ${r.missed > 0 ? 'tag-warn' : 'tag-good'}">${r.missed} missed</span>
+          </td>
+          <td>
+            <div class="badges-cell"></div>
+          </td>
+        `;
+
+        const sessionsEl = tr.querySelector('.donut-sessions');
+        const minutesEl = tr.querySelector('.donut-minutes');
+        attachDonutTooltip(sessionsEl, `${r.name}'s Sessions`, r.counts, 'sessions');
+        attachDonutTooltip(minutesEl, `${r.name}'s Minutes`, r.minutes, 'min');
+
+        const badgesCell = tr.querySelector('.badges-cell');
+        if (r.badges && r.badges.length > 0) {
+          r.badges.forEach(b => {
+            const span = document.createElement('span');
+            const isPodiumBadge = b.id && b.id.startsWith('finisher_');
+            span.className = isPodiumBadge ? 'badge-chip badge-chip-lg' : 'badge-chip';
+            span.textContent = b.icon;
+            attachBadgeTooltip(span, b);
+            badgesCell.appendChild(span);
+          });
+        } else {
+          badgesCell.innerHTML = `<span style="color:var(--muted);font-size:0.75rem">—</span>`;
+        }
+
+        tbody.appendChild(tr);
+      });
+    } catch (err) {
+      console.warn("Leaderboard loading issue:", err);
+      tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:20px">Sign in or refresh to load live standings.</td></tr>`;
+    }
+  }
+
+  async function loadActivityFeed() {
+    const feed = $('feedContainer');
+    feed.innerHTML = `<div style="text-align:center;color:var(--muted);padding:30px">Fetching activity stream...</div>`;
+    const feedEvents = [];
+
+    if (!db) {
+      feed.innerHTML = `<div style="text-align:center;color:var(--muted);padding:30px">Live activity stream currently resting.</div>`;
+      return;
+    }
+
+    try {
+      const q = query(collectionGroup(db, 'challenges'));
+      const querySnapshot = await getDocs(q);
+
+      querySnapshot.forEach(docSnap => {
+        if (docSnap.id === String(year)) {
+          const uData = docSnap.data();
+          if (uData.hideFromLeaderboard) return;
+
+          const userName = cleanDisplayName(uData.displayName, uData.email);
+          const userAvatar = uData.photoURL || 'https://placehold.co/42x42/1e293b/94a3b8?text=U';
+
+          if (Array.isArray(uData.days)) {
+            uData.days.forEach((d, dayIndex) => {
+              const dayNum = dayIndex + 1;
+
+              if (Array.isArray(d.activities)) {
+                d.activities.forEach(act => {
+                  const mins = Number(act.minutes) || 0;
+                  if (mins > 0) {
+                    feedEvents.push({
+                      category: 'workout',
+                      name: userName,
+                      fullName: uData.displayName || uData.email || 'Participant',
+                      avatar: userAvatar,
+                      dayNum: dayNum,
+                      type: act.type || 'Activity',
+                      minutes: mins,
+                      note: act.note || '',
+                      timeStr: act.loggedAt ? new Date(act.loggedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '',
+                      timestamp: act.loggedAt ? new Date(act.loggedAt).getTime() : 0
+                    });
+                  }
+                });
+              }
+
+              const drinksCount = Number(d.drinks) || 0;
+              if (drinksCount > 0) {
+                feedEvents.push({
+                  category: 'drinks',
+                  name: userName,
+                  fullName: uData.displayName || uData.email || 'Participant',
+                  avatar: userAvatar,
+                  dayNum: dayNum,
+                  type: 'Drinks',
+                  count: drinksCount,
+                  timeStr: '',
+                  timestamp: 0
+                });
+              }
+
+              if (d.missed && d.edited) {
+                feedEvents.push({
+                  category: 'missed',
+                  name: userName,
+                  fullName: uData.displayName || uData.email || 'Participant',
+                  avatar: userAvatar,
+                  dayNum: dayNum,
+                  type: 'MissedDay',
+                  timeStr: '',
+                  timestamp: 0
+                });
+              }
+            });
+          }
+        }
+      });
+
+      feedEvents.sort((a, b) => b.dayNum - a.dayNum || b.timestamp - a.timestamp);
+
+      if (feedEvents.length === 0) {
+        feed.innerHTML = `<div style="text-align:center;color:var(--muted);padding:30px">No activities recorded for September ${year}.</div>`;
+        return;
+      }
+
+      feed.innerHTML = '';
+      feedEvents.slice(0, 30).forEach(evt => {
+        const item = document.createElement('div');
+        item.className = 'feed-item';
+        const typeClass = `feed-type-${evt.type.replace(/\s+/g, '')}`;
+
+        let detailHTML = '';
+        if (evt.category === 'workout') {
+          detailHTML = `
+            <div class="feed-activity">
+              Completed <strong>${evt.minutes} minutes</strong> of 
+              <span class="feed-type-badge ${typeClass}">${evt.type}</span>
+            </div>
+            ${evt.note ? `<div class="feed-note">"${evt.note}"</div>` : ''}
+          `;
+        } else if (evt.category === 'drinks') {
+          detailHTML = `
+            <div class="feed-activity">
+              Logged <strong>${evt.count} drink${evt.count === 1 ? '' : 's'}</strong>
+              <span class="feed-type-badge ${typeClass}">🍺 Drinks</span>
+            </div>
+          `;
+        } else if (evt.category === 'missed') {
+          detailHTML = `
+            <div class="feed-activity">
+              Marked day as
+              <span class="feed-type-badge ${typeClass}">❌ Missed</span>
+            </div>
+          `;
+        }
+
+        item.innerHTML = `
+          <img class="feed-avatar" src="${evt.avatar}" alt="" onerror="this.src='https://placehold.co/42x42/1e293b/94a3b8?text=U'">
+          <div class="feed-content">
+            <div class="feed-header">
+              <span class="feed-user" title="${evt.fullName}">${evt.name}</span>
+              <span class="feed-date">Sept ${evt.dayNum}${evt.timeStr ? ` &bull; ${evt.timeStr}` : ''}</span>
+            </div>
+            ${detailHTML}
+          </div>
+        `;
+        feed.appendChild(item);
+      });
+    } catch (err) {
+      console.warn("Feed stream issue:", err);
+      feed.innerHTML = `<div style="text-align:center;color:var(--muted);padding:20px">Live activity stream currently resting.</div>`;
+    }
+  }
+
+  $('refreshFeedBtn').onclick = () => loadActivityFeed();
+
+  $('authBtn').onclick = async () => {
+    if (!auth || !provider) {
+      toast("Authentication service loading...");
+      return;
+    }
+    try {
+      await signInWithPopup(auth, provider);
+    } catch (err) {
+      console.error(err);
+      toast("Could not sign in: " + err.message);
+    }
+  };
+
+  $('signOutBtn').onclick = () => {
+    $('logoutModal').classList.add('show');
+  };
+
+  $('btnCancelLogout').onclick = () => {
+    $('logoutModal').classList.remove('show');
+  };
+
+  $('btnStandardLogout').onclick = async () => {
+    $('logoutModal').classList.remove('show');
+    if (auth) {
+      try { await signOut(auth); } catch (_) {}
+    }
+    toast("Logged out");
+  };
+
+  $('btnHideAndLogout').onclick = async () => {
+    $('logoutModal').classList.remove('show');
+    hideFromLeaderboard = true;
+    if (auth) {
+      try { await signOut(auth); } catch (_) {}
+    }
+    toast("Hidden from leaderboard & logged out");
+  };
+
+  if (auth) {
+    onAuthStateChanged(auth, user => {
+      currentUser = user;
+      if (user) {
+        $('authBtn').style.display = 'none';
+        $('userProfile').style.display = 'flex';
+        $('userName').textContent = cleanDisplayName(user.displayName, user.email);
+        $('userImg').src = user.photoURL || 'https://placehold.co/32x32/1e293b/94a3b8?text=U';
+      } else {
+        $('authBtn').style.display = 'block';
+        $('userProfile').style.display = 'none';
+      }
+      loadData();
+    });
+  }
+
+  const ys = $('year');
+  for (let y = 2025; y <= 2027; y++) {
+    const o = document.createElement('option');
+    o.value = y;
+    o.textContent = y;
+    if (y === year) o.selected = true;
+    ys.appendChild(o);
+  }
+  ys.onchange = () => {
+    year = Number(ys.value);
+    loadData();
+    if (!$('leaderboardView').classList.contains('hidden')) loadLeaderboard();
+    if (!$('feedView').classList.contains('hidden')) loadActivityFeed();
+  };
+
+  loadData();
+</script>
 </body>
 </html>
