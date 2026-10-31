@@ -7,385 +7,9 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>November Fitness & Habit Challenge - v9.7</title>
+<title>November Fitness & Habit Challenge - v9.9</title>
 <script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<!-- Firebase SDKs -->
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
-
-<style>
-:root {
-  --navy: #173b57;
-  --blue: #2674a8;
-  --cyan: #24a7b6;
-  --green: #2b9a66;
-  --amber: #d99521;
-  --red: #c94d4d;
-  --purple: #8352b2;
-  --ink: #183042;
-  --muted: #6b7c88;
-  --paper: #ffffff;
-  --bg: #eef3f6;
-  --line: #dce5ea;
-  --shadow: 0 12px 32px rgba(24, 48, 66, 0.10);
-}
-* { box-sizing: border-box; }
-body {
-  margin: 0;
-  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-  background: linear-gradient(145deg, #eaf2f5, #f7f9fa);
-  color: var(--ink);
-  min-height: 100vh;
-}
-button, input, select { font: inherit; }
-.app { max-width: 1180px; margin: auto; padding: 22px; }
-
-/* Hero Banner */
-.hero {
-  background: linear-gradient(125deg, var(--navy), #1e5270 60%, #1f7a85);
-  color: white;
-  border-radius: 24px;
-  padding: 25px;
-  box-shadow: var(--shadow);
-  position: relative;
-  overflow: hidden;
-}
-.hero:after {
-  content: "";
-  position: absolute;
-  width: 260px;
-  height: 260px;
-  border: 40px solid rgba(255, 255, 255, 0.07);
-  border-radius: 50%;
-  right: -90px;
-  top: -110px;
-  pointer-events: none;
-}
-.hero h1 { margin: 0 0 6px; font-size: clamp(1.65rem, 4vw, 2.3rem); font-weight: 800; letter-spacing: -0.02em; }
-.hero p { margin: 0; opacity: 0.88; font-size: 0.92rem; }
-.hero-top { display: flex; justify-content: space-between; gap: 15px; align-items: flex-start; position: relative; z-index: 1; }
-.hero-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-
-.nav-hub-btn {
-  background: rgba(255, 255, 255, 0.14);
-  border: 1px solid rgba(255, 255, 255, 0.30);
-  color: white;
-  border-radius: 10px;
-  padding: 8px 14px;
-  font-size: 0.84rem;
-  font-weight: 800;
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  transition: background 0.15s, transform 0.12s;
-}
-.nav-hub-btn:hover { background: rgba(255, 255, 255, 0.25); transform: translateX(-2px); color: white; }
-
-.auth-btn {
-  background: white;
-  color: var(--navy);
-  border: 0;
-  border-radius: 10px;
-  padding: 9px 15px;
-  font-weight: 750;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  transition: background 0.15s;
-}
-.auth-btn:hover { background: #eef3f6; }
-.user-info { display: none; align-items: center; gap: 10px; color: white; font-size: 0.9rem; font-weight: 600; }
-.user-avatar { width: 32px; height: 32px; border-radius: 50%; border: 2px solid white; object-fit: cover; }
-.version-tag { position: absolute; right: 18px; bottom: 10px; font-size: 0.68rem; opacity: 0.85; font-weight: 800; letter-spacing: 0.04em; background: rgba(0,0,0,0.2); padding: 2px 8px; border-radius: 6px; }
-
-.btn-recap-launch {
-  display: none;
-  align-items: center;
-  gap: 6px;
-  background: linear-gradient(135deg, #ffd778, #f3a93b);
-  color: #173042;
-  border: 0;
-  border-radius: 10px;
-  padding: 8px 14px;
-  font-size: 0.84rem;
-  font-weight: 800;
-  cursor: pointer;
-  box-shadow: 0 3px 10px rgba(0,0,0,0.18);
-  transition: transform 0.15s, filter 0.15s;
-}
-.btn-recap-launch:hover { transform: translateY(-1px); filter: brightness(1.05); }
-.btn-recap-launch.visible { display: inline-flex; }
-
-/* Badges styling */
-.dashboard-badges { display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-.badge-chip {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  background: #f4f7f9;
-  border: 1px solid var(--line);
-  border-radius: 50%;
-  font-size: 0.95rem;
-  cursor: pointer;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-}
-.badge-chip:hover { transform: scale(1.18); box-shadow: 0 3px 8px rgba(24, 48, 66, 0.14); }
-.badges-cell { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
-
-.chart-custom-tooltip {
-  position: fixed;
-  pointer-events: none;
-  background: #173b57;
-  color: white;
-  padding: 9px 13px;
-  border-radius: 10px;
-  font-size: 0.80rem;
-  font-weight: 550;
-  box-shadow: 0 10px 28px rgba(23, 59, 87, 0.36);
-  z-index: 99999;
-  white-space: nowrap;
-  transform: translate(-50%, -115%);
-  transition: opacity 0.15s ease;
-  min-width: 130px;
-}
-
-/* Story Modal Compact Instagram Proportion */
-.story-modal-overlay { position: fixed; inset: 0; background: rgba(10, 23, 34, 0.85); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 10001; padding: 12px; overflow-y: auto; }
-.story-modal-overlay.show { display: flex; }
-.story-shell { position: relative; max-width: 390px; width: 100%; display: flex; flex-direction: column; align-items: center; margin: auto; }
-.story-card {
-  width: 100%;
-  background: linear-gradient(165deg, #0c1d2d 0%, #15364e 45%, #1c4a68 100%);
-  color: white;
-  border-radius: 22px;
-  border: 1.5px solid rgba(255, 255, 255, 0.20);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.50);
-  padding: 15px 14px 13px;
-  position: relative;
-  box-sizing: border-box;
-}
-.story-header-compact { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding-bottom: 10px; border-bottom: 1px solid rgba(255, 255, 255, 0.14); margin-bottom: 10px; }
-.story-profile-mini { display: flex; align-items: center; gap: 9px; min-width: 0; }
-.story-avatar { width: 38px; height: 38px; border-radius: 50%; border: 2px solid #24a7b6; object-fit: cover; flex-shrink: 0; }
-.story-user-meta { min-width: 0; }
-.story-user-name { font-weight: 850; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #fff; }
-.story-status-pill { display: inline-block; padding: 2px 7px; border-radius: 99px; font-size: 0.68rem; font-weight: 800; letter-spacing: 0.02em; text-transform: uppercase; }
-.story-status-finisher { background: #238255; color: #ffffff; }
-.story-status-competitor { background: #3b6d8c; color: #ffffff; }
-.story-brand-tag { text-align: right; flex-shrink: 0; }
-.story-brand-tag-title { font-size: 0.65rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: rgba(255, 255, 255, 0.75); }
-.story-brand-tag-year { font-size: 0.90rem; font-weight: 900; color: #67e8f9; line-height: 1; }
-.story-hero-split { display: flex; align-items: center; justify-content: space-between; background: radial-gradient(circle at left center, rgba(36, 167, 182, 0.22) 0%, rgba(23, 59, 87, 0) 70%); padding: 6px 8px 10px; margin-bottom: 10px; gap: 10px; }
-.story-pct-huge { font-size: 2.55rem; font-weight: 900; line-height: 1; background: linear-gradient(135deg, #67e8f9, #6ee7b7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-.story-hero-right { text-align: right; }
-.story-hero-sub { font-size: 0.86rem; font-weight: 800; color: #ffffff; line-height: 1.2; }
-.story-arch-pill { display: inline-flex; align-items: center; gap: 4px; background: linear-gradient(135deg, rgba(217, 149, 33, 0.30), rgba(131, 82, 178, 0.30)); border: 1px solid rgba(236, 211, 140, 0.50); border-radius: 99px; padding: 3px 9px; margin-top: 4px; font-size: 0.75rem; font-weight: 800; color: #ffe299; }
-.story-grid-6 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 10px; }
-.story-stat-cell { background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 10px; padding: 6px 7px; text-align: center; }
-.story-stat-label { font-size: 0.65rem; color: rgba(255, 255, 255, 0.75); font-weight: 800; text-transform: uppercase; letter-spacing: 0.03em; }
-.story-stat-val { font-size: 1.02rem; font-weight: 850; color: #ffffff; margin-top: 1px; white-space: nowrap; }
-.story-stat-sub { font-size: 0.66rem; color: rgba(255, 255, 255, 0.65); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.story-discipline-box { background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.11); border-radius: 12px; padding: 8px 10px; margin-bottom: 10px; }
-.story-discipline-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-.story-discipline-title { font-size: 0.68rem; font-weight: 800; color: rgba(255, 255, 255, 0.8); text-transform: uppercase; letter-spacing: 0.04em; }
-.story-discipline-totals { font-size: 0.74rem; font-weight: 800; color: #67e8f9; }
-.story-cabinet { background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.11); border-radius: 12px; padding: 8px 10px; margin-bottom: 8px; }
-.story-cabinet-title { font-size: 0.68rem; font-weight: 800; color: rgba(255, 255, 255, 0.8); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 5px; }
-.story-badge-row { display: flex; gap: 5px; flex-wrap: wrap; }
-.story-badge-item { display: inline-flex; align-items: center; gap: 4px; background: rgba(255, 255, 255, 0.12); border: 1px solid rgba(255, 255, 255, 0.20); padding: 3px 7px; border-radius: 99px; font-size: 0.72rem; font-weight: 800; color: #ffffff; }
-.story-footer-copy { text-align: center; font-size: 0.65rem; color: rgba(255, 255, 255, 0.55); letter-spacing: 0.06em; text-transform: uppercase; font-weight: 750; margin-top: 4px; }
-.story-actions-bar { display: flex; gap: 8px; width: 100%; margin-top: 10px; }
-.story-action-btn { flex: 1; padding: 11px 14px; border-radius: 11px; font-weight: 800; font-size: 0.90rem; cursor: pointer; border: 0; display: flex; align-items: center; justify-content: center; gap: 6px; transition: filter 0.15s, transform 0.12s; }
-.btn-story-image { background: linear-gradient(135deg, #34d399, #059669); color: #ffffff; box-shadow: 0 4px 14px rgba(5, 150, 105, 0.38); }
-.btn-story-image:hover { filter: brightness(1.08); transform: translateY(-1px); }
-.btn-story-close { background: rgba(255, 255, 255, 0.15); color: #ffffff; max-width: 90px; border: 1px solid rgba(255, 255, 255, 0.22); }
-.btn-story-close:hover { background: rgba(255, 255, 255, 0.24); }
-
-/* Habit Header Ribbon */
-.habit-ribbon {
-  background: #ffffff;
-  border: 1px solid rgba(220, 229, 234, 0.9);
-  border-radius: 16px;
-  padding: 12px 18px;
-  margin: 16px 0 14px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  box-shadow: 0 4px 16px rgba(24, 48, 66, 0.04);
-  gap: 12px;
-  flex-wrap: wrap;
-}
-.habit-ribbon-title { display: flex; align-items: center; gap: 8px; font-size: 0.88rem; font-weight: 750; color: var(--navy); }
-.habit-ribbon-tag { background: #fef3e7; color: #b45309; border: 1px solid #fedbc0; padding: 3px 10px; border-radius: 99px; font-size: 0.78rem; font-weight: 800; }
-.habit-edit-box { display: none; padding: 14px 18px; background: #ffffff; border: 1px solid rgba(220, 229, 234, 0.9); border-radius: 16px; margin-bottom: 14px; }
-.habit-edit-box.open { display: block; }
-
-/* Toolbar & Tabs */
-.toolbar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin: 0 0 16px; }
-.tabs { display: flex; gap: 8px; flex-wrap: wrap; }
-.tab-btn { background: var(--paper); border: 1px solid rgba(220, 229, 234, 0.8); border-radius: 12px; padding: 10px 18px; font-weight: 700; color: var(--muted); cursor: pointer; transition: 0.15s; }
-.tab-btn:hover { color: var(--ink); }
-.tab-btn.active { background: var(--navy); color: white; border-color: var(--navy); }
-
-/* 5 Top Summary Metric Cards */
-.summary { display: grid; grid-template-columns: repeat(5, 1fr); gap: 13px; margin: 0 0 18px 0; }
-.card, .panel { background: var(--paper); border: 1px solid rgba(220, 229, 234, 0.85); border-radius: 18px; box-shadow: var(--shadow); }
-.metric { padding: 17px; }
-.metric .label { color: var(--muted); font-size: 0.78rem; font-weight: 750; text-transform: uppercase; letter-spacing: 0.05em; }
-.metric .value { font-size: 1.55rem; font-weight: 850; margin-top: 6px; color: var(--ink); }
-.metric .sub { color: var(--muted); font-size: 0.76rem; margin-top: 3px; font-weight: 600; }
-
-/* Grid Layout: Left Main / Right Aside */
-.layout { display: grid; grid-template-columns: 1.55fr 0.9fr; gap: 16px; }
-.panel { padding: 19px; margin-bottom: 16px; }
-.panel h2 { margin: 0 0 14px; font-size: 1.1rem; font-weight: 750; color: var(--navy); }
-
-/* Progress Shell */
-.panel-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 8px; flex-wrap: wrap; }
-.streak-pill { display: inline-flex; align-items: center; gap: 5px; background: #fff5eb; border: 1px solid #fedbc0; color: #c84f10; padding: 4px 10px; border-radius: 99px; font-size: 0.82rem; font-weight: 800; }
-.streak-pill.streak-zero { background: #f4f6f8; border-color: var(--line); color: var(--muted); }
-.progress-shell { height: 17px; background: #e7eef1; border-radius: 99px; overflow: hidden; }
-.progress-bar { height: 100%; width: 0; background: linear-gradient(90deg, var(--cyan), var(--green)); transition: width 0.3s; }
-.progress-copy { display: flex; justify-content: space-between; gap: 10px; margin-top: 9px; color: var(--muted); font-size: 0.85rem; font-weight: 600; }
-
-/* 3-Item PB Strip */
-.pb-strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--line); }
-.pb-item { background: #f8fafb; border: 1px solid rgba(220, 229, 234, 0.8); border-radius: 12px; padding: 10px 12px; display: flex; flex-direction: column; gap: 2px; }
-.pb-label { font-size: 0.70rem; font-weight: 750; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
-.pb-val { font-size: 1.12rem; font-weight: 800; color: var(--ink); margin-top: 2px; }
-.pb-sub { font-size: 0.72rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-/* Calendar Grid */
-.calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
-.dow { text-align: center; color: var(--muted); font-size: 0.72rem; font-weight: 800; padding-bottom: 2px; }
-.blank { min-height: 85px; }
-.day {
-  min-height: 85px;
-  padding: 8px;
-  border: 1px solid var(--line);
-  border-radius: 13px;
-  background: #fbfcfd;
-  cursor: pointer;
-  transition: transform 0.12s, box-shadow 0.12s;
-  text-align: left;
-  color: var(--ink);
-}
-.day:hover, .day:focus { transform: translateY(-2px); box-shadow: 0 7px 16px rgba(24, 48, 66, 0.10); outline: none; }
-.day.selected { box-shadow: 0 0 0 2px var(--blue); }
-.day.complete { background: #e8f6ee; border-color: #a8d9be; }
-.day.partial { background: #fff7e7; border-color: #efcf91; }
-.day.missed { background: #fdecec; border-color: #edb2b2; }
-.day.future { opacity: 0.6; }
-.day-num { font-weight: 800; font-size: 0.88rem; }
-.day-min { font-size: 0.88rem; margin-top: 10px; font-weight: 750; }
-.day-note { font-size: 0.68rem; color: var(--muted); margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-/* Right Form Inputs */
-.today-form { display: grid; gap: 13px; }
-.field label { display: block; font-weight: 750; font-size: 0.84rem; margin-bottom: 6px; color: var(--navy); }
-.field input[type=number], .field input[type=text], .field select { width: 100%; padding: 9px 11px; border: 1px solid var(--line); border-radius: 10px; background: #fbfcfd; }
-.activity-list { display: grid; gap: 8px; }
-.activity-row-wrap { background: #f8fafb; border: 1px solid var(--line); border-radius: 10px; padding: 8px; }
-.activity-row { display: grid; grid-template-columns: 1.3fr 1fr 34px 34px; gap: 6px; align-items: center; }
-.activity-row select, .activity-row input[type=number] { padding: 7px; border: 1px solid var(--line); border-radius: 8px; background: #fff; font-size: 0.84rem; }
-.btn-note-toggle { background: #f0f4f8; color: var(--navy); border: 1px solid var(--line); border-radius: 8px; height: 33px; cursor: pointer; font-size: 0.95rem; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
-.btn-note-toggle:hover { background: #e1ebf2; }
-.btn-note-toggle.active { background: #e7f3fb; border-color: var(--blue); color: var(--blue); }
-.activity-note-box { margin-top: 7px; display: none; }
-.activity-note-box input { width: 100%; padding: 7px 9px; border: 1px solid var(--line); border-radius: 7px; font-size: 0.80rem; background: #fff; }
-.activity-note-box.show { display: block; }
-.btn-remove-row { background: #fff0f0; color: #c94d4d; border: 1px solid #fedede; border-radius: 8px; height: 33px; cursor: pointer; font-weight: bold; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; }
-.btn-remove-row:hover { background: #fedede; }
-.btn-add-activity { background: #eef7f8; color: var(--blue); border: 1px dashed var(--blue); border-radius: 99px; padding: 7px; font-size: 0.80rem; font-weight: 750; cursor: pointer; width: 100%; text-align: center; margin-top: 4px; }
-.btn-add-activity:hover { background: #e2f2f5; }
-.day-total-banner { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: #f4f8fa; border-radius: 8px; font-size: 0.86rem; font-weight: 750; }
-
-/* Habit Check Toggle Box */
-.habit-check-card { background: #fffbf2; border: 1px solid #fedbc0; border-radius: 12px; padding: 12px; }
-.habit-toggle-btn { flex: 1; padding: 8px 12px; border-radius: 9px; font-size: 0.80rem; font-weight: 750; cursor: pointer; border: 1px solid transparent; transition: all 0.12s; text-align: center; }
-.habit-toggle-btn.neutral { background: #ffffff; border-color: var(--line); color: var(--muted); }
-.habit-toggle-btn.clean-active { background: #e8f6ee; border-color: #2b9a66; color: #238255; }
-.habit-toggle-btn.slip-active { background: #fdecec; border-color: #c94d4d; color: #b91c1c; }
-
-.btn { border: 0; border-radius: 11px; padding: 11px 13px; font-weight: 800; cursor: pointer; width: 100%; transition: filter 0.15s; }
-.primary { background: var(--blue); color: white; }
-.btn:hover { filter: brightness(0.95); }
-.legend { display: flex; flex-wrap: wrap; gap: 12px; color: var(--muted); font-size: 0.76rem; }
-.dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; margin-right: 5px; }
-
-/* Leaderboard */
-.table-wrap { overflow-x: auto; }
-.leader-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.88rem; }
-.leader-table th { background: #f4f7f9; color: var(--muted); font-size: 0.75rem; font-weight: 750; text-transform: uppercase; padding: 10px 12px; border-bottom: 1px solid var(--line); }
-.leader-table td { padding: 11px 12px; border-bottom: 1px solid #edf2f5; vertical-align: middle; }
-.leader-user { display: flex; align-items: center; gap: 10px; min-width: 0; max-width: 180px; }
-.leader-user strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block; }
-.leader-rank { font-weight: 800; font-size: 1.05rem; color: var(--muted); width: 26px; }
-
-.rules-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 14px; margin-top: 14px; }
-.rule-card { padding: 15px; background: #fbfcfd; border: 1px solid var(--line); border-radius: 14px; }
-.rule-card h3 { margin: 0 0 6px; font-size: 0.95rem; color: var(--navy); display: flex; align-items: center; gap: 7px; }
-.rule-card p { margin: 0; font-size: 0.84rem; color: var(--ink); line-height: 1.45; }
-
-.toast { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%) translateY(70px); background: #173b57; color: white; padding: 11px 18px; border-radius: 99px; opacity: 0; transition: 0.25s; z-index: 9999; }
-.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-.hidden { display: none !important; }
-
-@media (max-width: 900px) {
-  .summary { grid-template-columns: repeat(2, 1fr); }
-  .summary .metric:last-child { grid-column: span 2; }
-  .layout { grid-template-columns: 1fr; }
-}
-@media (max-width: 620px) {
-  .app { padding: 12px; }
-  .hero { border-radius: 18px; padding: 18px; }
-  .hero-top { display: block; }
-  .hero-actions { margin-top: 12px; }
-  .calendar { gap: 4px; }
-  .day { min-height: 68px; padding: 5px; border-radius: 9px; }
-  .day-min { font-size: 0.74rem; margin-top: 6px; }
-  .day-note { font-size: 0.58rem; }
-  .blank { min-height: 68px; }
-  .pb-strip { grid-template-columns: 1fr; gap: 6px; }
-}
-</style>
-</head>
-<body>
-
-<div class="app">
-
-  <!-- Top Hero Header -->
-  <header class="hero">
-    <div class="hero-top">
-      <div>
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
-          <a href="index.html" class="nav-hub-btn">
-            <span>&larr;</span> <span>Hub</span>
-          </a>
-          <span style="background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.3);padding:3px 9px;border-radius:99px;font-size:0.75rem;font-weight:800">
-            🍂 November Season Active
-          </span>
-        </div>
-        <h1>November Fitness & Habit Challenge</h1>
-        <p>Personalized volume targets, 30-min daily streaks, and the personal habit breaker.</p>
-      </div>
-
-      <div class="hero-actions">
-        <button id="loginBtn" class="auth-btn">
-          <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#173b57" d="M12.545,10.239v3.821h5.445c-0.712,2.315-2.647,3.972-5.445,3.972c-3.332,0-6.033-2.701-6.033-6.032s2.701-6.032,6.033-6.032c1.498,0,2.866,0.549,3.921,1.453l2.814-2.814C17.503,2.988,15.139,2,12.545,2C7.021,2,2.543,6.477,2.543,12s4.478,10,10.002,10c8.396,0,10.249-7.85,9.426-11.748L12.545,10.239z"/></svg>
-          <span>Sign In</span>
-        </button>
-
-        <button id="launchRecapBtn" class="btn-recap-launch" title="View your official November Story Card">
-          <span>📜</span> <span>Story Recap</span>
-        </button>
-
+<!-- ... existing code -->
         <div id="userProfile" class="user-info">
           <img id="userImg" class="user-avatar" src="https://placehold.co/32x32/1e293b/94a3b8?text=U" alt="Profile">
           <span id="userName" style="max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Athlete</span>
@@ -393,19 +17,52 @@ button, input, select { font: inherit; }
         </div>
       </div>
     </div>
-    <div class="version-tag">v9.7 Active</div>
+    <div class="version-tag">v9.9 Active</div>
   </header>
 
-  <!-- Collapsible Habit Management Ribbon -->
+  <!-- Challenge Configuration Ribbon (Habit + Base Target Controls) -->
   <div class="habit-ribbon">
-    <div class="habit-ribbon-title">
-      <span style="font-size:1.1rem">⚡</span>
-      <span>Personal Habit:</span>
-      <span id="habitDisplayTitle" class="habit-ribbon-tag">Loading habit...</span>
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+      <div class="habit-ribbon-title">
+        <span style="font-size:1.1rem">⚡</span>
+        <span>Habit:</span>
+        <span id="habitDisplayTitle" class="habit-ribbon-tag">Loading habit...</span>
+      </div>
+
+      <!-- Top Bar Target Mode Pill (Day 1-7 window) -->
+      <div id="topBarTargetControl" class="hidden" style="display:inline-flex;align-items:center;gap:6px;background:#f0f4f8;border:1px solid var(--line);border-radius:8px;padding:3px 8px;font-size:0.75rem">
+        <span style="font-weight:750;color:var(--navy)">🎯 Base Target:</span>
+        <span id="topBarCurrentBaseVal" style="font-weight:800;color:var(--blue)">900m</span>
+        <button id="toggleTargetModeDropdown" style="background:#fff;border:1px solid var(--line);border-radius:6px;padding:2px 7px;font-size:0.70rem;font-weight:800;color:var(--navy);cursor:pointer" title="First 7 days only: choose between September volume or 900m default">
+          Change ▾
+        </button>
+      </div>
     </div>
+
     <button id="toggleHabitEditBtn" class="tab-btn" style="padding:6px 12px;font-size:0.78rem">
       <span id="habitBtnLabel">Edit Habit</span>
     </button>
+  </div>
+
+  <!-- Target Mode Expandable Drawer (First 7 Days) -->
+  <div id="targetModeDrawer" class="hidden" style="background:#fffdf7;border:1px solid #fedbc0;border-radius:12px;padding:12px 14px;margin-bottom:12px;box-shadow:var(--shadow)">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;flex-wrap:wrap;gap:8px">
+      <div style="font-size:0.85rem;font-weight:800;color:#855c0c;display:flex;align-items:center;gap:6px">
+        <span>📅</span> <span>Nov 1–7 Window: Select Your November Base Target</span>
+      </div>
+      <button id="closeTargetDrawerBtn" style="background:none;border:0;color:var(--muted);font-weight:700;font-size:0.78rem;cursor:pointer">✕ Close</button>
+    </div>
+    <div style="font-size:0.78rem;color:var(--muted);margin-bottom:10px">
+      Returning challengers can compete using their full <strong>September baseline volume</strong> or switch to the standard <strong>900 min</strong> goal (30m &times; 30 days). This setting locks after Nov 7th.
+    </div>
+    <div style="display:flex;gap:8px;max-width:440px">
+      <button id="btnSetSeptTarget" class="tab-btn" style="flex:1;padding:8px 10px;font-size:0.78rem;text-align:center;background:#fff;border-color:var(--blue);color:var(--blue)">
+        Sept Baseline (<span id="noticeSeptVal">--</span>m)
+      </button>
+      <button id="btnSetDefaultTarget" class="tab-btn" style="flex:1;padding:8px 10px;font-size:0.78rem;text-align:center;background:#fff">
+        Default 900m
+      </button>
+    </div>
   </div>
 
   <div id="habitEditBox" class="habit-edit-box">
@@ -452,9 +109,6 @@ button, input, select { font: inherit; }
         <div class="label">Adjusted target</div>
         <div class="value" id="statTarget">-- min</div>
         <div class="sub" id="statBaseTarget">Base: -- min</div>
-        <button id="btnTargetModeToggle" class="hidden" style="margin-top:6px;font-size:0.72rem;background:#f0f4f8;border:1px solid var(--line);border-radius:6px;padding:2px 8px;font-weight:750;color:var(--blue);cursor:pointer;" title="First 7 days only: switch between September baseline and default 900m">
-          ⚙️ Change Base Target
-        </button>
       </div>
 
       <div class="card metric">
@@ -578,21 +232,6 @@ button, input, select { font: inherit; }
           </div>
         </section>
 
-        <!-- Target Window Notification Card (Day 1-7 only) -->
-        <section id="targetChangeWindowNotice" class="panel hidden" style="border-left:4px solid var(--blue)">
-          <h2 style="font-size:0.95rem;margin-bottom:6px">📅 First 7 Days: Base Target Option</h2>
-          <p style="font-size:0.80rem;color:var(--muted);line-height:1.45;margin:0 0 10px">
-            Until November 7th, you can choose whether to compete using your calculated <strong>September Baseline</strong> or reset to the default <strong>900 min</strong> target.
-          </p>
-          <div style="display:flex;gap:8px">
-            <button id="btnSetSeptTarget" class="tab-btn" style="flex:1;padding:7px;font-size:0.76rem;text-align:center">
-              Sept Baseline (<span id="noticeSeptVal">--</span>m)
-            </button>
-            <button id="btnSetDefaultTarget" class="tab-btn" style="flex:1;padding:7px;font-size:0.76rem;text-align:center">
-              Default (900m)
-            </button>
-          </div>
-        </section>
       </aside>
     </div>
   </div>
@@ -783,7 +422,7 @@ button, input, select { font: inherit; }
 <div class="toast" id="toast"></div>
 
 <script>
-  const APP_VERSION = "9.7";
+  const APP_VERSION = "9.9";
 
   const firebaseConfig = {
     apiKey: "AIzaSyCbxoN1DLvMqxZb7FD4qu8p7k6lnD5ENP4",
@@ -1370,21 +1009,30 @@ button, input, select { font: inherit; }
       $('habitEnabledToggle').checked = habitEnabled;
       updateHabitUIState();
 
-      // Configure Target Mode Window (First 7 days)
+      // Configure Target Mode Window (First 7 days) in Top Bar Ribbon
       const dayNow = getTodayDayNum();
+      const topBarTarget = $('topBarTargetControl');
       if (dayNow <= 7 && userProfileDoc && userProfileDoc.septemberCalculatedTarget && userProfileDoc.septemberCalculatedTarget > 900) {
-        $('btnTargetModeToggle').classList.remove('hidden');
-        $('targetChangeWindowNotice').classList.remove('hidden');
+        if (topBarTarget) topBarTarget.classList.remove('hidden');
         $('noticeSeptVal').textContent = userProfileDoc.septemberCalculatedTarget;
+        $('topBarCurrentBaseVal').textContent = `${userProfileDoc.baseTarget || 900}m`;
       } else {
-        $('btnTargetModeToggle').classList.add('hidden');
-        $('targetChangeWindowNotice').classList.add('hidden');
+        if (topBarTarget) topBarTarget.classList.add('hidden');
+        $('targetModeDrawer').classList.add('hidden');
       }
 
     } catch (err) {
       console.warn("Init profile error:", err);
     }
   }
+
+  // Target Mode Drawer Toggles
+  $('toggleTargetModeDropdown').onclick = () => {
+    $('targetModeDrawer').classList.toggle('hidden');
+  };
+  $('closeTargetDrawerBtn').onclick = () => {
+    $('targetModeDrawer').classList.add('hidden');
+  };
 
   // Save Habit Button
   $('saveHabitBtn').onclick = async () => {
@@ -1454,6 +1102,8 @@ button, input, select { font: inherit; }
     await db.collection('nov_users').doc(currentUser.uid).update({ baseTarget: septVal, targetChoice: 'september' });
     userProfileDoc.baseTarget = septVal;
     userProfileDoc.targetChoice = 'september';
+    $('topBarCurrentBaseVal').textContent = `${septVal}m`;
+    $('targetModeDrawer').classList.add('hidden');
     toast(`Base target switched to September volume (${septVal}m)`);
     await recalculateAndSyncStats();
   };
@@ -1463,12 +1113,10 @@ button, input, select { font: inherit; }
     await db.collection('nov_users').doc(currentUser.uid).update({ baseTarget: 900, targetChoice: 'default' });
     userProfileDoc.baseTarget = 900;
     userProfileDoc.targetChoice = 'default';
+    $('topBarCurrentBaseVal').textContent = '900m';
+    $('targetModeDrawer').classList.add('hidden');
     toast("Base target set to default 900m!");
     await recalculateAndSyncStats();
-  };
-
-  $('btnTargetModeToggle').onclick = () => {
-    $('targetChangeWindowNotice').scrollIntoView({ behavior: 'smooth' });
   };
 
   // Load User Entries from Firestore
@@ -1642,6 +1290,7 @@ button, input, select { font: inherit; }
     $('statActual').textContent = `${actualMinutes} actual minutes`;
     $('statTarget').textContent = `${adjustedTarget} min`;
     $('statBaseTarget').textContent = `Base: ${base} min`;
+    if ($('topBarCurrentBaseVal')) $('topBarCurrentBaseVal').textContent = `${base}m`;
     $('statRemaining').textContent = `${remaining} min`;
     $('statRemainingHours').textContent = `${(remaining / 60).toFixed(1)} hours`;
     $('statHabitSlips').textContent = habitSlips;
