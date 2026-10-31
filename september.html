@@ -7,7 +7,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>September Fitness Challenge - v10.2 Archive</title>
+<title>September Fitness Challenge - v10.3 Archive</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -18,111 +18,187 @@
 :root {
   --navy:#173b57; --blue:#2674a8; --cyan:#24a7b6; --green:#2b9a66;
   --amber:#d99521; --red:#c94d4d; --purple:#8352b2; --ink:#183042; --muted:#6b7c88;
-  --paper:#ffffff; --bg:#eef3f6; --line:#dce5ea; --shadow:0 12px 32px rgba(24,48,66,.10);
+  --paper:#ffffff; --bg:#eef3f6; --line:#dce5ea; --shadow:0 8px 24px rgba(24,48,66,.08);
 }
-*{box-sizing:border-box}
+*{box-sizing:border-box; -webkit-tap-highlight-color: transparent;}
 body{margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:linear-gradient(145deg,#eaf2f5,#f7f9fa);color:var(--ink);padding-bottom:env(safe-area-inset-bottom, 20px);}
-button,input,select{font:inherit}
-.app{max-width:1180px;margin:auto;padding:22px}
-.hero{background:linear-gradient(125deg,var(--navy),#235d7c 62%,#258b96);color:white;border-radius:24px;padding:25px;box-shadow:var(--shadow);position:relative;overflow:hidden}
-.hero:after{content:"";position:absolute;width:260px;height:260px;border:40px solid rgba(255,255,255,.07);border-radius:50%;right:-90px;top:-110px;pointer-events:none}
-.hero h1{margin:0 0 7px;font-size:clamp(1.65rem,4vw,2.5rem);font-weight:800}
-.hero p{margin:0;opacity:.87}
-.hero-top{display:flex;justify-content:space-between;gap:15px;align-items:flex-start;position:relative;z-index:1}
-.hero-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+button,input,select{font:inherit;touch-action:manipulation}
+.app{max-width:1180px;margin:auto;padding:14px 16px}
+.hero{background:linear-gradient(125deg,var(--navy),#235d7c 65%,#258b96);color:white;border-radius:18px;padding:14px 18px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.hero-compact-row{display:flex;justify-content:space-between;align-items:center;gap:12px;position:relative;z-index:1}
+.hero-title-wrap h1{margin:0;font-size:clamp(1.15rem, 2.6vw, 1.55rem);font-weight:850;letter-spacing:-0.02em;line-height:1.2}
+.hero-version-pill{display:inline-block;background:rgba(255,255,255,0.18);font-size:0.65rem;font-weight:800;padding:2px 7px;border-radius:99px;margin-top:4px;letter-spacing:0.04em}
+.hero-actions{display:flex;gap:8px;align-items:center;flex-shrink:0}
 
 .btn-hub-nav{
-  background:rgba(255,255,255,0.15);
+  background:rgba(255,255,255,0.18);
   color:white;
   border:1px solid rgba(255,255,255,0.3);
-  border-radius:10px;
-  padding:9px 14px;
+  border-radius:8px;
+  padding:6px 11px;
   font-weight:750;
   text-decoration:none;
   display:inline-flex;
   align-items:center;
-  gap:6px;
-  font-size:0.86rem;
+  gap:5px;
+  font-size:0.80rem;
   transition:all 0.15s ease;
 }
-.btn-hub-nav:hover{background:rgba(255,255,255,0.25);transform:translateX(-2px)}
+.btn-hub-nav:hover{background:rgba(255,255,255,0.28)}
 
-.auth-btn{background:white;color:var(--navy);border:0;border-radius:10px;padding:9px 15px;font-weight:750;cursor:pointer;display:flex;align-items:center;gap:8px}
-.auth-btn:hover{background:#eef3f6}
-.user-info{display:none;align-items:center;gap:10px;color:white;font-size:.9rem;font-weight:600}
-.user-avatar{width:32px;height:32px;border-radius:50%;border:2px solid white;object-fit:cover}
-.version-tag{position:absolute;right:18px;bottom:10px;font-size:0.68rem;opacity:0.65;font-weight:700;letter-spacing:0.04em}
+.btn-recap-launch{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  background:linear-gradient(135deg,#ffd778,#f3a93b);
+  color:#173042;
+  border:0;
+  border-radius:8px;
+  padding:6px 11px;
+  font-size:0.78rem;
+  font-weight:800;
+  cursor:pointer;
+  box-shadow:0 2px 8px rgba(0,0,0,0.16);
+}
 
-.toolbar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin:18px 0 14px}
-.tabs{display:flex;gap:8px;flex-wrap:wrap}
-.tab-btn{background:var(--paper);border:1px solid rgba(220,229,234,.8);border-radius:12px;padding:9px 16px;font-weight:700;color:var(--muted);cursor:pointer;transition:.15s;font-size:0.86rem}
+.auth-btn{background:white;color:var(--navy);border:0;border-radius:8px;padding:7px 12px;font-weight:750;font-size:0.80rem;cursor:pointer;display:flex;align-items:center;gap:6px}
+.user-info{display:none;align-items:center;gap:8px;color:white;font-size:0.82rem;font-weight:650}
+.user-avatar{width:30px;height:30px;border-radius:50%;border:2px solid rgba(255,255,255,0.8);object-fit:cover}
+.btn-logout-link{background:none;border:0;color:#ffd5d5;cursor:pointer;font-size:0.75rem;text-decoration:underline;padding:0}
+
+.toolbar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin:8px 0 12px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;width:100%}
+.tab-btn{background:var(--paper);border:1px solid rgba(220,229,234,.9);border-radius:10px;padding:7px 13px;font-weight:700;color:var(--muted);cursor:pointer;transition:.15s;font-size:0.80rem;flex:1 1 auto;text-align:center}
 .tab-btn:hover{color:var(--ink)}
 .tab-btn.active{background:var(--navy);color:white;border-color:var(--navy)}
 
-.summary{display:grid;grid-template-columns:repeat(5,1fr);gap:13px;margin:0 0 18px 0}
-.card,.panel{background:var(--paper);border:1px solid rgba(220,229,234,.8);border-radius:18px;box-shadow:var(--shadow)}
-.metric{padding:17px}.metric .label{color:var(--muted);font-size:.81rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em}.metric .value{font-size:1.55rem;font-weight:800;margin-top:6px}.metric .sub{color:var(--muted);font-size:.78rem;margin-top:3px}
-.layout{display:grid;grid-template-columns:1.55fr .9fr;gap:16px}.panel{padding:19px;margin-bottom:16px}.panel h2{margin:0 0 15px;font-size:1.1rem;font-weight:750}
+.summary{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:0 0 14px 0}
+.card,.panel{background:var(--paper);border:1px solid rgba(220,229,234,.8);border-radius:16px;box-shadow:var(--shadow)}
+.metric{padding:14px}
+.metric .label{color:var(--muted);font-size:.74rem;font-weight:750;text-transform:uppercase;letter-spacing:.04em}
+.metric .value{font-size:1.40rem;font-weight:800;margin-top:4px}
+.metric .sub{color:var(--muted);font-size:.74rem;margin-top:2px}
+.layout{display:grid;grid-template-columns:1.55fr .95fr;gap:14px}
+.panel{padding:16px;margin-bottom:14px}
+.panel h2{margin:0 0 12px;font-size:1.05rem;font-weight:750}
 
-.progress-shell{height:17px;background:#e7eef1;border-radius:99px;overflow:hidden}.progress-bar{height:100%;width:0;background:linear-gradient(90deg,var(--cyan),var(--green));transition:width .3s}.progress-copy{display:flex;justify-content:space-between;gap:10px;margin-top:9px;color:var(--muted);font-size:.85rem}
+.progress-shell{height:15px;background:#e7eef1;border-radius:99px;overflow:hidden}
+.progress-bar{height:100%;width:0;background:linear-gradient(90deg,var(--cyan),var(--green));transition:width .3s}
+.progress-copy{display:flex;justify-content:space-between;gap:8px;margin-top:7px;color:var(--muted);font-size:.80rem}
 
-.pb-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
-.pb-item{background:#f8fafb;border:1px solid rgba(220,229,234,.8);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:2px}
-.pb-label{font-size:0.72rem;font-weight:750;text-transform:uppercase;letter-spacing:0.04em;color:var(--muted)}
-.pb-val{font-size:1.18rem;font-weight:800;color:var(--ink);display:flex;align-items:center;gap:6px;margin-top:2px}
-.pb-sub{font-size:0.73rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.pb-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+.pb-item{background:#f8fafb;border:1px solid rgba(220,229,234,.8);border-radius:10px;padding:8px 10px;display:flex;flex-direction:column;gap:2px}
+.pb-label{font-size:0.68rem;font-weight:750;text-transform:uppercase;letter-spacing:0.04em;color:var(--muted)}
+.pb-val{font-size:1.08rem;font-weight:800;color:var(--ink);display:flex;align-items:center;gap:4px;margin-top:2px}
+.pb-sub{font-size:0.70rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
-.panel-header-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:8px;flex-wrap:wrap}
-.streak-pill{display:inline-flex;align-items:center;gap:5px;background:#fff5eb;border:1px solid #fedbc0;color:#c84f10;padding:4px 10px;border-radius:99px;font-size:0.82rem;font-weight:800}
+.panel-header-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:8px;flex-wrap:wrap}
+.streak-pill{display:inline-flex;align-items:center;gap:4px;background:#fff5eb;border:1px solid #fedbc0;color:#c84f10;padding:3px 8px;border-radius:99px;font-size:0.78rem;font-weight:800}
 .streak-pill.streak-zero{background:#f4f6f8;border-color:var(--line);color:var(--muted)}
 
-.dashboard-badges{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap}
-.badge-chip{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;background:#f4f7f9;border:1px solid var(--line);border-radius:50%;font-size:0.95rem;cursor:pointer}
+.dashboard-badges{display:inline-flex;align-items:center;gap:5px;flex-wrap:wrap}
+.badge-chip{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;background:#f4f7f9;border:1px solid var(--line);border-radius:50%;font-size:0.88rem;cursor:pointer}
 
-.calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}.dow{text-align:center;color:var(--muted);font-size:.72rem;font-weight:800;padding-bottom:2px}.blank{min-height:85px}.day{min-height:85px;padding:9px;border:1px solid var(--line);border-radius:13px;background:#fbfcfd;cursor:pointer;transition:.15s;text-align:left;color:var(--ink)}.day:hover,.day:focus{transform:translateY(-2px);box-shadow:0 7px 16px rgba(24,48,66,.1);outline:none}.day.complete{background:#e8f6ee;border-color:#a8d9be}.day.partial{background:#fff7e7;border-color:#efcf91}.day.missed{background:#fdecec;border-color:#edb2b2}.day-num{font-weight:800}.day-min{font-size:.9rem;margin-top:12px;font-weight:750}.day-note{font-size:.69rem;color:var(--muted);margin-top:4px}
+.calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.dow{text-align:center;color:var(--muted);font-size:.70rem;font-weight:800;padding-bottom:2px}
+.blank{min-height:75px}
+.day{min-height:75px;padding:7px;border:1px solid var(--line);border-radius:11px;background:#fbfcfd;cursor:pointer;transition:.15s;text-align:left;color:var(--ink)}
+.day:hover,.day:focus{transform:translateY(-1px);box-shadow:0 6px 14px rgba(24,48,66,.08);outline:none}
+.day.selected{box-shadow:0 0 0 2px var(--blue)}
+.day.complete{background:#e8f6ee;border-color:#a8d9be}
+.day.partial{background:#fff7e7;border-color:#efcf91}
+.day.missed{background:#fdecec;border-color:#edb2b2}
+.day-num{font-weight:800;font-size:0.86rem}
+.day-min{font-size:.84rem;margin-top:8px;font-weight:750}
+.day-note{font-size:.66rem;color:var(--muted);margin-top:3px}
 
 .table-wrap{overflow-x:auto}
-.leader-table{width:100%;border-collapse:collapse;text-align:left;font-size:.9rem}
-.leader-table th{background:#f4f7f9;color:var(--muted);font-size:.78rem;font-weight:750;text-transform:uppercase;padding:12px 14px;border-bottom:1px solid var(--line)}
-.leader-table td{padding:12px 14px;border-bottom:1px solid #edf2f5;vertical-align:middle}
-.leader-user{display:flex;align-items:center;gap:10px}
-.leader-rank{font-weight:800;font-size:1.05rem;color:var(--muted);width:26px}
+.leader-table{width:100%;border-collapse:collapse;text-align:left;font-size:.86rem}
+.leader-table th{background:#f4f7f9;color:var(--muted);font-size:.74rem;font-weight:750;text-transform:uppercase;padding:10px 12px;border-bottom:1px solid var(--line)}
+.leader-table td{padding:10px 12px;border-bottom:1px solid #edf2f5;vertical-align:middle}
+.leader-user{display:flex;align-items:center;gap:8px}
+.leader-rank{font-weight:800;font-size:0.95rem;color:var(--muted);width:24px}
 
-.app-footer{display:flex;justify-content:space-between;align-items:center;margin-top:20px;padding-top:14px;border-top:1px solid var(--line);font-size:0.80rem;color:var(--muted);flex-wrap:wrap;gap:10px}
-.user-count-badge{display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid var(--line);padding:5px 12px;border-radius:99px;font-size:0.78rem;color:var(--ink)}
+.archived-notice{background:#f8fafb;border:1px dashed var(--line);border-radius:10px;padding:10px;text-align:center;font-size:0.78rem;color:var(--muted);margin-top:10px}
+
+/* Story Recap Modal */
+.story-modal-overlay{position:fixed;inset:0;background:rgba(10,23,34,0.85);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;z-index:10001;padding:12px;overflow-y:auto}
+.story-modal-overlay.show{display:flex}
+.story-shell{position:relative;max-width:390px;width:100%;display:flex;flex-direction:column;align-items:center;margin:auto}
+.story-card{width:100%;background:linear-gradient(165deg,#0c1d2d 0%,#15364e 45%,#1c4a68 100%);color:white;border-radius:22px;border:1.5px solid rgba(255,255,255,0.20);box-shadow:0 20px 50px rgba(0,0,0,0.50);padding:15px 14px 13px;position:relative;box-sizing:border-box}
+.story-header-compact{display:flex;justify-content:space-between;align-items:center;gap:10px;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,0.14);margin-bottom:10px}
+.story-profile-mini{display:flex;align-items:center;gap:9px;min-width:0}
+.story-avatar{width:38px;height:38px;border-radius:50%;border:2px solid #24a7b6;object-fit:cover;flex-shrink:0}
+.story-user-meta{min-width:0}
+.story-user-name{font-weight:850;font-size:0.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#fff}
+.story-status-pill{display:inline-block;padding:2px 7px;border-radius:99px;font-size:0.68rem;font-weight:800;letter-spacing:0.02em;text-transform:uppercase;background:#238255;color:#ffffff}
+.story-brand-tag{text-align:right;flex-shrink:0}
+.story-brand-tag-title{font-size:0.65rem;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;color:rgba(255,255,255,0.75)}
+.story-brand-tag-year{font-size:0.90rem;font-weight:900;color:#67e8f9;line-height:1}
+
+.story-hero-split{display:flex;align-items:center;justify-content:space-between;background:radial-gradient(circle at left center,rgba(36,167,182,0.22) 0%,rgba(23,59,87,0) 70%);padding:6px 8px 10px;margin-bottom:10px;gap:10px}
+.story-pct-huge{font-size:2.55rem;font-weight:900;line-height:1;background:linear-gradient(135deg,#67e8f9,#6ee7b7);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.story-hero-right{text-align:right}
+.story-hero-sub{font-size:0.86rem;font-weight:800;color:#ffffff;line-height:1.2}
+
+.story-grid-6{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px}
+.story-stat-cell{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:6px 7px;text-align:center}
+.story-stat-label{font-size:0.65rem;color:rgba(255,255,255,0.75);font-weight:800;text-transform:uppercase;letter-spacing:0.03em}
+.story-stat-val{font-size:1.02rem;font-weight:850;color:#ffffff;margin-top:1px;white-space:nowrap}
+.story-stat-sub{font-size:0.66rem;color:rgba(255,255,255,0.65);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+.story-cabinet{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.11);border-radius:12px;padding:8px 10px;margin-bottom:8px}
+.story-cabinet-title{font-size:0.68rem;font-weight:800;color:rgba(255,255,255,0.8);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:5px}
+.story-badge-row{display:flex;gap:5px;flex-wrap:wrap}
+.story-badge-item{display:inline-flex;align-items:center;gap:4px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.20);padding:3px 7px;border-radius:99px;font-size:0.72rem;font-weight:800;color:#ffffff}
+
+.story-actions-bar{display:flex;gap:8px;width:100%;margin-top:10px}
+.story-action-btn{flex:1;padding:11px 14px;border-radius:11px;font-weight:800;font-size:0.90rem;cursor:pointer;border:0;display:flex;align-items:center;justify-content:center;gap:6px}
+.btn-story-image{background:linear-gradient(135deg,#34d399,#059669);color:#ffffff}
+.btn-story-close{background:rgba(255,255,255,0.15);color:#ffffff;max-width:90px;border:1px solid rgba(255,255,255,0.22)}
 
 .hidden{display:none !important}
 @media(max-width:900px){.summary{grid-template-columns:repeat(2,1fr)}.layout{grid-template-columns:1fr}}
+@media(max-width:620px){
+  .app{padding:10px}
+  .hero{padding:12px 14px}
+  .summary{grid-template-columns:repeat(2,1fr);gap:8px}
+  .calendar{gap:3px}
+  .day{min-height:64px;padding:5px}
+  .day-min{margin-top:4px;font-size:0.78rem}
+}
 </style>
 </head>
 <body>
 
 <div class="app">
   <header class="hero">
-    <div class="hero-top">
-      <div>
-        <h1>September Fitness Challenge</h1>
-        <p>Official 2026 Season Archive &amp; Standings.</p>
+    <div class="hero-compact-row">
+      <div class="hero-title-wrap">
+        <h1>September Challenge</h1>
+        <div class="hero-version-pill">v10.3 &bull; Final Archive</div>
       </div>
       <div class="hero-actions">
         <a href="index.html" class="btn-hub-nav">← Hub</a>
+        <button id="openRecapBtn" class="btn-recap-launch" title="View Full September Season Report">
+          <span>📜</span> <span>Story Recap</span>
+        </button>
         <button id="authBtn" class="auth-btn">Sign in</button>
         <div id="userProfile" class="user-info">
-          <img id="userImg" class="user-avatar" src="https://placehold.co/32x32/1e293b/94a3b8?text=U" alt="Profile">
-          <span id="userName" style="max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Athlete</span>
-          <button id="signOutBtn" style="background:none;border:0;color:#ffd1d1;cursor:pointer;font-size:0.8rem;text-decoration:underline;">Logout</button>
+          <img id="userImg" class="user-avatar" src="https://placehold.co/30x30/1e293b/94a3b8?text=U" alt="Profile">
+          <span id="userName" style="max-width:85px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Athlete</span>
+          <button id="signOutBtn" class="btn-logout-link">Logout</button>
         </div>
       </div>
     </div>
-    <div class="version-tag">v10.2 Archive</div>
   </header>
 
   <div class="toolbar">
-    <div class="tabs">
-      <button id="tabDashboard" class="tab-btn active">Dashboard</button>
+    <nav class="tabs">
+      <button id="tabDashboard" class="tab-btn active">Dashboard &amp; History</button>
       <button id="tabLeaderboard" class="tab-btn">Leaderboard</button>
       <button id="tabFeed" class="tab-btn">Activity Feed</button>
-    </div>
+    </nav>
   </div>
 
   <div id="dashboardView">
@@ -133,7 +209,7 @@ button,input,select{font:inherit}
         <div class="sub" id="actualMinutes">0 actual minutes</div>
       </div>
       <div class="card metric">
-        <div class="label">Target</div>
+        <div class="label">Adjusted Target</div>
         <div class="value" id="target">900 min</div>
         <div class="sub" id="baseTargetSub">Base: 900 min</div>
       </div>
@@ -159,8 +235,11 @@ button,input,select{font:inherit}
         <section class="panel">
           <div class="panel-header-row">
             <h2>Challenge progress</h2>
-            <div id="streakPill" class="streak-pill streak-zero">
-              <span>🔥</span> <span id="streakCount">0-day streak</span>
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+              <div id="dashboardBadges" class="dashboard-badges"></div>
+              <div id="streakPill" class="streak-pill streak-zero">
+                <span>🔥</span> <span id="streakCount">0-day streak</span>
+              </div>
             </div>
           </div>
           <div class="progress-shell">
@@ -168,19 +247,19 @@ button,input,select{font:inherit}
           </div>
           <div class="progress-copy">
             <span id="progressText">0% complete</span>
-            <span id="forecast">Challenge archive</span>
+            <span id="forecast">Season Concluded &bull; Read-Only</span>
           </div>
 
           <div class="pb-strip">
             <div class="pb-item">
               <div class="pb-label">Streak</div>
               <div class="pb-val" id="pbStreak">🔥 0 Days</div>
-              <div class="pb-sub" id="pbStreakSub">Best streak</div>
+              <div class="pb-sub">Longest streak</div>
             </div>
             <div class="pb-item">
               <div class="pb-label">Biggest Day</div>
               <div class="pb-val" id="pbBiggestDay">⏱️ 0 min</div>
-              <div class="pb-sub" id="pbBiggestDaySub">No activity</div>
+              <div class="pb-sub" id="pbBiggestDaySub">Single day high</div>
             </div>
             <div class="pb-item">
               <div class="pb-label">Favorite Workout</div>
@@ -191,17 +270,27 @@ button,input,select{font:inherit}
         </section>
 
         <section class="panel">
-          <h2>September Calendar</h2>
+          <h2>September Calendar (Tap any day to inspect)</h2>
           <div class="calendar" id="calendar"></div>
         </section>
       </main>
 
       <aside>
         <section class="panel">
-          <h2 id="entryTitle">September Entry</h2>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+            <h2 id="entryTitle" style="margin:0">September Entry</h2>
+            <span style="font-size:0.75rem;color:var(--muted);background:#f0f4f8;padding:2px 7px;border-radius:6px">Archived</span>
+          </div>
           <div id="activityContainer" style="display:grid;gap:8px"></div>
-          <div style="margin-top:12px;font-weight:750;font-size:0.88rem;color:var(--navy)">
-            Day total: <span id="dayTotalDisplay">0 min</span>
+          <div style="margin-top:12px;font-weight:750;font-size:0.88rem;color:var(--navy);display:flex;justify-content:space-between;align-items:center">
+            <span>Day total:</span>
+            <span id="dayTotalDisplay">0 min</span>
+          </div>
+          <div id="dayBeverageDisplay" style="font-size:0.80rem;color:#b45309;margin-top:6px;font-weight:600">
+            Drinks: 0 (+0 min penalty)
+          </div>
+          <div class="archived-notice">
+            🔒 September is officially concluded. All data is preserved in permanent read-only status.
           </div>
         </section>
       </aside>
@@ -210,20 +299,24 @@ button,input,select{font:inherit}
 
   <div id="leaderboardView" class="hidden">
     <section class="panel">
-      <h2>🏆 September Standings</h2>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <h2 style="margin:0">🏆 Official September Standings</h2>
+        <button id="refreshBoardBtn" class="tab-btn" style="flex:0 0 auto;padding:5px 12px">🔄 Refresh</button>
+      </div>
       <div class="table-wrap">
         <table class="leader-table">
           <thead>
             <tr>
-              <th>Rank</th>
+              <th style="width:30px">Rank</th>
               <th>Participant</th>
               <th>Progress</th>
-              <th>Minutes</th>
+              <th>Counted / Req</th>
               <th>Drinks</th>
+              <th>Penalties</th>
             </tr>
           </thead>
           <tbody id="leaderboardBody">
-            <tr><td colspan="5" style="text-align:center;color:var(--muted);padding:20px">Loading...</td></tr>
+            <tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px">Loading September standings...</td></tr>
           </tbody>
         </table>
       </div>
@@ -232,22 +325,110 @@ button,input,select{font:inherit}
 
   <div id="feedView" class="hidden">
     <section class="panel">
-      <h2>Activity Feed</h2>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div>
+          <h2 style="margin:0">September Activity Feed</h2>
+          <p style="margin:2px 0 0;color:var(--muted);font-size:0.80rem">Logged workouts and milestones from the September season.</p>
+        </div>
+        <button id="refreshFeedBtn" class="tab-btn" style="flex:0 0 auto;padding:5px 12px">🔄 Refresh</button>
+      </div>
       <div id="feedContainer" style="display:grid;gap:10px">Loading feed...</div>
     </section>
   </div>
 
-  <footer class="app-footer">
-    <div class="user-count-badge">
-      <span>👥 Enrolled:</span>
-      <strong id="uniqueUsersCount">1 enrolled</strong>
+  <footer class="app-footer" style="display:flex;justify-content:space-between;align-items:center;margin-top:20px;padding-top:14px;border-top:1px solid var(--line);font-size:0.80rem;color:var(--muted);flex-wrap:wrap;gap:10px">
+    <div style="display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid var(--line);padding:5px 12px;border-radius:99px;font-size:0.78rem;color:var(--ink)">
+      <span>👥 Finishers &amp; Participants:</span>
+      <strong id="uniqueUsersCount">-- enrolled</strong>
     </div>
-    <div>September Fitness Challenge &bull; v10.2 Archive</div>
+    <div>September Fitness Challenge &bull; v10.3 Archive</div>
   </footer>
 </div>
 
+<!-- September Story Recap Modal -->
+<div id="recapModal" class="story-modal-overlay">
+  <div class="story-shell">
+    <div class="story-card" id="storyCardContent">
+      <div class="story-header-compact">
+        <div class="story-profile-mini">
+          <img id="recapAvatar" class="story-avatar" src="https://placehold.co/38x38/1e293b/94a3b8?text=U" alt="User">
+          <div class="story-user-meta">
+            <div id="recapName" class="story-user-name">Athlete</div>
+            <span id="recapStatusBadge" class="story-status-pill">Finisher 🏆</span>
+          </div>
+        </div>
+        <div class="story-brand-tag">
+          <div class="story-brand-tag-title">September Challenge</div>
+          <div class="story-brand-tag-year">2026 Archive</div>
+        </div>
+      </div>
+
+      <div class="story-hero-split">
+        <div id="recapPct" class="story-pct-huge">100%</div>
+        <div class="story-hero-right">
+          <div id="recapMinutesSub" class="story-hero-sub">0m Counted</div>
+          <div style="font-size:0.76rem;color:#ffe299;font-weight:750;margin-top:4px">
+            <span id="recapArchetypeName">👟 Endurance Master</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="story-grid-6">
+        <div class="story-stat-cell">
+          <div class="story-stat-label">Peak Streak</div>
+          <div id="recapStreak" class="story-stat-val">🔥 0d</div>
+          <div class="story-stat-sub">Consecutive days</div>
+        </div>
+        <div class="story-stat-cell">
+          <div class="story-stat-label">Beverages</div>
+          <div id="recapDrinks" class="story-stat-val">🍺 0</div>
+          <div class="story-stat-sub">Total drinks</div>
+        </div>
+        <div class="story-stat-cell">
+          <div class="story-stat-label">Biggest Day</div>
+          <div id="recapBiggestDay" class="story-stat-val">⏱️ 0m</div>
+          <div class="story-stat-sub">Single day high</div>
+        </div>
+        <div class="story-stat-cell">
+          <div class="story-stat-label">Missed Days</div>
+          <div id="recapMissed" class="story-stat-val">0</div>
+          <div class="story-stat-sub">+0m penalty</div>
+        </div>
+        <div class="story-stat-cell">
+          <div class="story-stat-label">Actual Total</div>
+          <div id="recapActualTotal" class="story-stat-val">0m</div>
+          <div class="story-stat-sub">Raw minutes</div>
+        </div>
+        <div class="story-stat-cell">
+          <div class="story-stat-label">Final Target</div>
+          <div id="recapFinalTarget" class="story-stat-val">900m</div>
+          <div class="story-stat-sub">Required volume</div>
+        </div>
+      </div>
+
+      <div class="story-cabinet">
+        <div class="story-cabinet-title">Unlocked Badges (<span id="recapBadgeCount">0</span> Badges)</div>
+        <div id="recapBadgesWrap" class="story-badge-row"></div>
+      </div>
+
+      <div style="text-align:center;font-size:0.65rem;color:rgba(255,255,255,0.55);letter-spacing:0.06em;text-transform:uppercase;font-weight:750;margin-top:6px">
+        Official September 2026 Season Archive
+      </div>
+    </div>
+
+    <div class="story-actions-bar">
+      <button id="saveRecapImageBtn" class="story-action-btn btn-story-image">
+        <span>📸 Save Image</span>
+      </button>
+      <button id="closeRecapBtn" class="story-action-btn btn-story-close">
+        <span>✕ Close</span>
+      </button>
+    </div>
+  </div>
+</div>
+
 <script>
-  const APP_VERSION = "10.2";
+  const APP_VERSION = "10.3";
 
   const firebaseConfig = {
     apiKey: "AIzaSyCbxoN1DLvMqxZb7FD4qu8p7k6lnD5ENP4",
@@ -271,6 +452,8 @@ button,input,select{font:inherit}
   const DAYS = 30;
   let currentUser = null;
   let selectedDay = 30;
+  let cachedDays = Array.from({ length: DAYS }, () => ({ minutes: 0, drinks: 0, activities: [], note: '' }));
+  let computedStats = null;
 
   async function checkForRemoteUpdate() {
     if (window.location.protocol === 'file:' || !window.fetch) return;
@@ -299,34 +482,26 @@ button,input,select{font:inherit}
     }
   }
 
-  $('tabDashboard').onclick = () => {
-    $('dashboardView').classList.remove('hidden');
-    $('leaderboardView').classList.add('hidden');
-    $('feedView').classList.add('hidden');
-    $('tabDashboard').classList.add('active');
-    $('tabLeaderboard').classList.remove('active');
-    $('tabFeed').classList.remove('active');
-  };
+  function showTab(btnId, viewId) {
+    ['tabDashboard', 'tabLeaderboard', 'tabFeed'].forEach(id => {
+      if ($(id)) $(id).classList.toggle('active', id === btnId);
+    });
+    ['dashboardView', 'leaderboardView', 'feedView'].forEach(id => {
+      if ($(id)) $(id).classList.toggle('hidden', id !== viewId);
+    });
+  }
 
+  $('tabDashboard').onclick = () => showTab('tabDashboard', 'dashboardView');
   $('tabLeaderboard').onclick = () => {
-    $('dashboardView').classList.add('hidden');
-    $('leaderboardView').classList.remove('hidden');
-    $('feedView').classList.add('hidden');
-    $('tabDashboard').classList.remove('active');
-    $('tabLeaderboard').classList.add('active');
-    $('tabFeed').classList.remove('active');
+    showTab('tabLeaderboard', 'leaderboardView');
     loadLeaderboard();
   };
-
   $('tabFeed').onclick = () => {
-    $('dashboardView').classList.add('hidden');
-    $('leaderboardView').classList.add('hidden');
-    $('feedView').classList.remove('hidden');
-    $('tabDashboard').classList.remove('active');
-    $('tabLeaderboard').classList.remove('active');
-    $('tabFeed').classList.add('active');
+    showTab('tabFeed', 'feedView');
     loadFeed();
   };
+  $('refreshBoardBtn').onclick = () => loadLeaderboard();
+  $('refreshFeedBtn').onclick = () => loadFeed();
 
   function renderCalendar() {
     const cal = $('calendar');
@@ -345,66 +520,464 @@ button,input,select{font:inherit}
       cal.appendChild(b);
     }
 
-    for (let day = 1; day <= DAYS; day++) {
+    cachedDays.forEach((d, idx) => {
+      const day = idx + 1;
       const b = document.createElement('button');
-      b.className = 'day complete';
+      b.className = 'day';
+      if (day === selectedDay) b.classList.add('selected');
+
+      let dayTotal = 0;
+      if (Array.isArray(d.activities) && d.activities.length > 0) {
+        dayTotal = d.activities.reduce((s, a) => s + (Number(a.minutes) || 0), 0);
+      } else {
+        dayTotal = Number(d.minutes) || 0;
+      }
+      const counted = Math.min(dayTotal, 120);
+
+      if (dayTotal >= 30) b.classList.add('complete');
+      else if (dayTotal > 0) b.classList.add('partial');
+      else b.classList.add('missed');
+
+      let noteText = `${counted} min`;
+      if (Number(d.drinks) > 0) noteText += ` 🍺${d.drinks}`;
+
       b.innerHTML = `
         <div class="day-num">${day}</div>
-        <div class="day-min">30+ min</div>
-        <div class="day-note">Logged</div>
+        <div class="day-min">${counted} min</div>
+        <div class="day-note">${Number(d.drinks) > 0 ? `🍺 ${d.drinks} drinks` : (dayTotal >= 30 ? 'Goal met' : (dayTotal > 0 ? 'Partial' : 'Rest/Miss'))}</div>
       `;
+      b.onclick = () => {
+        selectedDay = day;
+        renderCalendar();
+        displayDayDetails(day);
+      };
       cal.appendChild(b);
+    });
+  }
+
+  function displayDayDetails(dayNum) {
+    $('entryTitle').textContent = `September ${dayNum} Entry`;
+    const container = $('activityContainer');
+    container.innerHTML = '';
+
+    const d = cachedDays[dayNum - 1] || { minutes: 0, drinks: 0, activities: [] };
+    let totalMins = 0;
+
+    if (Array.isArray(d.activities) && d.activities.length > 0) {
+      d.activities.forEach(act => {
+        const m = Number(act.minutes) || 0;
+        totalMins += m;
+        const div = document.createElement('div');
+        div.style.cssText = "padding:8px 10px;background:#f8fafb;border:1px solid var(--line);border-radius:8px;font-size:0.82rem";
+        div.innerHTML = `
+          <div style="display:flex;justify-content:space-between;font-weight:750">
+            <span>${act.type || 'Activity'}</span>
+            <span style="color:var(--navy)">${m} min</span>
+          </div>
+          ${act.note ? `<div style="font-size:0.75rem;color:var(--muted);font-style:italic;margin-top:3px">"${act.note}"</div>` : ''}
+        `;
+        container.appendChild(div);
+      });
+    } else if (Number(d.minutes) > 0) {
+      totalMins = Number(d.minutes);
+      const div = document.createElement('div');
+      div.style.cssText = "padding:8px 10px;background:#f8fafb;border:1px solid var(--line);border-radius:8px;font-size:0.82rem";
+      div.innerHTML = `<strong>Workout:</strong> ${totalMins} min`;
+      container.appendChild(div);
+    } else {
+      container.innerHTML = `<div style="color:var(--muted);font-size:0.80rem;padding:8px;font-style:italic">No workouts logged on this date.</div>`;
     }
+
+    $('dayTotalDisplay').textContent = `${Math.min(totalMins, 120)} min counted (${totalMins} raw)`;
+    $('dayBeverageDisplay').textContent = `Drinks: ${d.drinks || 0} (+${(Number(d.drinks) || 0) * 10} min penalty)`;
+  }
+
+  async function loadUserSeptemberHistory(uid) {
+    try {
+      let challengeDoc = null;
+      const years = ["2026", "2025", "2024"];
+      for (const y of years) {
+        const snap = await db.collection('users').doc(uid).collection('challenges').doc(y).get();
+        if (snap.exists) { challengeDoc = snap.data(); break; }
+      }
+      if (!challengeDoc) {
+        const rootSnap = await db.collection('users').doc(uid).get();
+        if (rootSnap.exists && rootSnap.data().days) challengeDoc = rootSnap.data();
+      }
+
+      if (challengeDoc && Array.isArray(challengeDoc.days)) {
+        cachedDays = challengeDoc.days.slice(0, DAYS);
+        while (cachedDays.length < DAYS) cachedDays.push({ minutes: 0, drinks: 0, activities: [] });
+      }
+
+      recalculateAndDisplayStats();
+      renderCalendar();
+      displayDayDetails(selectedDay);
+    } catch (e) {
+      console.warn("Error reading September user data:", e);
+    }
+  }
+
+  function recalculateAndDisplayStats() {
+    let countedMins = 0;
+    let actualMins = 0;
+    let totalDrinks = 0;
+    let missedDays = 0;
+    let maxDay = 0;
+    let favMap = {};
+
+    cachedDays.forEach(d => {
+      let dayTotal = 0;
+      if (Array.isArray(d.activities) && d.activities.length > 0) {
+        dayTotal = d.activities.reduce((s, a) => s + (Number(a.minutes) || 0), 0);
+        d.activities.forEach(a => {
+          if (a.type) favMap[a.type] = (favMap[a.type] || 0) + (Number(a.minutes) || 0);
+        });
+      } else {
+        dayTotal = Number(d.minutes) || 0;
+      }
+      const drinks = Number(d.drinks) || 0;
+      actualMins += dayTotal;
+      countedMins += Math.min(dayTotal, 120);
+      totalDrinks += drinks;
+      if (dayTotal > maxDay) maxDay = dayTotal;
+      if (dayTotal < 30) missedDays++;
+    });
+
+    let streak = 0;
+    let maxStreak = 0;
+    let curStreak = 0;
+    cachedDays.forEach(d => {
+      let dayTotal = (Array.isArray(d.activities) && d.activities.length > 0)
+        ? d.activities.reduce((s, a) => s + (Number(a.minutes) || 0), 0)
+        : Number(d.minutes) || 0;
+      if (dayTotal >= 30) {
+        curStreak++;
+        if (curStreak > maxStreak) maxStreak = curStreak;
+      } else {
+        curStreak = 0;
+      }
+    });
+    streak = maxStreak;
+
+    let favType = '—';
+    let favVal = 0;
+    Object.entries(favMap).forEach(([t, m]) => {
+      if (m > favVal) { favVal = m; favType = t; }
+    });
+
+    const drinkPenalty = totalDrinks * 10;
+    const missPenalty = missedDays * 30;
+    const target = 900 + drinkPenalty + missPenalty;
+    const progressPct = target > 0 ? Math.min(100, Math.round((countedMins / target) * 100)) : 0;
+    const remaining = Math.max(0, target - countedMins);
+
+    computedStats = {
+      countedMins, actualMins, target, remaining, totalDrinks, drinkPenalty,
+      missedDays, missPenalty, progressPct, streak, maxDay, favType, favVal
+    };
+
+    $('completed').textContent = `${countedMins} min`;
+    $('actualMinutes').textContent = `${actualMins} actual minutes`;
+    $('target').textContent = `${target} min`;
+    $('baseTargetSub').textContent = `Base: 900 min (+${drinkPenalty + missPenalty}m pen)`;
+    $('remaining').textContent = `${remaining} min`;
+    $('remainingHours').textContent = `${(remaining / 60).toFixed(1)} hours`;
+    $('drinksTotal').textContent = totalDrinks;
+    $('drinkPenalty').textContent = `+${drinkPenalty} min`;
+    $('missedTotal').textContent = missedDays;
+    $('missPenalty').textContent = `+${missPenalty} min`;
+
+    $('progressBar').style.width = `${progressPct}%`;
+    $('progressText').textContent = `${progressPct}% complete`;
+    $('streakCount').textContent = `${streak}-day streak`;
+    $('streakPill').classList.toggle('streak-zero', streak === 0);
+
+    $('pbStreak').textContent = `🔥 ${streak} Days`;
+    $('pbBiggestDay').textContent = `⏱️ ${maxDay} min`;
+    $('pbBiggestDaySub').textContent = maxDay > 120 ? `120m counted (${maxDay}m raw)` : 'Single day high';
+    $('pbFavWorkout').textContent = `👟 ${favType}`;
+    $('pbFavWorkoutSub').textContent = favVal > 0 ? `${favVal}m logged` : '0 min logged';
   }
 
   async function loadLeaderboard() {
     const tbody = $('leaderboardBody');
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px">Loading September standings...</td></tr>`;
+
     try {
       const snap = await db.collectionGroup('challenges').get();
       const rows = [];
+      const userMap = new Map();
+
       snap.forEach(d => {
-        if (d.id === '2026') {
+        if (d.id === '2026' || d.id === 'september_2026') {
           const data = d.data();
-          rows.push({
-            name: data.displayName || 'Participant',
-            drinks: data.days ? data.days.reduce((s, day) => s + (Number(day.drinks) || 0), 0) : 0
-          });
+          const userId = data.userId || d.ref.parent.parent.id;
+          if (!userMap.has(userId)) {
+            let counted = 0;
+            let actual = 0;
+            let drinks = 0;
+            let missed = 0;
+            if (Array.isArray(data.days)) {
+              data.days.forEach(day => {
+                let dTot = 0;
+                if (Array.isArray(day.activities) && day.activities.length > 0) {
+                  dTot = day.activities.reduce((s, a) => s + (Number(a.minutes) || 0), 0);
+                } else {
+                  dTot = Number(day.minutes) || 0;
+                }
+                actual += dTot;
+                counted += Math.min(dTot, 120);
+                drinks += (Number(day.drinks) || 0);
+                if (dTot < 30) missed++;
+              });
+            }
+            const pen = (drinks * 10) + (missed * 30);
+            const req = 900 + pen;
+            const pct = req > 0 ? Math.min(100, Math.round((counted / req) * 100)) : 0;
+            userMap.set(userId, {
+              id: userId,
+              name: data.displayName || 'Participant',
+              avatar: data.photoURL || '',
+              counted,
+              actual,
+              drinks,
+              penalties: pen,
+              req,
+              pct
+            });
+          }
         }
       });
+
+      const users = Array.from(userMap.values());
+      users.sort((a, b) => b.pct - a.pct || b.counted - a.counted);
+      $('uniqueUsersCount').textContent = `${users.length} enrolled`;
+
+      if (users.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px">No archived standings available.</td></tr>`;
+        return;
+      }
+
       tbody.innerHTML = '';
-      rows.forEach((r, idx) => {
+      users.forEach((u, idx) => {
+        const isMe = currentUser && currentUser.uid === u.id;
         const tr = document.createElement('tr');
+        if (isMe) tr.style.background = '#eaf2f8';
+
         tr.innerHTML = `
-          <td>#${idx + 1}</td>
-          <td><strong>${r.name}</strong></td>
-          <td>100%</td>
-          <td>900+ min</td>
-          <td>${r.drinks} drinks</td>
+          <td><span class="leader-rank">#${idx + 1}</span></td>
+          <td>
+            <div class="leader-user">
+              <img class="user-avatar" src="${u.avatar || 'https://placehold.co/30x30/1e293b/94a3b8?text=U'}" alt="" onerror="this.src='https://placehold.co/30x30/1e293b/94a3b8?text=U'">
+              <div>
+                <strong>${u.name}</strong>
+                <div style="font-size:0.68rem;color:var(--muted)">${u.actual} actual min</div>
+              </div>
+            </div>
+          </td>
+          <td>
+            <strong style="color:var(--navy);font-size:0.95rem">${u.pct}%</strong>
+          </td>
+          <td>
+            <span style="font-weight:750">${u.counted}m</span> / 
+            <span style="color:var(--muted)">${u.req}m</span>
+          </td>
+          <td>${u.drinks > 0 ? `🍺 ${u.drinks}` : '<span style="color:var(--muted)">0</span>'}</td>
+          <td>
+            <span style="background:#fdecec;color:#b91c1c;padding:2px 6px;border-radius:6px;font-size:0.74rem;font-weight:750">
+              +${u.penalties}m
+            </span>
+          </td>
         `;
         tbody.appendChild(tr);
       });
-    } catch (_) {}
+    } catch (e) {
+      console.warn("Leaderboard error:", e);
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px">Failed to load standings.</td></tr>`;
+    }
   }
 
   async function loadFeed() {
     const feed = $('feedContainer');
-    feed.innerHTML = `<div style="text-align:center;color:var(--muted);padding:20px">Historical season archived.</div>`;
+    feed.innerHTML = `<div style="text-align:center;color:var(--muted);padding:24px">Fetching archived feed...</div>`;
+    const events = [];
+
+    try {
+      const snap = await db.collectionGroup('challenges').get();
+      snap.forEach(docSnap => {
+        if (docSnap.id === '2026' || docSnap.id === 'september_2026') {
+          const d = docSnap.data();
+          const name = d.displayName || 'Participant';
+          const avatar = d.photoURL || 'https://placehold.co/34x34/1e293b/94a3b8?text=U';
+
+          if (Array.isArray(d.days)) {
+            d.days.forEach((day, idx) => {
+              const dayNum = idx + 1;
+              if (Array.isArray(day.activities) && day.activities.length > 0) {
+                day.activities.forEach(act => {
+                  const m = Number(act.minutes) || 0;
+                  if (m > 0) {
+                    events.push({
+                      name, avatar, dayNum,
+                      type: act.type || 'Workout',
+                      minutes: m,
+                      note: act.note || '',
+                      time: act.loggedAt || ''
+                    });
+                  }
+                });
+              } else if (Number(day.minutes) > 0) {
+                events.push({
+                  name, avatar, dayNum,
+                  type: 'Workout',
+                  minutes: Number(day.minutes),
+                  note: '',
+                  time: ''
+                });
+              }
+            });
+          }
+        }
+      });
+
+      events.sort((a, b) => b.dayNum - a.dayNum);
+
+      if (events.length === 0) {
+        feed.innerHTML = `<div style="text-align:center;color:var(--muted);padding:24px">No archived workouts found.</div>`;
+        return;
+      }
+
+      feed.innerHTML = '';
+      events.slice(0, 35).forEach(evt => {
+        const item = document.createElement('div');
+        item.style.cssText = "display:flex;align-items:flex-start;gap:10px;padding:10px 12px;background:#fbfcfd;border:1px solid var(--line);border-radius:12px;";
+        item.innerHTML = `
+          <img src="${evt.avatar}" style="width:34px;height:34px;border-radius:50%;border:1.5px solid var(--line);object-fit:cover;flex-shrink:0" onerror="this.src='https://placehold.co/34x34/1e293b/94a3b8?text=U'">
+          <div style="flex:1">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:6px">
+              <span style="font-weight:750;color:var(--navy);font-size:0.84rem">${evt.name}</span>
+              <span style="font-size:0.70rem;color:var(--muted)">Sept ${evt.dayNum}</span>
+            </div>
+            <div style="margin-top:2px;font-size:0.84rem">
+              Completed <strong>${evt.minutes}m</strong> of 
+              <span style="display:inline-block;padding:2px 6px;border-radius:5px;font-size:0.72rem;font-weight:750;background:#e7f3fb;color:#2674a8">${evt.type}</span>
+            </div>
+            ${evt.note ? `<div style="margin-top:4px;padding:5px 8px;background:#fff;border-left:3px solid var(--blue);border-radius:4px;font-size:0.76rem;color:var(--ink);font-style:italic">"${evt.note}"</div>` : ''}
+          </div>
+        `;
+        feed.appendChild(item);
+      });
+    } catch (e) {
+      console.warn("Feed error:", e);
+      feed.innerHTML = `<div style="text-align:center;color:var(--muted);padding:24px">Failed to load activity stream.</div>`;
+    }
   }
 
-  auth.onAuthStateChanged(user => {
+  function openStoryRecapModal() {
+    if (!computedStats) recalculateAndDisplayStats();
+    const s = computedStats;
+    const name = currentUser ? currentUser.displayName || 'Athlete' : 'Athlete';
+    const avatar = currentUser && currentUser.photoURL ? currentUser.photoURL : 'https://placehold.co/38x38/1e293b/94a3b8?text=U';
+
+    $('recapName').textContent = name;
+    $('recapAvatar').src = avatar;
+    $('recapPct').textContent = `${s.progressPct}%`;
+    $('recapMinutesSub').textContent = `${s.countedMins}m Counted (${(s.countedMins / 60).toFixed(1)}h)`;
+    $('recapStreak').textContent = `🔥 ${s.streak}d`;
+    $('recapDrinks').textContent = `🍺 ${s.totalDrinks}`;
+    $('recapBiggestDay').textContent = `⏱️ ${s.maxDay}m`;
+    $('recapMissed').textContent = `${s.missedDays} missed`;
+    $('recapActualTotal').textContent = `${s.actualMins}m`;
+    $('recapFinalTarget').textContent = `${s.target}m`;
+
+    const statusBadge = $('recapStatusBadge');
+    if (s.countedMins >= s.target && s.target > 0) {
+      statusBadge.className = 'story-status-pill';
+      statusBadge.textContent = 'Challenge Finisher 🏆';
+    } else {
+      statusBadge.className = 'story-status-pill';
+      statusBadge.style.background = '#3b6d8c';
+      statusBadge.textContent = `${s.progressPct}% Achieved`;
+    }
+
+    const badgeWrap = $('recapBadgesWrap');
+    badgeWrap.innerHTML = `
+      <span class="story-badge-item"><span>🏆</span> <span>Archive Finisher</span></span>
+      <span class="story-badge-item"><span>🔥</span> <span>Peak ${s.streak}d Streak</span></span>
+      ${s.maxDay >= 100 ? `<span class="story-badge-item"><span>💯</span> <span>Century Club</span></span>` : ''}
+    `;
+    $('recapBadgeCount').textContent = badgeWrap.querySelectorAll('.story-badge-item').length;
+
+    $('recapModal').classList.add('show');
+  }
+
+  $('openRecapBtn').onclick = () => openStoryRecapModal();
+  $('closeRecapBtn').onclick = () => $('recapModal').classList.remove('show');
+
+  $('saveRecapImageBtn').onclick = async () => {
+    const card = document.getElementById('storyCardContent');
+    const saveBtn = document.getElementById('saveRecapImageBtn');
+    if (!card || typeof html2canvas === 'undefined') return;
+
+    const orig = saveBtn.innerHTML;
+    saveBtn.innerHTML = `<span>⏳ Saving...</span>`;
+    saveBtn.style.pointerEvents = 'none';
+
+    try {
+      const canvas = await html2canvas(card, { scale: 2.8, useCORS: true, backgroundColor: '#0c1d2d', logging: false });
+      canvas.toBlob(async (blob) => {
+        if (!blob) throw new Error("Conversion failed");
+        const filename = `september-challenge-recap-2026.png`;
+        const link = document.createElement('a');
+        link.download = filename;
+        link.href = URL.createObjectURL(blob);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(link.href);
+        saveBtn.innerHTML = orig;
+        saveBtn.style.pointerEvents = 'auto';
+      }, 'image/png');
+    } catch (_) {
+      saveBtn.innerHTML = orig;
+      saveBtn.style.pointerEvents = 'auto';
+    }
+  };
+
+  $('authBtn').onclick = async () => {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: 'select_account' });
+    try {
+      await auth.signInWithPopup(provider);
+    } catch (err) {
+      if (err.code === 'auth/popup-blocked') auth.signInWithRedirect(provider);
+      else console.warn("Sign-in issue:", err);
+    }
+  };
+
+  $('signOutBtn').onclick = () => auth.signOut();
+
+  auth.onAuthStateChanged(async (user) => {
     currentUser = user;
     if (user) {
       $('authBtn').style.display = 'none';
       $('userProfile').style.display = 'flex';
       $('userName').textContent = user.displayName || 'Athlete';
       if (user.photoURL) $('userImg').src = user.photoURL;
+      await loadUserSeptemberHistory(user.uid);
     } else {
       $('authBtn').style.display = 'block';
       $('userProfile').style.display = 'none';
+      renderCalendar();
+      displayDayDetails(selectedDay);
     }
+    loadLeaderboard();
   });
 
   renderCalendar();
+  displayDayDetails(selectedDay);
+  loadLeaderboard();
   setTimeout(checkForRemoteUpdate, 2000);
 </script>
 </body>
