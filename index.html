@@ -1,1352 +1,312 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#173b57">
-<title>November Fitness & Habit Challenge - v9.0</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<!-- Firebase SDKs -->
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
-
-<style>
-:root {
-  --navy: #173b57;
-  --blue: #2674a8;
-  --cyan: #24a7b6;
-  --green: #2b9a66;
-  --amber: #d99521;
-  --red: #c94d4d;
-  --purple: #8352b2;
-  --ink: #183042;
-  --muted: #6b7c88;
-  --paper: #ffffff;
-  --bg: #eef3f6;
-  --line: #dce5ea;
-  --shadow: 0 12px 32px rgba(24, 48, 66, 0.10);
-}
-* { box-sizing: border-box; }
-body {
-  margin: 0;
-  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-  background: linear-gradient(145deg, #eaf2f5, #f7f9fa);
-  color: var(--ink);
-  min-height: 100vh;
-}
-button, input, select { font: inherit; }
-.app { max-width: 1180px; margin: auto; padding: 22px; }
-
-/* Hero Banner */
-.hero {
-  background: linear-gradient(125deg, var(--navy), #1e5270 60%, #1f7a85);
-  color: white;
-  border-radius: 24px;
-  padding: 25px;
-  box-shadow: var(--shadow);
-  position: relative;
-  overflow: hidden;
-}
-.hero:after {
-  content: "";
-  position: absolute;
-  width: 260px;
-  height: 260px;
-  border: 40px solid rgba(255, 255, 255, 0.07);
-  border-radius: 50%;
-  right: -90px;
-  top: -110px;
-  pointer-events: none;
-}
-.hero h1 { margin: 0 0 6px; font-size: clamp(1.65rem, 4vw, 2.3rem); font-weight: 800; letter-spacing: -0.02em; }
-.hero p { margin: 0; opacity: 0.88; font-size: 0.92rem; }
-.hero-top { display: flex; justify-content: space-between; gap: 15px; align-items: flex-start; position: relative; z-index: 1; }
-.hero-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-
-.nav-hub-btn {
-  background: rgba(255, 255, 255, 0.14);
-  border: 1px solid rgba(255, 255, 255, 0.30);
-  color: white;
-  border-radius: 10px;
-  padding: 8px 14px;
-  font-size: 0.84rem;
-  font-weight: 800;
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  transition: background 0.15s, transform 0.12s;
-}
-.nav-hub-btn:hover { background: rgba(255, 255, 255, 0.25); transform: translateX(-2px); color: white; }
-
-.auth-btn {
-  background: white;
-  color: var(--navy);
-  border: 0;
-  border-radius: 10px;
-  padding: 9px 15px;
-  font-weight: 750;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  transition: background 0.15s;
-}
-.auth-btn:hover { background: #eef3f6; }
-.user-info { display: none; align-items: center; gap: 10px; color: white; font-size: 0.9rem; font-weight: 600; }
-.user-avatar { width: 32px; height: 32px; border-radius: 50%; border: 2px solid white; object-fit: cover; }
-.version-tag { position: absolute; right: 18px; bottom: 10px; font-size: 0.68rem; opacity: 0.85; font-weight: 800; letter-spacing: 0.04em; background: rgba(0,0,0,0.2); padding: 2px 8px; border-radius: 6px; }
-
-/* Habit Header Ribbon */
-.habit-ribbon {
-  background: #ffffff;
-  border: 1px solid rgba(220, 229, 234, 0.9);
-  border-radius: 16px;
-  padding: 12px 18px;
-  margin: 16px 0 14px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  box-shadow: 0 4px 16px rgba(24, 48, 66, 0.04);
-  gap: 12px;
-  flex-wrap: wrap;
-}
-.habit-ribbon-title { display: flex; align-items: center; gap: 8px; font-size: 0.88rem; font-weight: 750; color: var(--navy); }
-.habit-ribbon-tag { background: #fef3e7; color: #b45309; border: 1px solid #fedbc0; padding: 3px 10px; border-radius: 99px; font-size: 0.78rem; font-weight: 800; }
-.habit-edit-box { display: none; padding: 14px 18px; background: #ffffff; border: 1px solid rgba(220, 229, 234, 0.9); border-radius: 16px; margin-bottom: 14px; }
-.habit-edit-box.open { display: block; }
-
-/* Toolbar & Tabs */
-.toolbar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin: 0 0 16px; }
-.tabs { display: flex; gap: 8px; flex-wrap: wrap; }
-.tab-btn { background: var(--paper); border: 1px solid rgba(220, 229, 234, 0.8); border-radius: 12px; padding: 10px 18px; font-weight: 700; color: var(--muted); cursor: pointer; transition: 0.15s; }
-.tab-btn:hover { color: var(--ink); }
-.tab-btn.active { background: var(--navy); color: white; border-color: var(--navy); }
-
-/* 5 Top Summary Metric Cards */
-.summary { display: grid; grid-template-columns: repeat(5, 1fr); gap: 13px; margin: 0 0 18px 0; }
-.card, .panel { background: var(--paper); border: 1px solid rgba(220, 229, 234, 0.85); border-radius: 18px; box-shadow: var(--shadow); }
-.metric { padding: 17px; }
-.metric .label { color: var(--muted); font-size: 0.78rem; font-weight: 750; text-transform: uppercase; letter-spacing: 0.05em; }
-.metric .value { font-size: 1.55rem; font-weight: 850; margin-top: 6px; color: var(--ink); }
-.metric .sub { color: var(--muted); font-size: 0.76rem; margin-top: 3px; font-weight: 600; }
-
-/* Grid Layout: Left Main / Right Aside */
-.layout { display: grid; grid-template-columns: 1.55fr 0.9fr; gap: 16px; }
-.panel { padding: 19px; margin-bottom: 16px; }
-.panel h2 { margin: 0 0 14px; font-size: 1.1rem; font-weight: 750; color: var(--navy); }
-
-/* Progress Shell */
-.panel-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 8px; flex-wrap: wrap; }
-.streak-pill { display: inline-flex; align-items: center; gap: 5px; background: #fff5eb; border: 1px solid #fedbc0; color: #c84f10; padding: 4px 10px; border-radius: 99px; font-size: 0.82rem; font-weight: 800; }
-.streak-pill.streak-zero { background: #f4f6f8; border-color: var(--line); color: var(--muted); }
-.progress-shell { height: 17px; background: #e7eef1; border-radius: 99px; overflow: hidden; }
-.progress-bar { height: 100%; width: 0; background: linear-gradient(90deg, var(--cyan), var(--green)); transition: width 0.3s; }
-.progress-copy { display: flex; justify-content: space-between; gap: 10px; margin-top: 9px; color: var(--muted); font-size: 0.85rem; font-weight: 600; }
-
-/* 3-Item PB Strip */
-.pb-strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--line); }
-.pb-item { background: #f8fafb; border: 1px solid rgba(220, 229, 234, 0.8); border-radius: 12px; padding: 10px 12px; display: flex; flex-direction: column; gap: 2px; }
-.pb-label { font-size: 0.70rem; font-weight: 750; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
-.pb-val { font-size: 1.12rem; font-weight: 800; color: var(--ink); margin-top: 2px; }
-.pb-sub { font-size: 0.72rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-/* Calendar Grid */
-.calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
-.dow { text-align: center; color: var(--muted); font-size: 0.72rem; font-weight: 800; padding-bottom: 2px; }
-.blank { min-height: 85px; }
-.day {
-  min-height: 85px;
-  padding: 8px;
-  border: 1px solid var(--line);
-  border-radius: 13px;
-  background: #fbfcfd;
-  cursor: pointer;
-  transition: transform 0.12s, box-shadow 0.12s;
-  text-align: left;
-  color: var(--ink);
-}
-.day:hover, .day:focus { transform: translateY(-2px); box-shadow: 0 7px 16px rgba(24, 48, 66, 0.10); outline: none; }
-.day.selected { box-shadow: 0 0 0 2px var(--blue); }
-.day.complete { background: #e8f6ee; border-color: #a8d9be; }
-.day.partial { background: #fff7e7; border-color: #efcf91; }
-.day.missed { background: #fdecec; border-color: #edb2b2; }
-.day.future { opacity: 0.6; }
-.day-num { font-weight: 800; font-size: 0.88rem; }
-.day-min { font-size: 0.88rem; margin-top: 10px; font-weight: 750; }
-.day-note { font-size: 0.68rem; color: var(--muted); margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-/* Right Form Inputs */
-.today-form { display: grid; gap: 13px; }
-.field label { display: block; font-weight: 750; font-size: 0.84rem; margin-bottom: 6px; color: var(--navy); }
-.field input[type=number], .field input[type=text], .field select { width: 100%; padding: 9px 11px; border: 1px solid var(--line); border-radius: 10px; background: #fbfcfd; }
-.activity-list { display: grid; gap: 8px; }
-.activity-row-wrap { background: #f8fafb; border: 1px solid var(--line); border-radius: 10px; padding: 8px; }
-.activity-row { display: grid; grid-template-columns: 1.3fr 1fr 34px 34px; gap: 6px; align-items: center; }
-.activity-row select, .activity-row input[type=number] { padding: 7px; border: 1px solid var(--line); border-radius: 8px; background: #fff; font-size: 0.84rem; }
-.btn-note-toggle { background: #f0f4f8; color: var(--navy); border: 1px solid var(--line); border-radius: 8px; height: 33px; cursor: pointer; font-size: 0.95rem; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
-.btn-note-toggle:hover { background: #e1ebf2; }
-.btn-note-toggle.active { background: #e7f3fb; border-color: var(--blue); color: var(--blue); }
-.activity-note-box { margin-top: 7px; display: none; }
-.activity-note-box input { width: 100%; padding: 7px 9px; border: 1px solid var(--line); border-radius: 7px; font-size: 0.80rem; background: #fff; }
-.activity-note-box.show { display: block; }
-.btn-remove-row { background: #fff0f0; color: #c94d4d; border: 1px solid #fedede; border-radius: 8px; height: 33px; cursor: pointer; font-weight: bold; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; }
-.btn-remove-row:hover { background: #fedede; }
-.btn-add-activity { background: #eef7f8; color: var(--blue); border: 1px dashed var(--blue); border-radius: 99px; padding: 7px; font-size: 0.80rem; font-weight: 750; cursor: pointer; width: 100%; text-align: center; margin-top: 4px; }
-.btn-add-activity:hover { background: #e2f2f5; }
-.day-total-banner { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: #f4f8fa; border-radius: 8px; font-size: 0.86rem; font-weight: 750; }
-
-/* Habit Check Toggle Box */
-.habit-check-card { background: #fffbf2; border: 1px solid #fedbc0; border-radius: 12px; padding: 12px; }
-.habit-toggle-btn { flex: 1; padding: 8px 12px; border-radius: 9px; font-size: 0.80rem; font-weight: 750; cursor: pointer; border: 1px solid transparent; transition: all 0.12s; text-align: center; }
-.habit-toggle-btn.neutral { background: #ffffff; border-color: var(--line); color: var(--muted); }
-.habit-toggle-btn.clean-active { background: #e8f6ee; border-color: #2b9a66; color: #238255; }
-.habit-toggle-btn.slip-active { background: #fdecec; border-color: #c94d4d; color: #b91c1c; }
-
-.btn { border: 0; border-radius: 11px; padding: 11px 13px; font-weight: 800; cursor: pointer; width: 100%; transition: filter 0.15s; }
-.primary { background: var(--blue); color: white; }
-.btn:hover { filter: brightness(0.95); }
-.legend { display: flex; flex-wrap: wrap; gap: 12px; color: var(--muted); font-size: 0.76rem; }
-.dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; margin-right: 5px; }
-
-/* Leaderboard */
-.table-wrap { overflow-x: auto; }
-.leader-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.88rem; }
-.leader-table th { background: #f4f7f9; color: var(--muted); font-size: 0.75rem; font-weight: 750; text-transform: uppercase; padding: 10px 12px; border-bottom: 1px solid var(--line); }
-.leader-table td { padding: 11px 12px; border-bottom: 1px solid #edf2f5; vertical-align: middle; }
-.leader-user { display: flex; align-items: center; gap: 10px; min-width: 0; max-width: 180px; }
-.leader-user strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block; }
-.leader-rank { font-weight: 800; font-size: 1.05rem; color: var(--muted); width: 26px; }
-
-.rules-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 14px; margin-top: 14px; }
-.rule-card { padding: 15px; background: #fbfcfd; border: 1px solid var(--line); border-radius: 14px; }
-.rule-card h3 { margin: 0 0 6px; font-size: 0.95rem; color: var(--navy); display: flex; align-items: center; gap: 7px; }
-.rule-card p { margin: 0; font-size: 0.84rem; color: var(--ink); line-height: 1.45; }
-
-.toast { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%) translateY(70px); background: #173b57; color: white; padding: 11px 18px; border-radius: 99px; opacity: 0; transition: 0.25s; z-index: 9999; }
-.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-.hidden { display: none !important; }
-
-@media (max-width: 900px) {
-  .summary { grid-template-columns: repeat(2, 1fr); }
-  .summary .metric:last-child { grid-column: span 2; }
-  .layout { grid-template-columns: 1fr; }
-}
-@media (max-width: 620px) {
-  .app { padding: 12px; }
-  .hero { border-radius: 18px; padding: 18px; }
-  .hero-top { display: block; }
-  .hero-actions { margin-top: 12px; }
-  .calendar { gap: 4px; }
-  .day { min-height: 68px; padding: 5px; border-radius: 9px; }
-  .day-min { font-size: 0.74rem; margin-top: 6px; }
-  .day-note { font-size: 0.58rem; }
-  .blank { min-height: 68px; }
-  .pb-strip { grid-template-columns: 1fr; gap: 6px; }
-}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Fitness Challenge Hub - v9.0</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <style>
+    body {
+      background-color: #0b0f19;
+      color: #f8fafc;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    .glass-panel {
+      background: rgba(18, 24, 38, 0.75);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .glass-card-hover {
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .glass-card-hover:hover {
+      transform: translateY(-3px);
+      border-color: rgba(99, 102, 241, 0.4);
+      box-shadow: 0 16px 32px -8px rgba(0, 0, 0, 0.6), 0 0 20px -4px rgba(99, 102, 241, 0.2);
+    }
+    .radial-bg {
+      background: radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.15) 0%, rgba(15, 23, 42, 0) 70%),
+                  radial-gradient(circle at 80% 80%, rgba(16, 185, 129, 0.08) 0%, rgba(15, 23, 42, 0) 60%);
+    }
+  </style>
 </head>
-<body>
+<body class="min-h-screen radial-bg flex flex-col justify-between selection:bg-indigo-500 selection:text-white">
 
-<div class="app">
-
-  <!-- Top Hero Header -->
-  <header class="hero">
-    <div class="hero-top">
-      <div>
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
-          <a href="index.html" class="nav-hub-btn">
-            <span>&larr;</span> <span>Hub</span>
-          </a>
-          <span style="background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.3);padding:3px 9px;border-radius:99px;font-size:0.75rem;font-weight:800">
-            🍂 November Season Active
-          </span>
+  <!-- Navigation Bar -->
+  <header class="border-b border-slate-800/80 bg-slate-950/60 sticky top-0 z-40 backdrop-blur-md px-4 py-3.5">
+    <div class="max-w-4xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+          <i class="fa-solid fa-fire-flame-curved text-white text-base"></i>
         </div>
-        <h1>November Fitness & Habit Challenge</h1>
-        <p>Personalized volume targets, 30-min daily streaks, and the personal habit breaker.</p>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-sm font-black tracking-tight text-white block leading-tight">CHALLENGE HUB</span>
+            <span class="text-[9px] uppercase tracking-wider font-extrabold px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">v9.0</span>
+          </div>
+          <span class="text-[10px] text-slate-400 font-medium tracking-wide">Community Performance League</span>
+        </div>
       </div>
 
-      <div class="hero-actions">
-        <button id="loginBtn" class="auth-btn">
-          <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#173b57" d="M12.545,10.239v3.821h5.445c-0.712,2.315-2.647,3.972-5.445,3.972c-3.332,0-6.033-2.701-6.033-6.032s2.701-6.032,6.033-6.032c1.498,0,2.866,0.549,3.921,1.453l2.814-2.814C17.503,2.988,15.139,2,12.545,2C7.021,2,2.543,6.477,2.543,12s4.478,10,10.002,10c8.396,0,10.249-7.85,9.426-11.748L12.545,10.239z"/></svg>
+      <!-- Auth Controls -->
+      <div id="authContainer" class="flex items-center gap-3">
+        <button id="navLoginBtn" class="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white text-xs font-semibold px-4 py-2 rounded-xl transition shadow-lg shadow-indigo-600/30">
+          <i class="fa-brands fa-google text-xs"></i>
           <span>Sign In</span>
         </button>
-
-        <div id="userProfile" class="user-info">
-          <img id="userImg" class="user-avatar" src="https://placehold.co/32x32/1e293b/94a3b8?text=U" alt="Profile">
-          <span id="userName" style="max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Athlete</span>
-          <button id="signOutBtn" style="background:none;border:0;color:#ffd1d1;cursor:pointer;font-size:0.8rem;text-decoration:underline;">Logout</button>
+        <div id="userProfile" class="hidden flex items-center gap-3">
+          <div class="flex items-center gap-2 bg-slate-900/80 border border-slate-800 py-1 px-2.5 rounded-full">
+            <img id="userAvatar" class="w-6 h-6 rounded-full border border-slate-700 object-cover" src="https://placehold.co/40x40/1e293b/94a3b8?text=U" alt="Profile" />
+            <span id="userName" class="text-xs font-semibold text-slate-200 max-w-[110px] truncate">Athlete</span>
+          </div>
+          <button id="navLogoutBtn" title="Log Out" class="text-xs text-slate-400 hover:text-rose-400 p-1.5 transition">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+          </button>
         </div>
       </div>
     </div>
-    <div class="version-tag">v9.0 Active</div>
   </header>
 
-  <!-- Collapsible Habit Management Ribbon -->
-  <div class="habit-ribbon">
-    <div class="habit-ribbon-title">
-      <span style="font-size:1.1rem">⚡</span>
-      <span>Personal Habit:</span>
-      <span id="habitDisplayTitle" class="habit-ribbon-tag">Loading habit...</span>
+  <!-- Hero & Challenge Selection Section -->
+  <main class="max-w-4xl mx-auto px-4 py-8 w-full flex-grow flex flex-col justify-center">
+    
+    <div class="text-center max-w-xl mx-auto mb-10">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-900 border border-indigo-500/30 text-[11px] font-bold text-indigo-300 mb-4 shadow-lg shadow-indigo-950/40">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        Unified Athlete Portal Active
+      </div>
+      <h1 class="text-3xl sm:text-4xl font-black text-white tracking-tight leading-tight drop-shadow-[0_2px_12px_rgba(0,0,0,0.8)]">
+        Crush Goals. <span class="bg-gradient-to-r from-emerald-400 via-teal-300 to-indigo-400 bg-clip-text text-transparent">Build Consistency.</span>
+      </h1>
+      <p class="text-sm font-medium text-slate-300 mt-2.5 leading-relaxed drop-shadow-sm">
+        Log into your active daily tracker, sync your habit ledger, or review historical honors and recaps.
+      </p>
     </div>
-    <button id="toggleHabitEditBtn" class="tab-btn" style="padding:6px 12px;font-size:0.78rem">
-      <span id="habitBtnLabel">Edit Habit</span>
-    </button>
-  </div>
 
-  <div id="habitEditBox" class="habit-edit-box">
-    <div style="font-size:0.82rem;color:var(--muted);margin-bottom:8px">
-      Define 1 specific habit to break or maintain in November (e.g. <em>"No phone in bed past 10 PM"</em>, <em>"Zero refined sugar"</em>, <em>"10,000 steps"</em>). Slipping on any day adds a <strong>+30 minute penalty</strong> to your monthly target.
+    <!-- Challenge Cards Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-3xl mx-auto w-full">
+      
+      <!-- NOVEMBER CARD (Active) -->
+      <a href="november.html" class="glass-panel glass-card-hover rounded-2xl p-6 relative group overflow-hidden border border-emerald-500/30 flex flex-col justify-between">
+        <div class="absolute -top-16 -right-16 w-36 h-36 bg-emerald-500/10 rounded-full blur-2xl group-hover:bg-emerald-500/20 transition-all pointer-events-none"></div>
+        
+        <div>
+          <div class="flex items-center justify-between">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> Active Challenge
+            </span>
+            <span class="text-2xl p-2 rounded-xl bg-slate-800/80 border border-slate-700/60 shadow-inner group-hover:scale-110 transition-transform">🍂</span>
+          </div>
+
+          <h2 class="text-2xl font-bold text-white mt-4 group-hover:text-emerald-300 transition-colors">
+            November Challenge
+          </h2>
+          <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+            Sept match volume targets (or 900m baseline), 30-min daily streaks, and the personal habit breaker.
+          </p>
+
+          <div class="mt-5 grid grid-cols-2 gap-2 text-left">
+            <div class="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800/80">
+              <span class="text-[10px] uppercase font-bold text-slate-500 block">Baseline Target</span>
+              <span class="text-xs font-bold text-slate-200 mt-0.5 block">Sept Total (or 900m)</span>
+            </div>
+            <div class="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800/80">
+              <span class="text-[10px] uppercase font-bold text-slate-500 block">Penalty Debt</span>
+              <span class="text-xs font-bold text-rose-400 mt-0.5 block">+30m / miss or slip</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-6 pt-4 border-t border-slate-800/80 flex items-center justify-between text-xs font-bold text-emerald-400 group-hover:text-emerald-300">
+          <span>Open Daily Dashboard</span>
+          <i class="fa-solid fa-arrow-right-long group-hover:translate-x-1.5 transition-transform"></i>
+        </div>
+      </a>
+
+      <!-- SEPTEMBER CARD (Archived) -->
+      <a href="september.html" class="glass-panel glass-card-hover rounded-2xl p-6 relative group overflow-hidden border border-slate-700/70 flex flex-col justify-between">
+        <div class="absolute -top-16 -right-16 w-36 h-36 bg-indigo-500/10 rounded-full blur-2xl group-hover:bg-indigo-500/20 transition-all pointer-events-none"></div>
+
+        <div>
+          <div class="flex items-center justify-between">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-800 text-slate-400 border border-slate-700">
+              <i class="fa-solid fa-box-archive text-[9px]"></i> Archived Record
+            </span>
+            <span class="text-2xl p-2 rounded-xl bg-slate-800/80 border border-slate-700/60 shadow-inner group-hover:scale-110 transition-transform">🏆</span>
+          </div>
+
+          <h2 class="text-2xl font-bold text-slate-200 mt-4 group-hover:text-indigo-300 transition-colors">
+            September Challenge
+          </h2>
+          <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+            Official September hall of fame, workout logs, drink penalty ledger, and final Instagram recap story cards.
+          </p>
+
+          <div class="mt-5 grid grid-cols-2 gap-2 text-left">
+            <div class="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800/80">
+              <span class="text-[10px] uppercase font-bold text-slate-500 block">MVP Champion</span>
+              <span class="text-xs font-bold text-amber-400 mt-0.5 block">Dimitri 🏆</span>
+            </div>
+            <div class="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800/80">
+              <span class="text-[10px] uppercase font-bold text-slate-500 block">Status</span>
+              <span class="text-xs font-bold text-slate-300 mt-0.5 block">Locked & Verified</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-6 pt-4 border-t border-slate-800/80 flex items-center justify-between text-xs font-bold text-slate-400 group-hover:text-indigo-300">
+          <span>Review Leaderboard & Recaps</span>
+          <i class="fa-solid fa-arrow-right-long group-hover:translate-x-1.5 transition-transform"></i>
+        </div>
+      </a>
+
     </div>
-    <div style="display:flex;gap:8px">
-      <input type="text" id="habitInput" placeholder="Type your personal habit here..." style="flex:1;padding:8px 12px;border:1px solid var(--line);border-radius:10px;font-size:0.85rem">
-      <button id="saveHabitBtn" class="btn primary" style="width:auto;padding:8px 18px;font-size:0.82rem">Save Habit</button>
+
+    <!-- Quick Athlete Jump Card (shown when signed in) -->
+    <div id="quickAthleteCard" class="hidden max-w-3xl mx-auto w-full mt-6 p-4 glass-panel rounded-2xl border border-indigo-500/20 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-3 text-left">
+        <div class="w-10 h-10 rounded-xl bg-indigo-500/20 border border-indigo-500/40 flex items-center justify-center text-indigo-400 text-lg">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <div>
+          <h4 class="text-xs font-bold text-white flex items-center gap-1.5">
+            Signed in as <span id="quickUserName" class="text-indigo-300">Athlete</span>
+          </h4>
+          <p class="text-[11px] text-slate-400">Authentication state synced across all challenges.</p>
+        </div>
+      </div>
+      <div class="flex gap-2 w-full sm:w-auto">
+        <a href="november.html" class="flex-1 sm:flex-initial text-center bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-4 py-2 rounded-xl transition shadow-md">
+          Go to November Log
+        </a>
+      </div>
     </div>
-  </div>
+  </main>
 
-  <!-- Navigation Toolbar -->
-  <div class="toolbar">
-    <nav class="tabs">
-      <button id="tabDashboard" class="tab-btn active">Dashboard & History</button>
-      <button id="tabLeaderboard" class="tab-btn">Leaderboard (% Complete)</button>
-      <button id="tabFeed" class="tab-btn">Activity Feed</button>
-      <button id="tabRules" class="tab-btn">Challenge Rules</button>
-    </nav>
-  </div>
+  <!-- Footer -->
+  <footer class="border-t border-slate-900 text-center py-5 text-[11px] text-slate-600">
+    Fitness Challenge Hub &bull; Version 9.0 &bull; Firebase Synchronized
+  </footer>
 
-  <!-- Main Dashboard View -->
-  <div id="dashboardView">
+  <!-- Universal Auth Modal Overlay -->
+  <div id="loginPromptModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <div class="glass-panel border border-slate-700/80 rounded-2xl max-w-sm w-full p-6 text-center shadow-2xl relative">
+      <button id="closeModalBtn" class="absolute top-3.5 right-3.5 text-slate-400 hover:text-white text-sm">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
 
-    <!-- 5 Top Summary Metric Cards -->
-    <section class="summary">
-      <div class="card metric">
-        <div class="label">Counted activity</div>
-        <div class="value" id="statLogged">0 min</div>
-        <div class="sub" id="statActual">0 actual minutes</div>
+      <div class="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center text-indigo-400 text-xl mx-auto mb-4">
+        <i class="fa-brands fa-google"></i>
       </div>
 
-      <div class="card metric" style="position:relative">
-        <div class="label">Adjusted target</div>
-        <div class="value" id="statTarget">-- min</div>
-        <div class="sub" id="statBaseTarget">Base: -- min</div>
-        <button id="btnTargetModeToggle" class="hidden" style="margin-top:6px;font-size:0.72rem;background:#f0f4f8;border:1px solid var(--line);border-radius:6px;padding:2px 8px;font-weight:750;color:var(--blue);cursor:pointer;" title="First 7 days only: switch between September baseline and default 900m">
-          ⚙️ Change Base Target
+      <h3 class="text-base font-bold text-white">Sign In to Continue</h3>
+      <p class="text-xs text-slate-400 mt-1.5 leading-relaxed">
+        Sign in once to sync your workouts, target volume, and community standings across both challenges.
+      </p>
+
+      <div class="mt-5 space-y-2">
+        <button id="modalGoogleLoginBtn" class="w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white font-bold text-xs py-2.5 rounded-xl transition shadow-lg shadow-indigo-600/30">
+          <i class="fa-brands fa-google"></i>
+          <span>Continue with Google</span>
+        </button>
+        <button id="modalDismissBtn" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold py-2 rounded-xl transition">
+          Browse as Guest
         </button>
       </div>
 
-      <div class="card metric">
-        <div class="label">Remaining</div>
-        <div class="value" id="statRemaining">0 min</div>
-        <div class="sub" id="statRemainingHours">0.0 hours</div>
-      </div>
-
-      <div class="card metric">
-        <div class="label">Habit slips</div>
-        <div class="value" id="statHabitSlips">0</div>
-        <div class="sub" id="statHabitPenalty">+0 min penalty</div>
-      </div>
-
-      <div class="card metric">
-        <div class="label">Missed days</div>
-        <div class="value" id="statMissedTotal">0</div>
-        <div class="sub" id="statMissPenalty">+0 min penalty</div>
-      </div>
-    </section>
-
-    <!-- Main Content Split: Left Calendar & Progress / Right Daily Form -->
-    <div class="layout">
-      <main>
-        <!-- Progress Bar & PB Strip -->
-        <section class="panel">
-          <div class="panel-header-row">
-            <h2>Challenge progress</h2>
-            <div id="streakPill" class="streak-pill streak-zero">
-              <span>🔥</span> <span id="streakCount">0-day streak</span>
-            </div>
-          </div>
-
-          <div class="progress-shell">
-            <div id="progressBar" class="progress-bar"></div>
-          </div>
-          <div class="progress-copy">
-            <span id="progressText">0% complete</span>
-            <span id="paceText">Streak requires &ge;30 min/day</span>
-          </div>
-
-          <div class="pb-strip">
-            <div class="pb-item">
-              <div class="pb-label">Current Streak</div>
-              <div class="pb-val" id="pbStreak">🔥 0 Days</div>
-              <div class="pb-sub">&ge;30 min consecutive</div>
-            </div>
-            <div class="pb-item">
-              <div class="pb-label">Biggest Day</div>
-              <div class="pb-val" id="pbBiggestDay">⏱️ 0 min</div>
-              <div class="pb-sub" id="pbBiggestDaySub">No activity yet</div>
-            </div>
-            <div class="pb-item">
-              <div class="pb-label">Favorite Workout</div>
-              <div class="pb-val" id="pbFavWorkout">👟 —</div>
-              <div class="pb-sub" id="pbFavWorkoutSub">0 min logged</div>
-            </div>
-          </div>
-        </section>
-
-        <!-- November Calendar Grid -->
-        <section class="panel">
-          <h2>November calendar (Tap any day to inspect/log)</h2>
-          <div class="calendar" id="calendar"></div>
-          <div class="legend" style="margin-top:14px">
-            <span><i class="dot" style="background:#7bc99d"></i>30+ min</span>
-            <span><i class="dot" style="background:#ebbd5f"></i>1–29 min</span>
-            <span><i class="dot" style="background:#dd7777"></i>Missed (&lt;30m)</span>
-            <span>⚠️ Habit Slip (+30m)</span>
-          </div>
-        </section>
-      </main>
-
-      <!-- Right Aside Daily Logger -->
-      <aside>
-        <section class="panel">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-            <h2 id="entryTitle" style="margin:0">November Entry</h2>
-            <input type="date" id="logDateInput" style="padding:4px 8px;border:1px solid var(--line);border-radius:8px;font-size:0.80rem;background:#fff">
-          </div>
-
-          <div class="today-form">
-            <!-- Workouts list -->
-            <div class="field">
-              <label>Activities completed</label>
-              <div id="activityContainer" class="activity-list"></div>
-              <button type="button" id="addActivityBtn" class="btn-add-activity">+ Add Activity Session</button>
-            </div>
-
-            <div class="day-total-banner">
-              <span>Day workout total:</span>
-              <span id="dayTotalDisplay">0 min</span>
-            </div>
-
-            <!-- Habit Breaker Section -->
-            <div class="habit-check-card">
-              <div style="font-size:0.80rem;font-weight:750;color:var(--navy);margin-bottom:4px">
-                Habit: <span id="currentDayHabitLabel" style="color:#b45309">Not configured</span>
-              </div>
-              <div style="font-size:0.74rem;color:var(--muted);margin-bottom:8px">
-                Slipping on your daily habit adds a +30m penalty to your month.
-              </div>
-              <div style="display:flex;gap:8px">
-                <button type="button" id="habitCleanBtn" class="habit-toggle-btn neutral">
-                  ✓ Clean / Kept
-                </button>
-                <button type="button" id="habitSlippedBtn" class="habit-toggle-btn neutral">
-                  ✗ Slipped (+30m)
-                </button>
-              </div>
-            </div>
-
-            <button class="btn primary" id="saveEntryBtn">Save Entry for Date</button>
-            <div id="syncStatus" style="font-size:0.75rem;color:var(--muted);text-align:center">Sign in with Google to sync workouts and compete on the leaderboard.</div>
-          </div>
-        </section>
-
-        <!-- Target Window Notification Card (Day 1-7 only) -->
-        <section id="targetChangeWindowNotice" class="panel hidden" style="border-left:4px solid var(--blue)">
-          <h2 style="font-size:0.95rem;margin-bottom:6px">📅 First 7 Days: Base Target Option</h2>
-          <p style="font-size:0.80rem;color:var(--muted);line-height:1.45;margin:0 0 10px">
-            Until November 7th, you can choose whether to compete using your calculated <strong>September Baseline</strong> or reset to the default <strong>900 min</strong> target.
-          </p>
-          <div style="display:flex;gap:8px">
-            <button id="btnSetSeptTarget" class="tab-btn" style="flex:1;padding:7px;font-size:0.76rem;text-align:center">
-              Sept Baseline (<span id="noticeSeptVal">--</span>m)
-            </button>
-            <button id="btnSetDefaultTarget" class="tab-btn" style="flex:1;padding:7px;font-size:0.76rem;text-align:center">
-              Default (900m)
-            </button>
-          </div>
-        </section>
-      </aside>
+      <div id="authErrorMsg" class="hidden mt-3 text-[11px] text-rose-400"></div>
     </div>
   </div>
 
-  <!-- Activity Feed View -->
-  <div id="feedView" class="hidden">
-    <section class="panel" style="margin-top:0">
-      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
-        <div>
-          <h2 style="margin:0">Live Activity Feed</h2>
-          <p style="margin:4px 0 0;color:var(--muted);font-size:0.86rem">Running timeline of workouts logged across November.</p>
-        </div>
-        <button id="refreshFeedBtn" class="tab-btn" style="padding:7px 14px;font-size:0.82rem">🔄 Refresh Feed</button>
-      </div>
-      <div id="feedContainer" class="feed-container" style="display:grid;gap:12px;margin-top:14px">
-        <div style="text-align:center;color:var(--muted);padding:30px">Loading activity stream...</div>
-      </div>
-    </section>
-  </div>
-
-  <!-- Leaderboard View -->
-  <div id="leaderboardView" class="hidden">
-    <section class="panel" style="margin-top:0">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
-        <div>
-          <h2 style="margin:0">🏆 November Standings (% Complete)</h2>
-          <p style="margin:3px 0 0;color:var(--muted);font-size:0.84rem">Ranked by actual minutes divided by total required target (including penalties).</p>
-        </div>
-        <button id="refreshBoardBtn" class="tab-btn" style="padding:6px 14px;font-size:0.80rem">🔄 Refresh</button>
-      </div>
-
-      <div class="table-wrap">
-        <table class="leader-table">
-          <thead>
-            <tr>
-              <th style="width:36px">Rank</th>
-              <th>Participant</th>
-              <th>Progress %</th>
-              <th>Logged / Required</th>
-              <th>Streak</th>
-              <th>Habit</th>
-              <th>Penalties</th>
-            </tr>
-          </thead>
-          <tbody id="leaderboardBody">
-            <tr><td colspan="7" style="text-align:center;color:var(--muted);padding:24px">Loading standings...</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
-  </div>
-
-  <!-- Challenge Rules View -->
-  <div id="rulesView" class="hidden">
-    <section class="panel" style="margin-top:0">
-      <h2>November Challenge Rules</h2>
-      <div class="rules-grid">
-        <div class="rule-card">
-          <h3>🎯 Baseline Target (+5% or 900m)</h3>
-          <p>If you participated in September, your base target matches your September total. New participants begin at the 900-minute baseline (30m &times; 30 days).</p>
-        </div>
-
-        <div class="rule-card">
-          <h3>🔥 30-Minute Daily Minimum</h3>
-          <p>Workouts must be at least 30 minutes to maintain your daily streak. Days with &lt;30m count as a missed day (+30 min penalty).</p>
-        </div>
-
-        <div class="rule-card">
-          <h3>⚡ Personal Habit Breaker</h3>
-          <p>Define a personal habit to eliminate or master. Check off whether you were Clean or Slipped each day. Each slip adds +30 minutes to your monthly total.</p>
-        </div>
-
-        <div class="rule-card">
-          <h3>📈 Leaderboard Fairness</h3>
-          <p>Rankings are based strictly on <strong>% Complete</strong> ($\text{Logged} \div \text{Target including penalties}$), ensuring fair competition regardless of base target size.</p>
-        </div>
-      </div>
-    </section>
-  </div>
-
-</div>
-
-<div class="toast" id="toast"></div>
-
-<script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyCbxoN1DLvMqxZb7FD4qu8p7k6lnD5ENP4",
-    authDomain: "fitness-challenge-smason.firebaseapp.com",
-    projectId: "fitness-challenge-smason",
-    storageBucket: "fitness-challenge-smason.firebasestorage.app",
-    messagingSenderId: "913152392975",
-    appId: "1:913152392975:web:293669fb86f2e0dd03487a",
-    measurementId: "G-PP4QLCW7Q4"
-  };
-
-  if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-  }
-
-  const auth = firebase.auth();
-  const db = firebase.firestore();
-  auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(console.error);
-
-  const $ = id => document.getElementById(id);
-  const DAYS = 30;
-  const ACTIVITY_TYPES = ["Bootcamp", "Cardio", "Cross Fit", "Weights", "Resistance Training", "Yoga"];
-
-  let currentUser = null;
-  let userProfileDoc = null;
-  let selectedDay = 1;
-  let habitState = null; // true = clean, false = slipped, null = none
-  let currentMonthDays = Array.from({ length: DAYS }, () => ({ activities: [], habitClean: null }));
-
-  function toast(msg) {
-    const el = $('toast');
-    el.textContent = msg;
-    el.classList.add('show');
-    setTimeout(() => el.classList.remove('show'), 2000);
-  }
-
-  function getTodayDayNum() {
-    const d = new Date();
-    // If November, default to current day; else day 1
-    return (d.getMonth() === 10) ? Math.min(30, Math.max(1, d.getDate())) : 1;
-  }
-
-  selectedDay = getTodayDayNum();
-
-  function getDateStringForDay(dayNum) {
-    const y = new Date().getFullYear();
-    return `${y}-11-${String(dayNum).padStart(2, '0')}`;
-  }
-
-  function getDayFromDateString(dStr) {
-    if (!dStr) return 1;
-    const parts = dStr.split('-');
-    return parseInt(parts[2], 10) || 1;
-  }
-
-  // Activity Row Generation with Note Support
-  function createActivityRow(type = "Cardio", minutes = 0, note = "") {
-    const wrap = document.createElement('div');
-    wrap.className = 'activity-row-wrap';
-
-    const row = document.createElement('div');
-    row.className = 'activity-row';
-
-    const select = document.createElement('select');
-    ACTIVITY_TYPES.forEach(opt => {
-      const o = document.createElement('option');
-      o.value = opt;
-      o.textContent = opt;
-      if (opt === type) o.selected = true;
-      select.appendChild(o);
-    });
-
-    const input = document.createElement('input');
-    input.type = 'number';
-    input.min = '0';
-    input.step = '1';
-    input.placeholder = 'Min';
-    input.value = minutes > 0 ? minutes : '';
-
-    const noteToggleBtn = document.createElement('button');
-    noteToggleBtn.type = 'button';
-    noteToggleBtn.className = 'btn-note-toggle';
-    noteToggleBtn.innerHTML = '📝';
-    noteToggleBtn.title = 'Add workout notes / details';
-    if (note && note.trim().length > 0) noteToggleBtn.classList.add('active');
-
-    const removeBtn = document.createElement('button');
-    removeBtn.type = 'button';
-    removeBtn.className = 'btn-remove-row';
-    removeBtn.innerHTML = '&times;';
-    removeBtn.title = 'Remove activity';
-    removeBtn.onclick = () => {
-      wrap.remove();
-      updateDayWorkoutTotal();
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCbxoN1DLvMqxZb7FD4qu8p7k6lnD5ENP4",
+      authDomain: "fitness-challenge-smason.firebaseapp.com",
+      projectId: "fitness-challenge-smason",
+      storageBucket: "fitness-challenge-smason.firebasestorage.app",
+      messagingSenderId: "913152392975",
+      appId: "1:913152392975:web:293669fb86f2e0dd03487a",
+      measurementId: "G-PP4QLCW7Q4"
     };
 
-    const noteBox = document.createElement('div');
-    noteBox.className = 'activity-note-box';
-    if (note && note.trim().length > 0) noteBox.classList.add('show');
-
-    const noteInput = document.createElement('input');
-    noteInput.type = 'text';
-    noteInput.placeholder = 'Workout notes (e.g., 5k trail run, leg press 4x10, hot yoga)';
-    noteInput.value = note || '';
-
-    noteToggleBtn.onclick = () => {
-      noteBox.classList.toggle('show');
-      if (noteBox.classList.contains('show')) {
-        noteInput.focus();
-        noteToggleBtn.classList.add('active');
-      } else if (!noteInput.value.trim()) {
-        noteToggleBtn.classList.remove('active');
-      }
-    };
-
-    noteInput.oninput = () => {
-      if (noteInput.value.trim().length > 0) {
-        noteToggleBtn.classList.add('active');
-      } else if (!noteBox.classList.contains('show')) {
-        noteToggleBtn.classList.remove('active');
-      }
-    };
-
-    select.onchange = () => updateDayWorkoutTotal();
-    input.oninput = () => updateDayWorkoutTotal();
-
-    row.appendChild(select);
-    row.appendChild(input);
-    row.appendChild(noteToggleBtn);
-    row.appendChild(removeBtn);
-
-    noteBox.appendChild(noteInput);
-    wrap.appendChild(row);
-    wrap.appendChild(noteBox);
-    return wrap;
-  }
-
-  function updateDayWorkoutTotal() {
-    let sum = 0;
-    const wraps = $('activityContainer').querySelectorAll('.activity-row-wrap');
-    wraps.forEach(w => {
-      const minInput = w.querySelector('.activity-row input[type=number]');
-      sum += Math.max(0, parseInt(minInput.value) || 0);
-    });
-    $('dayTotalDisplay').textContent = `${sum} min`;
-    return sum;
-  }
-
-  $('addActivityBtn').onclick = () => {
-    $('activityContainer').appendChild(createActivityRow("Cardio", 0, ""));
-  };
-
-  // Habit Toggle Buttons
-  function setHabitButtons(state) {
-    habitState = state;
-    const cleanBtn = $('habitCleanBtn');
-    const slipBtn = $('habitSlippedBtn');
-
-    cleanBtn.className = 'habit-toggle-btn neutral';
-    slipBtn.className = 'habit-toggle-btn neutral';
-
-    if (state === true) {
-      cleanBtn.className = 'habit-toggle-btn clean-active';
-    } else if (state === false) {
-      slipBtn.className = 'habit-toggle-btn slip-active';
-    }
-  }
-
-  $('habitCleanBtn').onclick = () => setHabitButtons(true);
-  $('habitSlippedBtn').onclick = () => setHabitButtons(false);
-
-  // Tab switching
-  function showTab(btnId, viewId) {
-    ['tabDashboard', 'tabLeaderboard', 'tabFeed', 'tabRules'].forEach(id => {
-      if ($(id)) $(id).classList.toggle('active', id === btnId);
-    });
-    ['dashboardView', 'leaderboardView', 'feedView', 'rulesView'].forEach(id => {
-      if ($(id)) $(id).classList.toggle('hidden', id !== viewId);
-    });
-  }
-
-  $('tabDashboard').onclick = () => showTab('tabDashboard', 'dashboardView');
-  $('tabLeaderboard').onclick = () => {
-    showTab('tabLeaderboard', 'leaderboardView');
-    loadLeaderboard();
-  };
-  $('tabFeed').onclick = () => {
-    showTab('tabFeed', 'feedView');
-    loadActivityFeed();
-  };
-  $('tabRules').onclick = () => showTab('tabRules', 'rulesView');
-  $('refreshBoardBtn').onclick = () => loadLeaderboard();
-  $('refreshFeedBtn').onclick = () => loadActivityFeed();
-
-  // Habit Header Expand / Collapse
-  $('toggleHabitEditBtn').onclick = () => {
-    const box = $('habitEditBox');
-    box.classList.toggle('open');
-    $('habitBtnLabel').textContent = box.classList.contains('open') ? 'Close' : 'Edit Habit';
-  };
-
-  // Build Calendar
-  function renderCalendar() {
-    const cal = $('calendar');
-    cal.innerHTML = '';
-    ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].forEach(x => {
-      const e = document.createElement('div');
-      e.className = 'dow';
-      e.textContent = x;
-      cal.appendChild(e);
-    });
-
-    const yr = new Date().getFullYear();
-    const firstDow = new Date(yr, 10, 1).getDay(); // November 1st
-
-    for (let i = 0; i < firstDow; i++) {
-      const b = document.createElement('div');
-      b.className = 'blank';
-      cal.appendChild(b);
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
     }
 
-    currentMonthDays.forEach((d, idx) => {
-      const day = idx + 1;
-      const b = document.createElement('button');
-      b.className = 'day';
-      if (day === selectedDay) b.classList.add('selected');
+    const auth = firebase.auth();
+    auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(console.error);
 
-      const dayTotal = d.activities.reduce((sum, a) => sum + (a.minutes || 0), 0);
-      const isMissed = (d.logged && dayTotal < 30);
+    const navLoginBtn = document.getElementById('navLoginBtn');
+    const navLogoutBtn = document.getElementById('navLogoutBtn');
+    const userProfile = document.getElementById('userProfile');
+    const userAvatar = document.getElementById('userAvatar');
+    const userName = document.getElementById('userName');
+    const quickAthleteCard = document.getElementById('quickAthleteCard');
+    const quickUserName = document.getElementById('quickUserName');
+    const loginPromptModal = document.getElementById('loginPromptModal');
+    const modalGoogleLoginBtn = document.getElementById('modalGoogleLoginBtn');
+    const modalDismissBtn = document.getElementById('modalDismissBtn');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const authErrorMsg = document.getElementById('authErrorMsg');
 
-      if (dayTotal >= 30) b.classList.add('complete');
-      else if (dayTotal > 0) b.classList.add('partial');
-      else if (isMissed) b.classList.add('missed');
-
-      let subNote = 'No entry';
-      if (dayTotal > 0) {
-        const hasNotes = Array.isArray(d.activities) && d.activities.some(a => a.note && a.note.trim().length > 0);
-        subNote = `${d.activities.length} act${hasNotes ? ' 📝' : ''}`;
-      }
-      if (d.habitClean === false) subNote += ' ⚠️';
-
-      b.innerHTML = `
-        <div class="day-num">${day}</div>
-        <div class="day-min">${dayTotal} min</div>
-        <div class="day-note">${subNote}</div>
-      `;
-
-      b.onclick = () => {
-        selectedDay = day;
-        loadDayIntoForm(day);
-        renderCalendar();
-      };
-      cal.appendChild(b);
-    });
-  }
-
-  function loadDayIntoForm(dayNum) {
-    $('entryTitle').textContent = `November ${dayNum} entry`;
-    $('logDateInput').value = getDateStringForDay(dayNum);
-
-    const dayData = currentMonthDays[dayNum - 1] || { activities: [], habitClean: null };
-    const container = $('activityContainer');
-    container.innerHTML = '';
-
-    if (dayData.activities && dayData.activities.length > 0) {
-      dayData.activities.forEach(a => container.appendChild(createActivityRow(a.type, a.minutes, a.note || "")));
-    } else {
-      container.appendChild(createActivityRow("Cardio", 0, ""));
-    }
-
-    updateDayWorkoutTotal();
-    setHabitButtons(dayData.habitClean);
-  }
-
-  $('logDateInput').onchange = (e) => {
-    const day = getDayFromDateString(e.target.value);
-    selectedDay = Math.min(30, Math.max(1, day));
-    loadDayIntoForm(selectedDay);
-    renderCalendar();
-  };
-
-  // Auth flow
-  $('loginBtn').onclick = async () => {
-    const provider = new firebase.auth.GoogleAuthProvider();
-    provider.setCustomParameters({ prompt: 'select_account' });
-    try {
-      await auth.signInWithPopup(provider);
-    } catch (err) {
-      if (err.code === 'auth/popup-blocked') auth.signInWithRedirect(provider);
-      else toast("Sign-in issue: " + err.message);
-    }
-  };
-
-  $('signOutBtn').onclick = () => auth.signOut();
-
-  auth.onAuthStateChanged(async (user) => {
-    if (user) {
-      currentUser = user;
-      $('loginBtn').style.display = 'none';
-      $('userProfile').style.display = 'flex';
-      $('userName').textContent = user.displayName || 'Athlete';
-      if (user.photoURL) $('userImg').src = user.photoURL;
-      $('syncStatus').textContent = `Syncing directly to: ${user.email}`;
-
-      await initUserProfile(user);
-      await loadUserEntries(user.uid);
-      loadLeaderboard();
-    } else {
-      currentUser = null;
-      userProfileDoc = null;
-      $('loginBtn').style.display = 'flex';
-      $('userProfile').style.display = 'none';
-      $('syncStatus').textContent = 'Saved in browser only. Sign in to sync across devices.';
-      loadDayIntoForm(selectedDay);
-      renderCalendar();
-      loadLeaderboard();
-    }
-  });
-
-  // September calculation (One-time lock-in)
-  async function calculateCountedMinutesFromSept(uid) {
-    try {
-      const challengeYears = ["2026", "2025", "2024"];
-      let snap = null;
-      for (const y of challengeYears) {
-        const s = await db.collection('users').doc(uid).collection('challenges').doc(y).get();
-        if (s.exists) { snap = s; break; }
-      }
-      if (!snap || !snap.exists) {
-        const rootSnap = await db.collection('users').doc(uid).get();
-        if (rootSnap.exists && rootSnap.data().days) snap = rootSnap;
-      }
-      if (snap && snap.exists) {
-        const sData = snap.data();
-        if (Array.isArray(sData.days)) {
-          const cap = 120;
-          let counted = 0;
-          sData.days.forEach(d => {
-            if (!d) return;
-            let dayTotal = 0;
-            if (Array.isArray(d.activities) && d.activities.length > 0) {
-              dayTotal = d.activities.reduce((sum, a) => sum + (Number(a.minutes) || 0), 0);
-            } else {
-              dayTotal = Number(d.minutes) || 0;
-            }
-            counted += Math.min(dayTotal, cap);
-          });
-          if (counted > 0) return Math.round(counted);
+    async function performLogin() {
+      authErrorMsg.classList.add('hidden');
+      const provider = new firebase.auth.GoogleAuthProvider();
+      provider.setCustomParameters({ prompt: 'select_account' });
+      try {
+        await auth.signInWithPopup(provider);
+        loginPromptModal.classList.add('hidden');
+      } catch (err) {
+        if (err.code === 'auth/popup-blocked' || err.code === 'auth/cancelled-popup-request') {
+          auth.signInWithRedirect(provider);
+        } else {
+          authErrorMsg.textContent = err.message || "Failed to sign in. Please try again.";
+          authErrorMsg.classList.remove('hidden');
         }
       }
-    } catch (e) {
-      console.warn("September lookup:", e);
     }
-    return 900;
-  }
 
-  async function initUserProfile(user) {
-    try {
-      const ref = db.collection('nov_users').doc(user.uid);
-      const snap = await ref.get();
+    navLoginBtn.onclick = performLogin;
+    modalGoogleLoginBtn.onclick = performLogin;
+    navLogoutBtn.onclick = () => auth.signOut();
+    modalDismissBtn.onclick = () => loginPromptModal.classList.add('hidden');
+    closeModalBtn.onclick = () => loginPromptModal.classList.add('hidden');
 
-      const septCounted = await calculateCountedMinutesFromSept(user.uid);
+    auth.getRedirectResult().catch(console.error);
 
-      if (!snap.exists) {
-        await ref.set({
-          displayName: user.displayName || 'Athlete',
-          photoURL: user.photoURL || '',
-          baseTarget: septCounted,
-          septemberCalculatedTarget: septCounted,
-          targetChoice: 'september',
-          habitName: "",
-          totalLogged: 0,
-          adjustedTarget: septCounted,
-          progressPct: 0,
-          streak: 0,
-          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        navLoginBtn.classList.add('hidden');
+        userProfile.classList.remove('hidden');
+        quickAthleteCard.classList.remove('hidden');
+        loginPromptModal.classList.add('hidden');
+
+        const name = user.displayName || 'Athlete';
+        userName.textContent = name;
+        quickUserName.textContent = name;
+        if (user.photoURL) {
+          userAvatar.src = user.photoURL;
+        }
       } else {
-        const data = snap.data();
-        if (!data.septemberCalculatedTarget && septCounted) {
-          await ref.update({ septemberCalculatedTarget: septCounted });
+        navLoginBtn.classList.remove('hidden');
+        userProfile.classList.add('hidden');
+        quickAthleteCard.classList.add('hidden');
+
+        const hasDismissed = sessionStorage.getItem('hub_auth_prompted');
+        if (!hasDismissed) {
+          setTimeout(() => {
+            loginPromptModal.classList.remove('hidden');
+            sessionStorage.setItem('hub_auth_prompted', 'true');
+          }, 800);
         }
-      }
-
-      const fresh = (await ref.get()).data();
-      userProfileDoc = fresh;
-
-      const hName = fresh.habitName ? fresh.habitName.trim() : "";
-      $('habitDisplayTitle').textContent = hName || "No habit set yet - tap edit";
-      $('currentDayHabitLabel').textContent = hName || "Not configured";
-      $('habitInput').value = hName;
-
-      setupTargetModeControls(fresh);
-    } catch (err) {
-      console.error(err);
-      toast("Error loading profile: " + err.message);
-    }
-  }
-
-  function isWithinFirst7Days() {
-    const d = new Date();
-    // Allow toggle if month is before November or during the first 7 days of November
-    return d.getMonth() < 10 || (d.getMonth() === 10 && d.getDate() <= 7);
-  }
-
-  function setupTargetModeControls(profile) {
-    const septVal = profile.septemberCalculatedTarget || profile.baseTarget || 900;
-    $('noticeSeptVal').textContent = septVal;
-
-    if (isWithinFirst7Days() && septVal > 900) {
-      $('btnTargetModeToggle').classList.remove('hidden');
-      $('targetChangeWindowNotice').classList.remove('hidden');
-
-      const isDefault = profile.baseTarget === 900;
-      $('btnSetDefaultTarget').className = isDefault ? 'tab-btn active' : 'tab-btn';
-      $('btnSetSeptTarget').className = !isDefault ? 'tab-btn active' : 'tab-btn';
-    } else {
-      $('btnTargetModeToggle').classList.add('hidden');
-      $('targetChangeWindowNotice').classList.add('hidden');
-    }
-  }
-
-  async function setBaseTargetPreference(newTarget) {
-    if (!currentUser) return;
-    if (!isWithinFirst7Days()) {
-      toast("Target switching window closed on Nov 7.");
-      return;
-    }
-    try {
-      await db.collection('nov_users').doc(currentUser.uid).update({
-        baseTarget: newTarget,
-        targetChoice: newTarget === 900 ? 'default' : 'september'
-      });
-      userProfileDoc.baseTarget = newTarget;
-      toast(`Base target updated to ${newTarget}m!`);
-      setupTargetModeControls(userProfileDoc);
-      await recalculateAndSyncStats();
-      loadLeaderboard();
-    } catch (e) {
-      toast("Could not update target: " + e.message);
-    }
-  }
-
-  $('btnTargetModeToggle').onclick = () => {
-    $('targetChangeWindowNotice').classList.toggle('hidden');
-  };
-
-  $('btnSetSeptTarget').onclick = () => {
-    const septVal = (userProfileDoc && userProfileDoc.septemberCalculatedTarget) ? userProfileDoc.septemberCalculatedTarget : 900;
-    setBaseTargetPreference(septVal);
-  };
-
-  $('btnSetDefaultTarget').onclick = () => {
-    setBaseTargetPreference(900);
-  };
-
-  // Save Habit
-  $('saveHabitBtn').onclick = async () => {
-    const val = $('habitInput').value.trim();
-    if (!val) { toast("Please type a habit description."); return; }
-    if (!currentUser) { toast("Sign in to save habit."); return; }
-
-    try {
-      await db.collection('nov_users').doc(currentUser.uid).update({ habitName: val });
-      $('habitDisplayTitle').textContent = val;
-      $('currentDayHabitLabel').textContent = val;
-      $('habitEditBox').classList.remove('open');
-      $('habitBtnLabel').textContent = 'Edit Habit';
-      toast("November habit saved!");
-    } catch (e) {
-      toast("Could not save habit: " + e.message);
-    }
-  };
-
-  // Save Daily Entry
-  $('saveEntryBtn').onclick = async () => {
-    if (!currentUser) { toast("Please sign in with Google to log entries."); return; }
-
-    const dayNum = selectedDay;
-    const dateStr = getDateStringForDay(dayNum);
-    const wraps = $('activityContainer').querySelectorAll('.activity-row-wrap');
-    const activities = [];
-
-    wraps.forEach(w => {
-      const type = w.querySelector('.activity-row select').value;
-      const mins = Math.max(0, parseInt(w.querySelector('.activity-row input[type=number]').value) || 0);
-      const noteInput = w.querySelector('.activity-note-box input');
-      const note = noteInput ? noteInput.value.trim() : "";
-      if (mins > 0) activities.push({ type, minutes: mins, note, loggedAt: new Date().toISOString() });
-    });
-
-    const dayEntry = {
-      uid: currentUser.uid,
-      userName: currentUser.displayName || 'Athlete',
-      userAvatar: currentUser.photoURL || '',
-      dayNum: dayNum,
-      date: dateStr,
-      activities: activities,
-      habitClean: habitState,
-      logged: true,
-      timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    };
-
-    try {
-      await db.collection('nov_entries').doc(`${currentUser.uid}_day_${dayNum}`).set(dayEntry);
-      toast(`Saved November ${dayNum}!`);
-      currentMonthDays[dayNum - 1] = dayEntry;
-      renderCalendar();
-      await recalculateAndSyncStats();
-      loadLeaderboard();
-    } catch (err) {
-      toast("Save failed: " + err.message);
-    }
-  };
-
-  // Load User Entries from Firestore
-  async function loadUserEntries(uid) {
-    try {
-      const snap = await db.collection('nov_entries').where('uid', '==', uid).get();
-      currentMonthDays = Array.from({ length: DAYS }, () => ({ activities: [], habitClean: null, logged: false }));
-
-      snap.forEach(docSnap => {
-        const d = docSnap.data();
-        if (d.dayNum >= 1 && d.dayNum <= 30) {
-          let acts = [];
-          if (Array.isArray(d.activities)) {
-            acts = d.activities.map(a => ({
-              type: ACTIVITY_TYPES.includes(a.type) ? a.type : "Cardio",
-              minutes: Number(a.minutes) || 0,
-              note: a.note || ""
-            }));
-          } else if (d.minutes) {
-            acts = [{ type: d.activity || 'Cardio', minutes: Number(d.minutes) || 0, note: d.note || "" }];
-          }
-          currentMonthDays[d.dayNum - 1] = {
-            activities: acts,
-            habitClean: d.habitClean !== undefined ? d.habitClean : null,
-            logged: true
-          };
-        }
-      });
-
-      loadDayIntoForm(selectedDay);
-      renderCalendar();
-      await recalculateAndSyncStats();
-    } catch (e) {
-      console.warn("Entries load:", e);
-    }
-  }
-
-  // Dynamic Calculation: Stats, Streaks, Penalties, PBs
-  async function recalculateAndSyncStats() {
-    let totalMinutes = 0;
-    let habitSlips = 0;
-    let missedDays = 0;
-    let maxDay = 0;
-    let favMap = {};
-
-    currentMonthDays.forEach(d => {
-      const dayTotal = d.activities.reduce((sum, a) => sum + (a.minutes || 0), 0);
-      totalMinutes += dayTotal;
-
-      if (dayTotal > maxDay) maxDay = dayTotal;
-      if (d.logged && dayTotal < 30) missedDays++;
-      if (d.habitClean === false) habitSlips++;
-
-      d.activities.forEach(a => {
-        favMap[a.type] = (favMap[a.type] || 0) + (a.minutes || 0);
-      });
-    });
-
-    // Consecutive streak (backwards from current day)
-    let streak = 0;
-    let checkDay = selectedDay;
-    while (checkDay >= 1) {
-      const d = currentMonthDays[checkDay - 1];
-      const dTotal = d.activities.reduce((sum, a) => sum + (a.minutes || 0), 0);
-      if (dTotal >= 30) {
-        streak++;
-        checkDay--;
-      } else {
-        break;
-      }
-    }
-
-    // Favorite activity calculation
-    let favType = '—';
-    let favMins = 0;
-    Object.entries(favMap).forEach(([type, mins]) => {
-      if (mins > favMins) {
-        favMins = mins;
-        favType = type;
       }
     });
-
-    const base = (userProfileDoc && userProfileDoc.baseTarget) ? userProfileDoc.baseTarget : 900;
-    const penaltyMinutes = (habitSlips + missedDays) * 30;
-    const adjustedTarget = base + penaltyMinutes;
-    const progressPct = adjustedTarget > 0 ? Math.min(100, Math.round((totalMinutes / adjustedTarget) * 100)) : 0;
-    const remaining = Math.max(0, adjustedTarget - totalMinutes);
-
-    // Update Top Summary Cards
-    $('statLogged').textContent = `${totalMinutes} min`;
-    $('statActual').textContent = `${totalMinutes} actual minutes`;
-    $('statTarget').textContent = `${adjustedTarget} min`;
-    $('statBaseTarget').textContent = `Base: ${base} min`;
-    $('statRemaining').textContent = `${remaining} min`;
-    $('statRemainingHours').textContent = `${(remaining / 60).toFixed(1)} hours`;
-    $('statHabitSlips').textContent = habitSlips;
-    $('statHabitPenalty').textContent = `+${habitSlips * 30} min penalty`;
-    $('statMissedTotal').textContent = missedDays;
-    $('statMissPenalty').textContent = `+${missedDays * 30} min penalty`;
-
-    // Progress bar & PBs
-    $('progressBar').style.width = `${progressPct}%`;
-    $('progressText').textContent = `${progressPct}% complete`;
-    $('streakCount').textContent = `${streak}-day streak`;
-    $('streakPill').classList.toggle('streak-zero', streak === 0);
-
-    $('pbStreak').textContent = `🔥 ${streak} Days`;
-    $('pbBiggestDay').textContent = `⏱️ ${maxDay} min`;
-    $('pbBiggestDaySub').textContent = maxDay > 0 ? 'Single day high' : 'No activity yet';
-    $('pbFavWorkout').textContent = `👟 ${favType}`;
-    $('pbFavWorkoutSub').textContent = favMins > 0 ? `${favMins}m logged` : '0 min logged';
-
-    // Update in Firestore
-    if (currentUser) {
-      await db.collection('nov_users').doc(currentUser.uid).update({
-        totalLogged: totalMinutes,
-        adjustedTarget: adjustedTarget,
-        progressPct: progressPct,
-        streak: streak,
-        habitSlips: habitSlips,
-        missedDays: missedDays
-      });
-    }
-  }
-
-  // Leaderboard
-  async function loadLeaderboard() {
-    const tbody = $('leaderboardBody');
-    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:24px">Loading standings...</td></tr>`;
-
-    try {
-      const snap = await db.collection('nov_users').get();
-      if (snap.empty) {
-        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:24px">No participants have joined yet. Be the first!</td></tr>`;
-        return;
-      }
-
-      const users = [];
-      snap.forEach(d => users.push({ id: d.id, ...d.data() }));
-      users.sort((a, b) => (b.progressPct || 0) - (a.progressPct || 0));
-
-      tbody.innerHTML = '';
-      users.forEach((u, idx) => {
-        const isMe = currentUser && currentUser.uid === u.id;
-        const tr = document.createElement('tr');
-        if (isMe) tr.style.background = '#eaf2f8';
-
-        tr.innerHTML = `
-          <td><span class="leader-rank">#${idx + 1}</span></td>
-          <td>
-            <div class="leader-user" title="${u.displayName}">
-              <img class="user-avatar" src="${u.photoURL || 'https://placehold.co/32x32/1e293b/94a3b8?text=U'}" alt="" onerror="this.src='https://placehold.co/32x32/1e293b/94a3b8?text=U'">
-              <div>
-                <strong>${u.displayName || 'Athlete'}</strong>
-                <div style="font-size:0.68rem;color:var(--muted)">Base: ${u.baseTarget || 900}m</div>
-              </div>
-            </div>
-          </td>
-          <td>
-            <div style="font-weight:800;font-size:0.95rem;color:var(--navy)">${u.progressPct || 0}%</div>
-          </td>
-          <td>
-            <span style="font-weight:750">${u.totalLogged || 0}</span> / 
-            <span style="color:var(--muted)">${u.adjustedTarget || 900}m</span>
-          </td>
-          <td>
-            ${u.streak > 0 
-              ? `<span style="background:#fff5eb;border:1px solid #fedbc0;color:#c84f10;padding:2px 7px;border-radius:99px;font-weight:800;font-size:0.75rem">🔥 ${u.streak}d</span>` 
-              : `<span style="color:var(--muted);font-size:0.75rem">0d</span>`}
-          </td>
-          <td style="font-size:0.78rem;color:var(--muted);max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
-            ${u.habitName ? `<em>${u.habitName}</em>` : '—'}
-          </td>
-          <td>
-            <span style="background:#fdecec;color:#b91c1c;padding:2px 6px;border-radius:6px;font-size:0.74rem;font-weight:750">
-              +${((u.habitSlips || 0) + (u.missedDays || 0)) * 30}m
-            </span>
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
-    } catch (e) {
-      console.warn("Leaderboard:", e);
-      tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:24px">Error loading standings.</td></tr>`;
-    }
-  }
-
-  // Live Activity Feed
-  async function loadActivityFeed() {
-    const feed = $('feedContainer');
-    feed.innerHTML = `<div style="text-align:center;color:var(--muted);padding:30px">Fetching activity stream...</div>`;
-    const feedEvents = [];
-
-    try {
-      const snap = await db.collection('nov_entries').get();
-      snap.forEach(docSnap => {
-        const d = docSnap.data();
-        const userName = d.userName || 'Athlete';
-        const userAvatar = d.userAvatar || 'https://placehold.co/42x42/1e293b/94a3b8?text=U';
-        const dayNum = d.dayNum || 1;
-
-        if (Array.isArray(d.activities)) {
-          d.activities.forEach(act => {
-            const mins = Number(act.minutes) || 0;
-            if (mins > 0) {
-              feedEvents.push({
-                category: 'workout',
-                name: userName,
-                avatar: userAvatar,
-                dayNum: dayNum,
-                type: act.type || 'Workout',
-                minutes: mins,
-                note: act.note || '',
-                timeStr: act.loggedAt ? new Date(act.loggedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '',
-                timestamp: act.loggedAt ? new Date(act.loggedAt).getTime() : 0
-              });
-            }
-          });
-        }
-
-        if (d.habitClean === false) {
-          feedEvents.push({
-            category: 'habit_slip',
-            name: userName,
-            avatar: userAvatar,
-            dayNum: dayNum,
-            type: 'Habit Slip',
-            note: 'Added +30m penalty debt',
-            timeStr: '',
-            timestamp: 0
-          });
-        }
-      });
-
-      feedEvents.sort((a, b) => b.dayNum - a.dayNum || b.timestamp - a.timestamp);
-
-      if (feedEvents.length === 0) {
-        feed.innerHTML = `<div style="text-align:center;color:var(--muted);padding:30px">No workouts or habit check-ins recorded yet for November. Log a session to be first!</div>`;
-        return;
-      }
-
-      feed.innerHTML = '';
-      feedEvents.slice(0, 30).forEach(evt => {
-        const item = document.createElement('div');
-        item.style.cssText = "display:flex;align-items:flex-start;gap:12px;padding:12px 14px;background:#fbfcfd;border:1px solid var(--line);border-radius:14px;";
-        
-        let detailHTML = '';
-        if (evt.category === 'workout') {
-          detailHTML = `
-            <div style="margin-top:2px;font-size:0.88rem">
-              Completed <strong>${evt.minutes} minutes</strong> of 
-              <span style="display:inline-block;padding:2px 7px;border-radius:6px;font-size:0.75rem;font-weight:750;background:#e7f3fb;color:#2674a8">${evt.type}</span>
-            </div>
-            ${evt.note ? `<div style="margin-top:4px;padding:6px 10px;background:#fff;border-left:3px solid var(--blue);border-radius:4px 6px 6px 4px;font-size:0.78rem;color:var(--ink);font-style:italic">"${evt.note}"</div>` : ''}
-          `;
-        } else if (evt.category === 'habit_slip') {
-          detailHTML = `
-            <div style="margin-top:2px;font-size:0.88rem">
-              <span style="display:inline-block;padding:2px 7px;border-radius:6px;font-size:0.75rem;font-weight:750;background:#fdecec;color:#c94d4d">⚠️ Slipped Habit (+30m)</span>
-            </div>
-          `;
-        }
-
-        item.innerHTML = `
-          <img src="${evt.avatar}" style="width:38px;height:38px;border-radius:50%;border:2px solid var(--line);object-fit:cover;flex-shrink:0" onerror="this.src='https://placehold.co/42x42/1e293b/94a3b8?text=U'">
-          <div style="flex:1">
-            <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
-              <span style="font-weight:750;color:var(--navy);font-size:0.86rem">${evt.name}</span>
-              <span style="font-size:0.72rem;color:var(--muted)">Nov ${evt.dayNum}${evt.timeStr ? ` &bull; ${evt.timeStr}` : ''}</span>
-            </div>
-            ${detailHTML}
-          </div>
-        `;
-        feed.appendChild(item);
-      });
-    } catch (err) {
-      console.warn("Feed error:", err);
-      feed.innerHTML = `<div style="text-align:center;color:var(--muted);padding:20px">Error loading activity stream.</div>`;
-    }
-  }
-
-  // Initial Form Setup
-  loadDayIntoForm(selectedDay);
-  renderCalendar();
-</script>
-
+  </script>
 </body>
 </html>
