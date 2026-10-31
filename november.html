@@ -7,7 +7,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>November Fitness & Habit Challenge - v9.2</title>
+<title>November Fitness & Habit Challenge - v9.3</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <!-- Firebase SDKs -->
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
@@ -283,7 +283,7 @@ button, input, select { font: inherit; }
         </div>
       </div>
     </div>
-    <div class="version-tag">v9.2 Active</div>
+    <div class="version-tag">v9.3 Active</div>
   </header>
 
   <!-- Collapsible Habit Management Ribbon -->
@@ -429,6 +429,9 @@ button, input, select { font: inherit; }
               <span>Day workout total:</span>
               <span id="dayTotalDisplay">0 min</span>
             </div>
+            <div style="font-size:0.75rem;color:var(--muted);margin-top:-6px;line-height:1.4">
+              A maximum of <strong>120 minutes</strong> counts toward the challenge per day.
+            </div>
 
             <!-- Habit Breaker Section -->
             <div class="habit-check-card">
@@ -536,6 +539,11 @@ button, input, select { font: inherit; }
         </div>
 
         <div class="rule-card">
+          <h3>🚫 120-Minute Daily Counting Cap</h3>
+          <p>A maximum of <strong>120 minutes</strong> counts toward the challenge per day to encourage steady, daily consistency and prevent unhealthy cramming. Any additional minutes are still recorded as actual minutes in your history.</p>
+        </div>
+
+        <div class="rule-card">
           <h3>⚡ Personal Habit Breaker</h3>
           <p>Define a personal habit to eliminate or master. Check off whether you were Clean or Slipped each day. Each slip adds +30 minutes to your monthly total.</p>
         </div>
@@ -553,7 +561,7 @@ button, input, select { font: inherit; }
 <div class="toast" id="toast"></div>
 
 <script>
-  const APP_VERSION = "9.2";
+  const APP_VERSION = "9.3";
 
   const firebaseConfig = {
     apiKey: "AIzaSyCbxoN1DLvMqxZb7FD4qu8p7k6lnD5ENP4",
@@ -809,6 +817,7 @@ button, input, select { font: inherit; }
       if (day === selectedDay) b.classList.add('selected');
 
       const dayTotal = d.activities.reduce((sum, a) => sum + (a.minutes || 0), 0);
+      const countedDay = Math.min(dayTotal, 120);
       const isMissed = (d.logged && dayTotal < 30);
 
       if (dayTotal >= 30) b.classList.add('complete');
@@ -824,7 +833,7 @@ button, input, select { font: inherit; }
 
       b.innerHTML = `
         <div class="day-num">${day}</div>
-        <div class="day-min">${dayTotal} min</div>
+        <div class="day-min">${countedDay} min</div>
         <div class="day-note">${subNote}</div>
       `;
 
@@ -1132,7 +1141,8 @@ button, input, select { font: inherit; }
 
   // Dynamic Calculation: Stats, Streaks, Penalties, PBs
   async function recalculateAndSyncStats() {
-    let totalMinutes = 0;
+    let countedMinutes = 0;
+    let actualMinutes = 0;
     let habitSlips = 0;
     let missedDays = 0;
     let maxDay = 0;
@@ -1140,7 +1150,8 @@ button, input, select { font: inherit; }
 
     currentMonthDays.forEach(d => {
       const dayTotal = d.activities.reduce((sum, a) => sum + (a.minutes || 0), 0);
-      totalMinutes += dayTotal;
+      actualMinutes += dayTotal;
+      countedMinutes += Math.min(dayTotal, 120);
 
       if (dayTotal > maxDay) maxDay = dayTotal;
       if (d.logged && dayTotal < 30) missedDays++;
@@ -1178,12 +1189,12 @@ button, input, select { font: inherit; }
     const base = (userProfileDoc && userProfileDoc.baseTarget) ? userProfileDoc.baseTarget : 900;
     const penaltyMinutes = (habitSlips + missedDays) * 30;
     const adjustedTarget = base + penaltyMinutes;
-    const progressPct = adjustedTarget > 0 ? Math.min(100, Math.round((totalMinutes / adjustedTarget) * 100)) : 0;
-    const remaining = Math.max(0, adjustedTarget - totalMinutes);
+    const progressPct = adjustedTarget > 0 ? Math.min(100, Math.round((countedMinutes / adjustedTarget) * 100)) : 0;
+    const remaining = Math.max(0, adjustedTarget - countedMinutes);
 
     // Update Top Summary Cards
-    $('statLogged').textContent = `${totalMinutes} min`;
-    $('statActual').textContent = `${totalMinutes} actual minutes`;
+    $('statLogged').textContent = `${countedMinutes} min`;
+    $('statActual').textContent = `${actualMinutes} actual minutes`;
     $('statTarget').textContent = `${adjustedTarget} min`;
     $('statBaseTarget').textContent = `Base: ${base} min`;
     $('statRemaining').textContent = `${remaining} min`;
@@ -1201,14 +1212,15 @@ button, input, select { font: inherit; }
 
     $('pbStreak').textContent = `🔥 ${streak} Days`;
     $('pbBiggestDay').textContent = `⏱️ ${maxDay} min`;
-    $('pbBiggestDaySub').textContent = maxDay > 0 ? 'Single day high' : 'No activity yet';
+    $('pbBiggestDaySub').textContent = maxDay > 0 ? (maxDay > 120 ? `120m counted (${maxDay}m raw)` : 'Single day high') : 'No activity yet';
     $('pbFavWorkout').textContent = `👟 ${favType}`;
     $('pbFavWorkoutSub').textContent = favMins > 0 ? `${favMins}m logged` : '0 min logged';
 
     // Update in Firestore
     if (currentUser) {
       await db.collection('nov_users').doc(currentUser.uid).update({
-        totalLogged: totalMinutes,
+        totalLogged: countedMinutes,
+        actualLogged: actualMinutes,
         adjustedTarget: adjustedTarget,
         progressPct: progressPct,
         streak: streak,
