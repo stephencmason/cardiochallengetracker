@@ -7,7 +7,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>September Fitness Challenge - v10.3 Archive</title>
+<title>September Fitness Challenge - Archive</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -72,12 +72,14 @@ button,input,select{font:inherit;touch-action:manipulation}
 .tab-btn:hover{color:var(--ink)}
 .tab-btn.active{background:var(--navy);color:white;border-color:var(--navy)}
 
+/* Restored Classic September Summary Metrics */
 .summary{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:0 0 14px 0}
 .card,.panel{background:var(--paper);border:1px solid rgba(220,229,234,.8);border-radius:16px;box-shadow:var(--shadow)}
 .metric{padding:14px}
 .metric .label{color:var(--muted);font-size:.74rem;font-weight:750;text-transform:uppercase;letter-spacing:.04em}
 .metric .value{font-size:1.40rem;font-weight:800;margin-top:4px}
 .metric .sub{color:var(--muted);font-size:.74rem;margin-top:2px}
+
 .layout{display:grid;grid-template-columns:1.55fr .95fr;gap:14px}
 .panel{padding:16px;margin-bottom:14px}
 .panel h2{margin:0 0 12px;font-size:1.05rem;font-weight:750}
@@ -176,7 +178,7 @@ button,input,select{font:inherit;touch-action:manipulation}
     <div class="hero-compact-row">
       <div class="hero-title-wrap">
         <h1>September Challenge</h1>
-        <div class="hero-version-pill">v10.3 &bull; Final Archive</div>
+        <div class="hero-version-pill">Final Archive &bull; Locked</div>
       </div>
       <div class="hero-actions">
         <a href="index.html" class="btn-hub-nav">← Hub</a>
@@ -341,7 +343,7 @@ button,input,select{font:inherit;touch-action:manipulation}
       <span>👥 Finishers &amp; Participants:</span>
       <strong id="uniqueUsersCount">-- enrolled</strong>
     </div>
-    <div>September Fitness Challenge &bull; v10.3 Archive</div>
+    <div>September Fitness Challenge &bull; Final Archive</div>
   </footer>
 </div>
 
@@ -428,7 +430,7 @@ button,input,select{font:inherit;touch-action:manipulation}
 </div>
 
 <script>
-  const APP_VERSION = "10.3";
+  const APP_VERSION = "10.5";
 
   const firebaseConfig = {
     apiKey: "AIzaSyCbxoN1DLvMqxZb7FD4qu8p7k6lnD5ENP4",
