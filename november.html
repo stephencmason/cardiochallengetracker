@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>November Fitness &amp; Habit Challenge - v11.9</title>
+  <title>November Fitness &amp; Habit Challenge - v12.0</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -601,7 +601,7 @@
       </div>
       <div class="hero-actions">
         <div class="hero-actions-top">
-          <div class="hero-version-pill">v11.9 &bull; 2026</div>
+          <div class="hero-version-pill">v12.0 &bull; 2026</div>
           <button id="openStoryModalBtn" class="hub-pill-btn hidden" style="background:#f59e0b;color:#78350f;font-weight:800;border:0">📜 Story Recap</button>
           <a href="index.html" class="hub-pill-btn">← Hub</a>
           <button id="authBtn" class="auth-btn">Sign In</button>
@@ -840,40 +840,44 @@
   </div>
 
   <footer style="text-align:center;padding:16px;font-size:0.72rem;color:var(--muted)">
-    November Fitness &amp; Habit Challenge &bull; v11.9 &bull; Firebase Synchronized
+    November Fitness &amp; Habit Challenge &bull; v12.0 &bull; Firebase Synchronized
   </footer>
 
   <script>
-    const APP_VERSION = "11.9";
+    const APP_VERSION = "12.0";
 
     // Attempt to retrieve active config cached by Hub or use configured app
-    let runtimeConfig = null;
+    let app, auth, db;
     try {
-      const stored = localStorage.getItem('fc_firebase_config') || sessionStorage.getItem('fc_firebase_config');
-      if (stored) runtimeConfig = JSON.parse(stored);
-    } catch(e) {}
+      if (firebase.apps.length > 0) {
+        app = firebase.app();
+      } else {
+        // Retrieve config from storage or standard environment
+        let storedCfg = null;
+        try {
+          const raw = localStorage.getItem('fc_firebase_config') || sessionStorage.getItem('fc_firebase_config');
+          if (raw) storedCfg = JSON.parse(raw);
+        } catch(e) {}
 
-    const firebaseConfig = runtimeConfig || {
-      authDomain: "fitness-challenge-smason.firebaseapp.com",
-      projectId: "fitness-challenge-smason",
-      storageBucket: "fitness-challenge-smason.appspot.com",
-      messagingSenderId: "123456789",
-      appId: "fitness-challenge-smason"
-    };
+        const config = storedCfg || {
+          apiKey: window.__FIREBASE_API_KEY__ || "AIzaSyDummyKeyForCompatibilityModeOnly_XYZ",
+          authDomain: "fitness-challenge-smason.firebaseapp.com",
+          projectId: "fitness-challenge-smason",
+          storageBucket: "fitness-challenge-smason.appspot.com",
+          messagingSenderId: "123456789",
+          appId: "fitness-challenge-smason"
+        };
+        app = firebase.initializeApp(config);
+      }
+      auth = firebase.auth();
+      db = firebase.firestore();
 
-    let app;
-    if (!firebase.apps.length) {
-      app = firebase.initializeApp(firebaseConfig);
-    } else {
-      app = firebase.app();
+      auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(e => {
+        console.warn("Auth persistence:", e);
+      });
+    } catch(err) {
+      console.error("Firebase init failed:", err);
     }
-    const auth = firebase.auth();
-    const db = firebase.firestore();
-
-    // Enable Local Auth Persistence so credentials persist across Hub, September, and November
-    auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(err => {
-      console.warn("Auth persistence notice:", err);
-    });
 
     const DAYS = 30;
     const $ = id => document.getElementById(id);
@@ -914,54 +918,66 @@
       return Math.min(30, now.getDate());
     }
 
-    // AUTH WITH ROBUST FALLBACK FOR SAFARI
-    $('authBtn').onclick = async () => {
-      const provider = new firebase.auth.GoogleAuthProvider();
-      provider.setCustomParameters({ prompt: 'select_account' });
-      try {
-        await auth.signInWithPopup(provider);
-      } catch (e) {
-        console.warn("Popup blocked or failed, initiating redirect:", e);
-        try {
-          await auth.signInWithRedirect(provider);
-        } catch (redirectErr) {
-          console.error("Auth redirect failed:", redirectErr);
-          alert("Sign-in issue: Please ensure popups/redirects are allowed or visit the Hub first.");
+    // AUTH ACTIONS
+    if ($('authBtn')) {
+      $('authBtn').onclick = async () => {
+        if (!auth) {
+          alert("Authentication service is initializing. Please try again in a moment.");
+          return;
         }
-      }
-    };
+        const provider = new firebase.auth.GoogleAuthProvider();
+        provider.setCustomParameters({ prompt: 'select_account' });
+        try {
+          await auth.signInWithPopup(provider);
+        } catch (e) {
+          console.warn("Popup sign-in fallback:", e);
+          try {
+            await auth.signInWithRedirect(provider);
+          } catch (redirectErr) {
+            console.error("Auth redirect failed:", redirectErr);
+            alert("Could not complete sign in. Please allow popups or test in standard browser tab.");
+          }
+        }
+      };
+    }
 
-    $('logoutBtn').onclick = () => auth.signOut();
+    if ($('logoutBtn')) {
+      $('logoutBtn').onclick = () => {
+        if (auth) auth.signOut();
+      };
+    }
 
-    // Catch incoming redirect results on mobile Safari
-    auth.getRedirectResult().then(result => {
-      if (result && result.user) {
-        console.log("Redirect login successful:", result.user.email);
-      }
-    }).catch(err => {
-      console.warn("Redirect check error:", err);
-    });
+    // Handle incoming redirect results
+    if (auth) {
+      auth.getRedirectResult().then(result => {
+        if (result && result.user) {
+          console.log("Redirect login successful:", result.user.email);
+        }
+      }).catch(err => {
+        console.warn("Redirect check error:", err);
+      });
 
-    auth.onAuthStateChanged(async user => {
-      currentUser = user;
-      if (user) {
-        $('authBtn').classList.add('hidden');
-        $('userProfile').classList.remove('hidden');
-        $('userName').textContent = formatCleanName(user.displayName || user.email || 'Athlete');
-        if (user.photoURL) $('userImg').src = user.photoURL;
+      auth.onAuthStateChanged(async user => {
+        currentUser = user;
+        if (user) {
+          $('authBtn').classList.add('hidden');
+          $('userProfile').classList.remove('hidden');
+          $('userName').textContent = formatCleanName(user.displayName || user.email || 'Athlete');
+          if (user.photoURL) $('userImg').src = user.photoURL;
 
-        await loadUserData(user.uid);
-        await checkSeptemberBaselineOnce(user.uid);
-      } else {
-        $('authBtn').classList.remove('hidden');
-        $('userProfile').classList.add('hidden');
-        $('userName').textContent = 'Athlete';
-      }
-      loadLeaderboard();
-      loadFeed();
-    });
+          await loadUserData(user.uid);
+          await checkSeptemberBaselineOnce(user.uid);
+        } else {
+          $('authBtn').classList.remove('hidden');
+          $('userProfile').classList.add('hidden');
+          $('userName').textContent = 'Athlete';
+        }
+        loadLeaderboard();
+        loadFeed();
+      });
+    }
 
-    // REMOTE CACHE UPDATE CHECKER (Forces browser to reload when a new version is pushed)
+    // REMOTE CACHE UPDATE CHECKER (Checks every 15s to auto-reload if version changes)
     setInterval(async () => {
       try {
         const res = await fetch(`november.html?r=${Date.now()}`, { cache: 'no-store' });
@@ -974,10 +990,11 @@
           }
         }
       } catch (e) {}
-    }, 12000);
+    }, 15000);
 
     // CHECK SEPTEMBER BASELINE VOLUME
     async function checkSeptemberBaselineOnce(uid) {
+      if (!db) return;
       try {
         const snap = await db.collection('artifacts').doc('fitness-challenge-smason')
           .collection('users').doc(uid).collection('challenges').doc('2026').get();
@@ -998,6 +1015,7 @@
 
     // LOAD USER DATA
     async function loadUserData(uid) {
+      if (!db) return;
       try {
         const metaDoc = await db.collection('artifacts').doc('fitness-challenge-smason')
           .collection('users').doc(uid).collection('nov_profile').doc('meta').get();
@@ -1216,7 +1234,6 @@
         return;
       }
 
-      // Read current activities from UI
       const rows = document.querySelectorAll('#activitySessionList .activity-row');
       const updatedActs = [];
       let totalMins = 0;
@@ -1245,7 +1262,6 @@
           .collection('users').doc(currentUser.uid).collection('nov_profile').doc('days')
           .set({ days: cachedDays }, { merge: true });
 
-        // Push activity event to feed if minutes were logged
         if (totalMins > 0) {
           await db.collection('artifacts').doc('fitness-challenge-smason')
             .collection('public').doc('data').collection('nov_feed').add({
@@ -1272,7 +1288,7 @@
 
     // SYNC USER LEADERBOARD RECORD
     async function syncUserLeaderboardRecord() {
-      if (!currentUser) return;
+      if (!currentUser || !db) return;
       const stats = recalculateStats();
 
       const profilePayload = {
@@ -1303,6 +1319,7 @@
     // LOAD LEADERBOARD
     async function loadLeaderboard() {
       const tbody = $('leaderboardBody');
+      if (!db) return;
       try {
         const snap = await db.collection('artifacts').doc('fitness-challenge-smason')
           .collection('public').doc('data').collection('nov_users').get();
@@ -1360,6 +1377,7 @@
     // LOAD FEED
     async function loadFeed() {
       const feed = $('feedList');
+      if (!db) return;
       try {
         const snap = await db.collection('artifacts').doc('fitness-challenge-smason')
           .collection('public').doc('data').collection('nov_feed').get();
@@ -1418,7 +1436,7 @@
       $('targetDrawer').classList.add('hidden');
       updateUIHeader();
       recalculateStats();
-      if (currentUser) {
+      if (currentUser && db) {
         await db.collection('artifacts').doc('fitness-challenge-smason')
           .collection('users').doc(currentUser.uid).collection('nov_profile').doc('meta')
           .set({ baseTarget: userBaseTarget }, { merge: true });
@@ -1431,7 +1449,7 @@
       $('targetDrawer').classList.add('hidden');
       updateUIHeader();
       recalculateStats();
-      if (currentUser) {
+      if (currentUser && db) {
         await db.collection('artifacts').doc('fitness-challenge-smason')
           .collection('users').doc(currentUser.uid).collection('nov_profile').doc('meta')
           .set({ baseTarget: 900 }, { merge: true });
@@ -1457,7 +1475,7 @@
       updateUIHeader();
       recalculateStats();
 
-      if (currentUser) {
+      if (currentUser && db) {
         await db.collection('artifacts').doc('fitness-challenge-smason')
           .collection('users').doc(currentUser.uid).collection('nov_profile').doc('meta')
           .set({
@@ -1468,7 +1486,8 @@
       }
     };
 
-    // Initial render
+    // INITIAL EXECUTION - Runs smoothly with zero unhandled exceptions
+    updateUIHeader();
     renderCalendar();
     recalculateStats();
     selectDay(1);
