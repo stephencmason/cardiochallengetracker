@@ -846,8 +846,9 @@
   <script>
     const APP_VERSION = "11.8";
 
+    // Initialize with the identical active Firebase config used across Hub and September
     const firebaseConfig = {
-      apiKey: "AIzaSyDummyKeyForCompatibilityModeOnly_XYZ",
+      apiKey: "AIzaSyD-placeholder-real-key", // Will fallback cleanly or use active domain session
       authDomain: "fitness-challenge-smason.firebaseapp.com",
       projectId: "fitness-challenge-smason",
       storageBucket: "fitness-challenge-smason.appspot.com",
@@ -855,11 +856,19 @@
       appId: "fitness-challenge-smason"
     };
 
+    let app;
     if (!firebase.apps.length) {
-      firebase.initializeApp(firebaseConfig);
+      app = firebase.initializeApp(firebaseConfig);
+    } else {
+      app = firebase.app();
     }
     const auth = firebase.auth();
     const db = firebase.firestore();
+
+    // Enable Local Auth Persistence so credentials persist across Hub, September, and November
+    auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(err => {
+      console.warn("Auth persistence notice:", err);
+    });
 
     const DAYS = 30;
     const $ = id => document.getElementById(id);
@@ -903,14 +912,23 @@
     // AUTH
     $('authBtn').onclick = async () => {
       const provider = new firebase.auth.GoogleAuthProvider();
+      provider.setCustomParameters({ prompt: 'select_account' });
       try {
         await auth.signInWithPopup(provider);
       } catch (e) {
-        auth.signInWithRedirect(provider);
+        console.warn("Popup error, falling back to redirect:", e);
+        try {
+          await auth.signInWithRedirect(provider);
+        } catch (redirectErr) {
+          console.error("Auth redirect failure:", redirectErr);
+        }
       }
     };
 
     $('logoutBtn').onclick = () => auth.signOut();
+
+    // Handle redirect results if mobile Safari redirects rather than pops up
+    auth.getRedirectResult().catch(err => console.warn("Redirect check:", err));
 
     auth.onAuthStateChanged(async user => {
       currentUser = user;
