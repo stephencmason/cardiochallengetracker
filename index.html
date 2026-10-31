@@ -2,235 +2,137 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
-<title>Fitness Challenge Hub - v9.6</title>
-<script src="https://cdn.tailwindcss.com"></script>
-  <!-- Firebase SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>Fitness Challenge Hub - v10.2</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
     body {
-      background-color: #0b0f19;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #0b1120;
       color: #f8fafc;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    }
-    .glass-panel {
-      background: rgba(18, 24, 38, 0.75);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-    }
-    .glass-card-hover {
-      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    .glass-card-hover:hover {
-      transform: translateY(-3px);
-      border-color: rgba(99, 102, 241, 0.4);
-      box-shadow: 0 16px 32px -8px rgba(0, 0, 0, 0.6), 0 0 20px -4px rgba(99, 102, 241, 0.2);
-    }
-    .radial-bg {
-      background: radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.15) 0%, rgba(15, 23, 42, 0) 70%),
-                  radial-gradient(circle at 80% 80%, rgba(16, 185, 129, 0.08) 0%, rgba(15, 23, 42, 0) 60%);
+      padding-bottom: env(safe-area-inset-bottom, 20px);
     }
   </style>
 </head>
-<body class="min-h-screen radial-bg flex flex-col justify-between selection:bg-indigo-500 selection:text-white">
+<body class="min-h-screen flex flex-col justify-between selection:bg-indigo-500 selection:text-white">
 
-  <!-- Navigation Bar -->
-  <header class="border-b border-slate-800/80 bg-slate-950/60 sticky top-0 z-40 backdrop-blur-md px-4 py-3.5">
-    <div class="max-w-4xl mx-auto flex items-center justify-between">
+  <!-- Header / Navigation Bar -->
+  <header class="border-b border-slate-800/80 bg-slate-900/60 backdrop-blur-md sticky top-0 z-50">
+    <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
-          <i class="fa-solid fa-fire-flame-curved text-white text-base"></i>
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center shadow-lg shadow-indigo-500/20 ring-1 ring-white/20">
+          <span class="text-lg">⚡</span>
         </div>
         <div>
           <div class="flex items-center gap-2">
             <span class="text-sm font-black tracking-tight text-white block leading-tight">CHALLENGE HUB</span>
-            <span class="text-[9px] uppercase tracking-wider font-extrabold px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">v9.6</span>
+            <span class="text-[9px] uppercase tracking-wider font-extrabold px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">v10.2</span>
           </div>
           <span class="text-[10px] text-slate-400 font-medium tracking-wide">Community Performance League</span>
         </div>
       </div>
 
-      <!-- Auth Controls -->
-      <div id="authContainer" class="flex items-center gap-3">
-        <button id="navLoginBtn" class="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white text-xs font-semibold px-4 py-2 rounded-xl transition shadow-lg shadow-indigo-600/30">
-          <i class="fa-brands fa-google text-xs"></i>
-          <span>Sign In</span>
+      <div class="flex items-center gap-3">
+        <button id="navLoginBtn" class="text-xs font-bold px-3.5 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white transition-all shadow-md shadow-indigo-600/30 active:scale-95">
+          Sign In
         </button>
-        <div id="userProfile" class="hidden flex items-center gap-3">
-          <div class="flex items-center gap-2 bg-slate-900/80 border border-slate-800 py-1 px-2.5 rounded-full">
-            <img id="userAvatar" class="w-6 h-6 rounded-full border border-slate-700 object-cover" src="https://placehold.co/40x40/1e293b/94a3b8?text=U" alt="Profile" />
-            <span id="userName" class="text-xs font-semibold text-slate-200 max-w-[110px] truncate">Athlete</span>
+
+        <div id="userProfile" class="hidden items-center gap-3">
+          <div class="flex items-center gap-2 pr-2 border-r border-slate-800">
+            <img id="userAvatar" src="https://placehold.co/32x32/1e293b/94a3b8?text=U" alt="Profile" class="w-8 h-8 rounded-full border border-indigo-400/40 object-cover ring-2 ring-indigo-500/20">
+            <span id="userName" class="text-xs font-semibold text-slate-200 hidden sm:inline-block max-w-[120px] truncate">Athlete</span>
           </div>
-          <button id="navLogoutBtn" title="Log Out" class="text-xs text-slate-400 hover:text-rose-400 p-1.5 transition">
-            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+          <button id="navLogoutBtn" class="text-xs font-medium text-slate-400 hover:text-rose-400 transition">
+            Sign out
           </button>
         </div>
       </div>
     </div>
   </header>
 
-  <!-- Hero & Challenge Selection Section -->
-  <main class="max-w-4xl mx-auto px-4 py-8 w-full flex-grow flex flex-col justify-center">
-    
-    <div class="text-center max-w-xl mx-auto mb-10">
-      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-900 border border-indigo-500/30 text-[11px] font-bold text-indigo-300 mb-4 shadow-lg shadow-indigo-950/40">
-        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-        Unified Athlete Portal Active
+  <!-- Hero Section -->
+  <main class="max-w-6xl mx-auto px-4 py-8 md:py-12 flex-grow w-full">
+    <div class="text-center max-w-2xl mx-auto mb-10">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-950/80 border border-indigo-500/30 text-indigo-300 text-xs font-semibold mb-4">
+        <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        Active Season 2026
       </div>
-      <h1 class="text-3xl sm:text-4xl font-black text-white tracking-tight leading-tight drop-shadow-[0_2px_12px_rgba(0,0,0,0.8)]">
-        Crush Goals. <span class="bg-gradient-to-r from-emerald-400 via-teal-300 to-indigo-400 bg-clip-text text-transparent">Build Consistency.</span>
+      <h1 class="text-3xl md:text-5xl font-black tracking-tight text-white mb-3">
+        Fitness Challenge <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400">Command Center</span>
       </h1>
-      <p class="text-sm font-medium text-slate-300 mt-2.5 leading-relaxed drop-shadow-sm">
-        Log into your active daily tracker, sync your habit ledger, or review historical honors and recaps.
+      <p class="text-sm md:text-base text-slate-400 font-normal">
+        Track workouts, check personal streaks, and compete on the live community leaderboards.
       </p>
     </div>
 
-    <!-- Challenge Cards Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-3xl mx-auto w-full">
-      
-      <!-- NOVEMBER CARD (Active) -->
-      <a href="november.html" class="glass-panel glass-card-hover rounded-2xl p-6 relative group overflow-hidden border border-emerald-500/30 flex flex-col justify-between">
-        <div class="absolute -top-16 -right-16 w-36 h-36 bg-emerald-500/10 rounded-full blur-2xl group-hover:bg-emerald-500/20 transition-all pointer-events-none"></div>
-        
-        <div>
-          <div class="flex items-center justify-between">
-            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
-              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> Active Challenge
-            </span>
-            <span class="text-2xl p-2 rounded-xl bg-slate-800/80 border border-slate-700/60 shadow-inner group-hover:scale-110 transition-transform">🍂</span>
-          </div>
+    <!-- Challenges Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
 
-          <h2 class="text-2xl font-bold text-white mt-4 group-hover:text-emerald-300 transition-colors">
-            November Challenge
-          </h2>
-          <p class="text-xs text-slate-400 mt-2 leading-relaxed">
-            Sept match volume targets (or 900m baseline), 30-min daily streaks, and the personal habit breaker.
-          </p>
-
-          <div class="mt-5 grid grid-cols-2 gap-2 text-left">
-            <div class="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800/80">
-              <span class="text-[10px] uppercase font-bold text-slate-500 block">Baseline Target</span>
-              <span class="text-xs font-bold text-slate-200 mt-0.5 block">Sept Total (or 900m)</span>
-            </div>
-            <div class="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800/80">
-              <span class="text-[10px] uppercase font-bold text-slate-500 block">Penalty Debt</span>
-              <span class="text-xs font-bold text-rose-400 mt-0.5 block">+30m / miss or slip</span>
-            </div>
+      <!-- November Challenge Card (ACTIVE) -->
+      <a href="november.html" class="group relative rounded-2xl p-6 bg-gradient-to-b from-slate-900 to-slate-900/90 border border-emerald-500/40 hover:border-emerald-400 transition-all duration-300 shadow-xl shadow-emerald-950/20 hover:shadow-2xl hover:shadow-emerald-900/30 hover:-translate-y-1 overflow-hidden block">
+        <div class="absolute top-0 right-0 w-36 h-36 bg-emerald-500/10 rounded-full blur-2xl group-hover:bg-emerald-500/20 transition-all"></div>
+        <div class="flex items-center justify-between mb-4">
+          <div class="w-12 h-12 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+            ⚡
           </div>
+          <span class="px-2.5 py-1 rounded-md text-[10px] font-extrabold tracking-wider uppercase bg-emerald-500 text-slate-950 shadow-sm shadow-emerald-500/40">
+            ACTIVE NOW
+          </span>
         </div>
-
-        <div class="mt-6 pt-4 border-t border-slate-800/80 flex items-center justify-between text-xs font-bold text-emerald-400 group-hover:text-emerald-300">
-          <span>Open Daily Dashboard</span>
-          <i class="fa-solid fa-arrow-right-long group-hover:translate-x-1.5 transition-transform"></i>
+        <h2 class="text-xl font-bold text-white mb-2 group-hover:text-emerald-300 transition-colors">
+          November Fitness &amp; Habit Challenge
+        </h2>
+        <p class="text-xs text-slate-400 mb-6 leading-relaxed">
+          30-minute daily minimum, custom habit breaker, and personalized target volume based on September performance.
+        </p>
+        <div class="flex items-center justify-between pt-4 border-t border-slate-800/80 text-xs font-semibold text-emerald-400">
+          <span>Enter Challenge Tracker</span>
+          <span class="group-hover:translate-x-1 transition-transform">&rarr;</span>
         </div>
       </a>
 
-      <!-- SEPTEMBER CARD (Archived) -->
-      <a href="september.html" class="glass-panel glass-card-hover rounded-2xl p-6 relative group overflow-hidden border border-slate-700/70 flex flex-col justify-between">
-        <div class="absolute -top-16 -right-16 w-36 h-36 bg-indigo-500/10 rounded-full blur-2xl group-hover:bg-indigo-500/20 transition-all pointer-events-none"></div>
-
-        <div>
-          <div class="flex items-center justify-between">
-            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-800 text-slate-400 border border-slate-700">
-              <i class="fa-solid fa-box-archive text-[9px]"></i> Archived Record
-            </span>
-            <span class="text-2xl p-2 rounded-xl bg-slate-800/80 border border-slate-700/60 shadow-inner group-hover:scale-110 transition-transform">🏆</span>
+      <!-- September Challenge Card (ARCHIVE) -->
+      <a href="september.html" class="group relative rounded-2xl p-6 bg-gradient-to-b from-slate-900 to-slate-900/90 border border-slate-800 hover:border-indigo-500/50 transition-all duration-300 shadow-xl shadow-slate-950/40 hover:shadow-2xl hover:shadow-indigo-950/30 hover:-translate-y-1 overflow-hidden block">
+        <div class="absolute top-0 right-0 w-36 h-36 bg-indigo-500/10 rounded-full blur-2xl group-hover:bg-indigo-500/20 transition-all"></div>
+        <div class="flex items-center justify-between mb-4">
+          <div class="w-12 h-12 rounded-xl bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+            🍂
           </div>
-
-          <h2 class="text-2xl font-bold text-slate-200 mt-4 group-hover:text-indigo-300 transition-colors">
-            September Challenge
-          </h2>
-          <p class="text-xs text-slate-400 mt-2 leading-relaxed">
-            Official September hall of fame, workout logs, drink penalty ledger, and final Instagram recap story cards.
-          </p>
-
-          <div class="mt-5 grid grid-cols-2 gap-2 text-left">
-            <div class="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800/80">
-              <span class="text-[10px] uppercase font-bold text-slate-500 block">MVP Champion</span>
-              <span class="text-xs font-bold text-amber-400 mt-0.5 block">Dimitri 🏆</span>
-            </div>
-            <div class="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800/80">
-              <span class="text-[10px] uppercase font-bold text-slate-500 block">Status</span>
-              <span class="text-xs font-bold text-slate-300 mt-0.5 block">Locked & Verified</span>
-            </div>
-          </div>
+          <span class="px-2.5 py-1 rounded-md text-[10px] font-extrabold tracking-wider uppercase bg-slate-800 text-slate-400 border border-slate-700">
+            SEASON ARCHIVE
+          </span>
         </div>
-
-        <div class="mt-6 pt-4 border-t border-slate-800/80 flex items-center justify-between text-xs font-bold text-slate-400 group-hover:text-indigo-300">
-          <span>Review Leaderboard & Recaps</span>
-          <i class="fa-solid fa-arrow-right-long group-hover:translate-x-1.5 transition-transform"></i>
+        <h2 class="text-xl font-bold text-white mb-2 group-hover:text-indigo-300 transition-colors">
+          September Fitness Challenge
+        </h2>
+        <p class="text-xs text-slate-400 mb-6 leading-relaxed">
+          The original 30-day baseline tracker featuring beverage penalties, daily caps, and Finishers Circle standings.
+        </p>
+        <div class="flex items-center justify-between pt-4 border-t border-slate-800/80 text-xs font-semibold text-indigo-400">
+          <span>View Season Standings</span>
+          <span class="group-hover:translate-x-1 transition-transform">&rarr;</span>
         </div>
       </a>
 
-    </div>
-
-    <!-- Quick Athlete Jump Card (shown when signed in) -->
-    <div id="quickAthleteCard" class="hidden max-w-3xl mx-auto w-full mt-6 p-4 glass-panel rounded-2xl border border-indigo-500/20 flex flex-col sm:flex-row items-center justify-between gap-4">
-      <div class="flex items-center gap-3 text-left">
-        <div class="w-10 h-10 rounded-xl bg-indigo-500/20 border border-indigo-500/40 flex items-center justify-center text-indigo-400 text-lg">
-          <i class="fa-solid fa-shield-halved"></i>
-        </div>
-        <div>
-          <h4 class="text-xs font-bold text-white flex items-center gap-1.5">
-            Signed in as <span id="quickUserName" class="text-indigo-300">Athlete</span>
-          </h4>
-          <p class="text-[11px] text-slate-400">Authentication state synced across all challenges.</p>
-        </div>
-      </div>
-      <div class="flex gap-2 w-full sm:w-auto">
-        <a href="november.html" class="flex-1 sm:flex-initial text-center bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-4 py-2 rounded-xl transition shadow-md">
-          Go to November Log
-        </a>
-      </div>
     </div>
   </main>
 
   <!-- Footer -->
   <footer class="border-t border-slate-900 text-center py-5 text-[11px] text-slate-600">
-    Fitness Challenge Hub &bull; Version 9.6 &bull; Firebase Synchronized
+    Fitness Challenge Hub &bull; Version 10.2 &bull; Firebase Synchronized
   </footer>
 
   <div id="toast" class="fixed left-1/2 bottom-6 -translate-x-1/2 translate-y-20 bg-slate-900 border border-indigo-500/40 text-white px-5 py-2.5 rounded-full text-xs font-semibold shadow-2xl transition-all duration-300 pointer-events-none opacity-0 z-50"></div>
 
-  <!-- Universal Auth Modal Overlay -->
-  <div id="loginPromptModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 hidden">
-    <div class="glass-panel border border-slate-700/80 rounded-2xl max-w-sm w-full p-6 text-center shadow-2xl relative">
-      <button id="closeModalBtn" class="absolute top-3.5 right-3.5 text-slate-400 hover:text-white text-sm">
-        <i class="fa-solid fa-xmark"></i>
-      </button>
-
-      <div class="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center text-indigo-400 text-xl mx-auto mb-4">
-        <i class="fa-brands fa-google"></i>
-      </div>
-
-      <h3 class="text-base font-bold text-white">Sign In to Continue</h3>
-      <p class="text-xs text-slate-400 mt-1.5 leading-relaxed">
-        Sign in once to sync your workouts, target volume, and community standings across both challenges.
-      </p>
-
-      <div class="mt-5 space-y-2">
-        <button id="modalGoogleLoginBtn" class="w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white font-bold text-xs py-2.5 rounded-xl transition shadow-lg shadow-indigo-600/30">
-          <i class="fa-brands fa-google"></i>
-          <span>Continue with Google</span>
-        </button>
-        <button id="modalDismissBtn" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold py-2 rounded-xl transition">
-          Browse as Guest
-        </button>
-      </div>
-
-      <div id="authErrorMsg" class="hidden mt-3 text-[11px] text-rose-400"></div>
-    </div>
-  </div>
-
   <script>
-    const APP_VERSION = "9.6";
+    const APP_VERSION = "10.2";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCbxoN1DLvMqxZb7FD4qu8p7k6lnD5ENP4",
@@ -254,13 +156,6 @@
     const userProfile = document.getElementById('userProfile');
     const userAvatar = document.getElementById('userAvatar');
     const userName = document.getElementById('userName');
-    const quickAthleteCard = document.getElementById('quickAthleteCard');
-    const quickUserName = document.getElementById('quickUserName');
-    const loginPromptModal = document.getElementById('loginPromptModal');
-    const modalGoogleLoginBtn = document.getElementById('modalGoogleLoginBtn');
-    const modalDismissBtn = document.getElementById('modalDismissBtn');
-    const closeModalBtn = document.getElementById('closeModalBtn');
-    const authErrorMsg = document.getElementById('authErrorMsg');
     const toastEl = document.getElementById('toast');
 
     function showToast(msg) {
@@ -299,55 +194,31 @@
     }
 
     async function performLogin() {
-      authErrorMsg.classList.add('hidden');
       const provider = new firebase.auth.GoogleAuthProvider();
       provider.setCustomParameters({ prompt: 'select_account' });
       try {
         await auth.signInWithPopup(provider);
-        loginPromptModal.classList.add('hidden');
       } catch (err) {
-        if (err.code === 'auth/popup-blocked' || err.code === 'auth/cancelled-popup-request') {
+        if (err.code === 'auth/popup-blocked') {
           auth.signInWithRedirect(provider);
         } else {
-          authErrorMsg.textContent = err.message || "Failed to sign in. Please try again.";
-          authErrorMsg.classList.remove('hidden');
+          showToast(err.message || "Failed to sign in.");
         }
       }
     }
 
     navLoginBtn.onclick = performLogin;
-    modalGoogleLoginBtn.onclick = performLogin;
     navLogoutBtn.onclick = () => auth.signOut();
-    modalDismissBtn.onclick = () => loginPromptModal.classList.add('hidden');
-    closeModalBtn.onclick = () => loginPromptModal.classList.add('hidden');
-
-    auth.getRedirectResult().catch(console.error);
 
     auth.onAuthStateChanged((user) => {
       if (user) {
         navLoginBtn.classList.add('hidden');
         userProfile.classList.remove('hidden');
-        quickAthleteCard.classList.remove('hidden');
-        loginPromptModal.classList.add('hidden');
-
-        const name = user.displayName || 'Athlete';
-        userName.textContent = name;
-        quickUserName.textContent = name;
-        if (user.photoURL) {
-          userAvatar.src = user.photoURL;
-        }
+        userName.textContent = user.displayName || 'Athlete';
+        if (user.photoURL) userAvatar.src = user.photoURL;
       } else {
         navLoginBtn.classList.remove('hidden');
         userProfile.classList.add('hidden');
-        quickAthleteCard.classList.add('hidden');
-
-        const hasDismissed = sessionStorage.getItem('hub_auth_prompted');
-        if (!hasDismissed) {
-          setTimeout(() => {
-            loginPromptModal.classList.remove('hidden');
-            sessionStorage.setItem('hub_auth_prompted', 'true');
-          }, 800);
-        }
       }
     });
 
