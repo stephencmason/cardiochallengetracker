@@ -9,7 +9,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>November Fitness & Habit Challenge - v10.2</title>
+<title>November Fitness & Habit Challenge - v10.5</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -246,19 +246,46 @@ button,input,select{
 .summary{
   display:grid;
   grid-template-columns:repeat(5,1fr);
-  gap:10px;
-  margin:0 0 14px 0;
+  gap:8px;
+  margin:0 0 12px 0;
 }
 .card,.panel{
   background:var(--paper);
   border:1px solid rgba(220,229,234,.8);
-  border-radius:16px;
+  border-radius:14px;
   box-shadow:var(--shadow);
 }
-.metric{padding:14px}
-.metric .label{color:var(--muted);font-size:.74rem;font-weight:750;text-transform:uppercase;letter-spacing:.04em}
-.metric .value{font-size:1.40rem;font-weight:800;margin-top:4px}
-.metric .sub{color:var(--muted);font-size:.74rem;margin-top:2px}
+.metric{
+  background:#f8fafb;
+  border:1px solid rgba(220,229,234,.85);
+  border-radius:10px;
+  padding:8px 10px;
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+}
+.metric .label{
+  color:var(--muted);
+  font-size:0.68rem;
+  font-weight:750;
+  text-transform:uppercase;
+  letter-spacing:0.04em;
+}
+.metric .value{
+  font-size:1.08rem;
+  font-weight:800;
+  color:var(--ink);
+  margin-top:2px;
+  line-height:1.2;
+}
+.metric .sub{
+  color:var(--muted);
+  font-size:0.70rem;
+  margin-top:1px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
 .layout{display:grid;grid-template-columns:1.55fr .95fr;gap:14px}
 .panel{padding:16px;margin-bottom:14px}
 .panel h2{margin:0 0 12px;font-size:1.05rem;font-weight:750}
@@ -417,8 +444,9 @@ button,input,select{
   <header class="hero">
     <div class="hero-compact-row">
       <div class="hero-title-wrap">
-        <h1>November Challenge</h1>
-        <div class="hero-version-pill">v10.2 &bull; 2026</div>
+  <h1>November Challenge</h1>
+  <div class="hero-version-pill">v10.5 &bull; 2026</div>
+</div>
       </div>
       <div class="hero-actions">
         <a href="index.html" class="btn-hub-nav">← Hub</a>
@@ -831,7 +859,7 @@ button,input,select{
 <div class="toast" id="toast"></div>
 
 <script>
-  const APP_VERSION = "10.2";
+  const APP_VERSION = "10.5";
 
   const firebaseConfig = {
     apiKey: "AIzaSyCbxoN1DLvMqxZb7FD4qu8p7k6lnD5ENP4",
