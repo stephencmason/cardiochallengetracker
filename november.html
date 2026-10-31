@@ -7,7 +7,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>November Fitness &amp; Habit Challenge - v11.4</title>
+<title>November Fitness &amp; Habit Challenge - v11.5</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -139,6 +139,7 @@ input,select,textarea{font-size:16px !important}
 .leader-rank{font-weight:800;font-size:0.92rem;color:var(--muted);width:22px}
 .habit-clickable-pill{display:inline-flex;align-items:center;gap:4px;background:#fff8eb;border:1px solid #fedbc0;color:#9a3412;padding:3px 8px;border-radius:99px;font-size:0.72rem;font-weight:750;cursor:pointer;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .habit-clickable-pill:hover{background:#ffeedb}
+.habit-clickable-pill.habit-none{background:#f4f6f8;border-color:var(--line);color:var(--muted)}
 
 /* Edit Habit Modal */
 .modal-overlay{position:fixed;inset:0;background:rgba(15,23,42,0.6);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;z-index:9999;padding:16px}
@@ -204,7 +205,7 @@ input,select,textarea{font-size:16px !important}
       </div>
       <div class="hero-actions">
         <div class="hero-actions-top">
-          <div class="hero-version-pill">v11.4 &bull; 2026</div>
+          <div class="hero-version-pill">v11.5 &bull; 2026</div>
           <a href="index.html" class="btn-hub-nav">← Hub</a>
           <button id="launchRecapBtn" class="btn-recap-launch">
             <span>📜</span> <span>Story Recap</span>
@@ -227,7 +228,7 @@ input,select,textarea{font-size:16px !important}
     <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
       <div class="config-pill" id="habitStripPill">
         <span>⚡</span>
-        <span>Habit: <strong id="habitNameDisplay">Stop biting finger nails</strong></span>
+        <span>Habit: <strong id="habitNameDisplay">Not set yet</strong></span>
         <button id="editHabitBtn" class="config-action-btn">Edit</button>
       </div>
       <div class="config-pill" id="targetStripPill">
@@ -347,14 +348,14 @@ input,select,textarea{font-size:16px !important}
             <span id="saveStatusIndicator" style="font-size:0.75rem;color:var(--muted)">Saved</span>
           </div>
 
-          <!-- Workouts Session List (Moved Above Habit Check) -->
+          <!-- Workouts Session List -->
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
             <span style="font-size:0.78rem;font-weight:750;color:var(--navy)">Track Workout Sessions</span>
             <button id="addActivityBtn" class="tab-btn" style="flex:0 0 auto;padding:3px 8px;font-size:0.74rem">+ Add Session</button>
           </div>
           <div id="activityContainer" style="display:grid;gap:8px"></div>
 
-          <!-- Habit Daily Check (Now Below Workout Sessions) -->
+          <!-- Habit Daily Check -->
           <div id="dailyHabitCard" style="background:#f9fbfd;border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin:12px 0 10px">
             <div style="display:flex;justify-content:space-between;align-items:center">
               <span style="font-size:0.76rem;font-weight:750;color:var(--ink)">⚡ Daily Habit Check</span>
@@ -461,7 +462,7 @@ input,select,textarea{font-size:16px !important}
       <span>👥 Enrolled Athletes:</span>
       <strong id="uniqueUsersCount">-- enrolled</strong>
     </div>
-    <div>November Fitness &amp; Habit Challenge &bull; v11.4</div>
+    <div>November Fitness &amp; Habit Challenge &bull; v11.5</div>
   </footer>
 </div>
 
@@ -473,7 +474,7 @@ input,select,textarea{font-size:16px !important}
     <div style="display:grid;gap:10px">
       <div>
         <label style="font-size:0.75rem;font-weight:750;display:block;margin-bottom:4px">Habit Name / Description</label>
-        <input type="text" id="habitNameInput" placeholder="e.g., Stop biting finger nails, no soda, no phone in bed" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font-size:0.88rem">
+        <input type="text" id="habitNameInput" placeholder="e.g., No soda, no phone in bed, 8 hrs sleep" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font-size:0.88rem">
       </div>
       <div style="display:flex;align-items:center;gap:8px;background:#f8fafb;padding:8px 10px;border-radius:8px;border:1px solid var(--line)">
         <input type="checkbox" id="habitTrackingToggle" checked style="width:18px;height:18px;accent-color:var(--green)">
@@ -550,7 +551,7 @@ input,select,textarea{font-size:16px !important}
 
       <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.11);border-radius:10px;padding:8px 10px;margin-bottom:8px">
         <div style="font-size:0.68rem;font-weight:800;color:#67e8f9;text-transform:uppercase;letter-spacing:0.04em">Habit Breaker Result</div>
-        <div id="recapHabitTitle" style="font-size:0.82rem;font-weight:750;color:#fff;margin:2px 0">Stop biting finger nails</div>
+        <div id="recapHabitTitle" style="font-size:0.82rem;font-weight:750;color:#fff;margin:2px 0">Personal Habit</div>
         <div id="recapHabitVerdict" style="font-size:0.72rem;color:rgba(255,255,255,0.7)">Unbroken discipline maintained throughout November!</div>
       </div>
 
@@ -576,7 +577,7 @@ input,select,textarea{font-size:16px !important}
 </div>
 
 <script>
-  const APP_VERSION = "11.4";
+  const APP_VERSION = "11.5";
 
   const firebaseConfig = {
     apiKey: "AIzaSyCbxoN1DLvMqxZb7FD4qu8p7k6lnD5ENP4",
@@ -605,11 +606,11 @@ input,select,textarea{font-size:16px !important}
   let cachedDays = Array.from({ length: DAYS }, () => ({ habitClean: true, activities: [] }));
   let userBaseTarget = 1432;
   let userSeptCalculated = 1432;
-  let userHabitName = "Stop biting finger nails";
+  // FIX: Default fallback must be neutral so other users don't inherit Stephen's habit
+  let userHabitName = "";
   let userHabitEnabled = true;
   let computedStats = null;
 
-  // Calculates the current active November day (1-30). If before Nov, 0 days elapsed. If after Nov, all 30 elapsed.
   function getElapsedNovemberDay() {
     const now = new Date();
     const curYear = now.getFullYear();
@@ -620,9 +621,9 @@ input,select,textarea{font-size:16px !important}
       return 0; // November has not started yet; no days can be counted as missed!
     }
     if (curYear === 2026 && curMonth === 10) {
-      return Math.min(30, curDate); // Today is day curDate
+      return Math.min(30, curDate);
     }
-    return 30; // After November 2026
+    return 30;
   }
 
   async function checkForRemoteUpdate() {
@@ -716,11 +717,12 @@ input,select,textarea{font-size:16px !important}
   $('cancelHabitBtn').onclick = () => $('editHabitModal').classList.remove('show');
 
   $('saveHabitBtn').onclick = async () => {
-    userHabitName = $('habitNameInput').value.trim() || "Clean Living";
+    userHabitName = $('habitNameInput').value.trim();
     userHabitEnabled = $('habitTrackingToggle').checked;
     $('editHabitModal').classList.remove('show');
 
-    $('habitNameDisplay').textContent = userHabitEnabled ? userHabitName : "Disabled (Fitness Only)";
+    const displayTitle = !userHabitEnabled ? "Disabled (Fitness Only)" : (userHabitName || "Not set yet");
+    $('habitNameDisplay').textContent = displayTitle;
     $('dailyHabitCard').style.display = userHabitEnabled ? 'block' : 'none';
     recalculateStats();
 
@@ -771,7 +773,7 @@ input,select,textarea{font-size:16px !important}
       } else if (dayRaw > 0) {
         b.classList.add('partial');
       } else if (hasPassed) {
-        b.classList.add('missed'); // Only missed if day has strictly passed
+        b.classList.add('missed');
       }
 
       let subNote = 'Upcoming';
@@ -800,7 +802,6 @@ input,select,textarea{font-size:16px !important}
     $('entryTitle').textContent = `November ${dayNum} Entry`;
     const d = cachedDays[dayNum - 1] || { habitClean: true, activities: [] };
 
-    // Habit toggle state
     const isClean = d.habitClean !== false;
     $('btnHabitClean').classList.toggle('active-clean', isClean);
     $('btnHabitSlip').classList.toggle('active-slip', !isClean);
@@ -920,13 +921,11 @@ input,select,textarea{font-size:16px !important}
       countedMinutes += Math.min(dayRaw, 120);
       if (dayRaw > maxDay) maxDay = dayRaw;
 
-      // RULE: Only count as missed if the day has already completed in real time
       if (dayNum < elapsedDays && dayRaw < 30) {
         missedDays++;
       }
 
       if (userHabitEnabled) {
-        // Only count habit tracking for elapsed days or days where a habit interaction occurred
         if (d.habitClean === false) {
           habitSlips++;
         } else if (dayNum <= elapsedDays || dayRaw > 0) {
@@ -935,7 +934,6 @@ input,select,textarea{font-size:16px !important}
       }
     });
 
-    // 7-day clean streak grace redemption logic
     let curCleanStreak = 0;
     let graceTokensEarned = 0;
     if (userHabitEnabled) {
@@ -960,7 +958,6 @@ input,select,textarea{font-size:16px !important}
     const remaining = Math.max(0, adjustedTarget - countedMinutes);
     const progressPct = adjustedTarget > 0 ? Math.min(100, Math.round((countedMinutes / adjustedTarget) * 100)) : 0;
 
-    // Consecutive 30m workout streak
     let maxStreak = 0;
     let curStreak = 0;
     cachedDays.forEach(d => {
@@ -1024,19 +1021,17 @@ input,select,textarea{font-size:16px !important}
         countedMinutes: computedStats.countedMinutes,
         actualMinutes: computedStats.actualMinutes,
         progressPct: computedStats.progressPct,
-        habitName: userHabitEnabled ? userHabitName : 'Disabled',
+        habitName: userHabitEnabled ? (userHabitName || 'Clean Habit') : 'Disabled',
         habitCleanDays: computedStats.cleanHabitDays,
         habitSlips: computedStats.habitSlips,
         activities: cachedDays.flatMap(d => d.activities || []),
         updatedAt: Date.now()
       };
 
-      // Save to primary public nov_users collection
       await db.collection('artifacts').doc('fitness-challenge-smason')
         .collection('public').doc('data').collection('nov_users').doc(currentUser.uid)
         .set(payload, { merge: true });
 
-      // Mirror to nov_leaderboard for backwards compatibility
       await db.collection('artifacts').doc('fitness-challenge-smason')
         .collection('public').doc('data').collection('nov_leaderboard').doc(currentUser.uid)
         .set(payload, { merge: true });
@@ -1070,26 +1065,35 @@ input,select,textarea{font-size:16px !important}
 
   async function loadUserData(uid) {
     try {
-      // 1. Load meta (habit, base target)
       const metaSnap = await db.collection('artifacts').doc('fitness-challenge-smason')
         .collection('users').doc(uid).collection('nov_profile').doc('meta').get();
       if (metaSnap.exists) {
         const meta = metaSnap.data();
         if (meta.baseTarget) userBaseTarget = meta.baseTarget;
         if (meta.septemberCalculatedTarget) userSeptCalculated = meta.septemberCalculatedTarget;
+        // Only set habit name if explicitly stored for this user
         if (meta.habitName) userHabitName = meta.habitName;
+        else if (currentUser && currentUser.displayName && currentUser.displayName.includes("Stephen")) {
+          userHabitName = "Stop biting finger nails"; // keep Stephen's habit intact
+        } else {
+          userHabitName = "";
+        }
         if (meta.habitEnabled !== undefined) userHabitEnabled = meta.habitEnabled;
       } else {
-        // Fallback: check September performance once
+        if (currentUser && currentUser.displayName && currentUser.displayName.includes("Stephen")) {
+          userHabitName = "Stop biting finger nails";
+        } else {
+          userHabitName = "";
+        }
         checkSeptemberBaselineOnce(uid);
       }
 
       $('baseTargetDisplay').textContent = `${userBaseTarget}m`;
       $('drawerSeptMins').textContent = userSeptCalculated;
-      $('habitNameDisplay').textContent = userHabitEnabled ? userHabitName : 'Disabled (Fitness Only)';
+      const displayTitle = !userHabitEnabled ? "Disabled (Fitness Only)" : (userHabitName || "Not set yet");
+      $('habitNameDisplay').textContent = displayTitle;
       $('dailyHabitCard').style.display = userHabitEnabled ? 'block' : 'none';
 
-      // 2. Load days
       const daysSnap = await db.collection('artifacts').doc('fitness-challenge-smason')
         .collection('users').doc(uid).collection('nov_profile').doc('days').get();
       if (daysSnap.exists && Array.isArray(daysSnap.data().days)) {
@@ -1138,7 +1142,6 @@ input,select,textarea{font-size:16px !important}
     try {
       const userMap = new Map();
 
-      // Read from primary nov_users collection where athletes initially signed up
       const snapUsers = await db.collection('artifacts').doc('fitness-challenge-smason')
         .collection('public').doc('data').collection('nov_users').get();
       snapUsers.forEach(docSnap => {
@@ -1146,7 +1149,6 @@ input,select,textarea{font-size:16px !important}
         userMap.set(data.userId || docSnap.id, data);
       });
 
-      // Also read from nov_leaderboard to catch any entries saved under that collection name
       try {
         const snapBoard = await db.collection('artifacts').doc('fitness-challenge-smason')
           .collection('public').doc('data').collection('nov_leaderboard').get();
@@ -1173,9 +1175,17 @@ input,select,textarea{font-size:16px !important}
         const tr = document.createElement('tr');
         if (currentUser && currentUser.uid === u.userId) tr.style.background = '#eaf2f8';
 
-        const habitName = u.habitName || 'No habit defined';
+        // FIX: Clean up display so other athletes aren't given Stephen's nail-biting habit
+        const isStephen = (u.displayName && u.displayName.toLowerCase().includes('stephen'));
+        let habitDisplay = u.habitName || '';
+        if (!isStephen && habitDisplay === "Stop biting finger nails") {
+          habitDisplay = "Not set yet";
+        }
+        if (!habitDisplay) habitDisplay = "Not set yet";
+
         const cleanDays = u.habitCleanDays || 0;
         const slips = u.habitSlips || 0;
+        const isNotSet = habitDisplay === "Not set yet" || habitDisplay === "Disabled";
 
         tr.innerHTML = `
           <td><span class="leader-rank">#${idx + 1}</span></td>
@@ -1191,8 +1201,8 @@ input,select,textarea{font-size:16px !important}
           <td><strong style="color:var(--navy);font-size:0.92rem">${u.progressPct || 0}%</strong></td>
           <td><span style="font-weight:750">${u.countedMinutes || 0}m</span> / <span style="color:var(--muted)">${u.adjustedTarget || 1432}m</span></td>
           <td>
-            <span class="habit-clickable-pill" title="${habitName} (${cleanDays}d clean, ${slips} slips)">
-              ⚡ ${habitName}
+            <span class="habit-clickable-pill ${isNotSet ? 'habit-none' : ''}" title="${habitDisplay} (${cleanDays}d clean, ${slips} slips)">
+              ${isNotSet ? '⚪' : '⚡'} ${habitDisplay}
             </span>
           </td>
           <td>
