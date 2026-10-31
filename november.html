@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>November Fitness &amp; Habit Challenge - v11.8</title>
+  <title>November Fitness &amp; Habit Challenge - v11.9</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -601,7 +601,7 @@
       </div>
       <div class="hero-actions">
         <div class="hero-actions-top">
-          <div class="hero-version-pill">v11.8 &bull; 2026</div>
+          <div class="hero-version-pill">v11.9 &bull; 2026</div>
           <button id="openStoryModalBtn" class="hub-pill-btn hidden" style="background:#f59e0b;color:#78350f;font-weight:800;border:0">📜 Story Recap</button>
           <a href="index.html" class="hub-pill-btn">← Hub</a>
           <button id="authBtn" class="auth-btn">Sign In</button>
@@ -840,15 +840,20 @@
   </div>
 
   <footer style="text-align:center;padding:16px;font-size:0.72rem;color:var(--muted)">
-    November Fitness &amp; Habit Challenge &bull; v11.8 &bull; Firebase Synchronized
+    November Fitness &amp; Habit Challenge &bull; v11.9 &bull; Firebase Synchronized
   </footer>
 
   <script>
-    const APP_VERSION = "11.8";
+    const APP_VERSION = "11.9";
 
-    // Initialize with the identical active Firebase config used across Hub and September
-    const firebaseConfig = {
-      apiKey: "AIzaSyD-placeholder-real-key", // Will fallback cleanly or use active domain session
+    // Attempt to retrieve active config cached by Hub or use configured app
+    let runtimeConfig = null;
+    try {
+      const stored = localStorage.getItem('fc_firebase_config') || sessionStorage.getItem('fc_firebase_config');
+      if (stored) runtimeConfig = JSON.parse(stored);
+    } catch(e) {}
+
+    const firebaseConfig = runtimeConfig || {
       authDomain: "fitness-challenge-smason.firebaseapp.com",
       projectId: "fitness-challenge-smason",
       storageBucket: "fitness-challenge-smason.appspot.com",
@@ -875,7 +880,7 @@
 
     let currentUser = null;
     let selectedDay = 1;
-    let userBaseTarget = 900; // Fixed: Default baseline is standard 900m
+    let userBaseTarget = 900;
     let userSeptCalculated = 900;
     let userHabitName = "Clean Living (Daily Check-in)";
     let habitTrackingEnabled = true;
@@ -909,26 +914,33 @@
       return Math.min(30, now.getDate());
     }
 
-    // AUTH
+    // AUTH WITH ROBUST FALLBACK FOR SAFARI
     $('authBtn').onclick = async () => {
       const provider = new firebase.auth.GoogleAuthProvider();
       provider.setCustomParameters({ prompt: 'select_account' });
       try {
         await auth.signInWithPopup(provider);
       } catch (e) {
-        console.warn("Popup error, falling back to redirect:", e);
+        console.warn("Popup blocked or failed, initiating redirect:", e);
         try {
           await auth.signInWithRedirect(provider);
         } catch (redirectErr) {
-          console.error("Auth redirect failure:", redirectErr);
+          console.error("Auth redirect failed:", redirectErr);
+          alert("Sign-in issue: Please ensure popups/redirects are allowed or visit the Hub first.");
         }
       }
     };
 
     $('logoutBtn').onclick = () => auth.signOut();
 
-    // Handle redirect results if mobile Safari redirects rather than pops up
-    auth.getRedirectResult().catch(err => console.warn("Redirect check:", err));
+    // Catch incoming redirect results on mobile Safari
+    auth.getRedirectResult().then(result => {
+      if (result && result.user) {
+        console.log("Redirect login successful:", result.user.email);
+      }
+    }).catch(err => {
+      console.warn("Redirect check error:", err);
+    });
 
     auth.onAuthStateChanged(async user => {
       currentUser = user;
@@ -948,6 +960,21 @@
       loadLeaderboard();
       loadFeed();
     });
+
+    // REMOTE CACHE UPDATE CHECKER (Forces browser to reload when a new version is pushed)
+    setInterval(async () => {
+      try {
+        const res = await fetch(`november.html?r=${Date.now()}`, { cache: 'no-store' });
+        if (res.ok) {
+          const txt = await res.text();
+          const match = txt.match(/const\s+APP_VERSION\s*=\s*["']([^"']+)["']/);
+          if (match && match[1] && match[1] !== APP_VERSION) {
+            console.log(`Auto-updating from v${APP_VERSION} to v${match[1]}`);
+            window.location.reload();
+          }
+        }
+      } catch (e) {}
+    }, 12000);
 
     // CHECK SEPTEMBER BASELINE VOLUME
     async function checkSeptemberBaselineOnce(uid) {
