@@ -7,7 +7,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>November Fitness &amp; Habit Challenge - v11.2</title>
+<title>November Fitness &amp; Habit Challenge - v11.3</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -204,7 +204,7 @@ input,select,textarea{font-size:16px !important}
       </div>
       <div class="hero-actions">
         <div class="hero-actions-top">
-          <div class="hero-version-pill">v11.2 &bull; 2026</div>
+          <div class="hero-version-pill">v11.3 &bull; 2026</div>
           <a href="index.html" class="btn-hub-nav">← Hub</a>
           <button id="launchRecapBtn" class="btn-recap-launch">
             <span>📜</span> <span>Story Recap</span>
@@ -461,7 +461,7 @@ input,select,textarea{font-size:16px !important}
       <span>👥 Enrolled Athletes:</span>
       <strong id="uniqueUsersCount">-- enrolled</strong>
     </div>
-    <div>November Fitness &amp; Habit Challenge &bull; v11.2</div>
+    <div>November Fitness &amp; Habit Challenge &bull; v11.3</div>
   </footer>
 </div>
 
@@ -576,7 +576,7 @@ input,select,textarea{font-size:16px !important}
 </div>
 
 <script>
-  const APP_VERSION = "11.2";
+  const APP_VERSION = "11.3";
 
   const firebaseConfig = {
     apiKey: "AIzaSyCbxoN1DLvMqxZb7FD4qu8p7k6lnD5ENP4",
@@ -608,6 +608,22 @@ input,select,textarea{font-size:16px !important}
   let userHabitName = "Stop biting finger nails";
   let userHabitEnabled = true;
   let computedStats = null;
+
+  // Calculates the current active November day (1-30). If before Nov, 0 days elapsed. If after Nov, all 30 elapsed.
+  function getElapsedNovemberDay() {
+    const now = new Date();
+    const curYear = now.getFullYear();
+    const curMonth = now.getMonth(); // 10 is November (0-indexed)
+    const curDate = now.getDate();
+
+    if (curYear < 2026 || (curYear === 2026 && curMonth < 10)) {
+      return 0; // November has not started yet; no days can be counted as missed!
+    }
+    if (curYear === 2026 && curMonth === 10) {
+      return Math.min(30, curDate); // Today is day curDate
+    }
+    return 30; // After November 2026
+  }
 
   async function checkForRemoteUpdate() {
     if (window.location.protocol === 'file:' || !window.fetch) return;
@@ -735,6 +751,8 @@ input,select,textarea{font-size:16px !important}
       cal.appendChild(b);
     }
 
+    const elapsedDays = getElapsedNovemberDay();
+
     cachedDays.forEach((d, idx) => {
       const day = idx + 1;
       const b = document.createElement('button');
@@ -745,11 +763,23 @@ input,select,textarea{font-size:16px !important}
       const dayRaw = acts.reduce((s, a) => s + (Number(a.minutes) || 0), 0);
       const dayCounted = Math.min(dayRaw, 120);
 
-      if (dayRaw >= 30) b.classList.add('complete');
-      else if (dayRaw > 0) b.classList.add('partial');
-      else b.classList.add('missed');
+      const hasPassed = day < elapsedDays;
+      const isToday = day === elapsedDays;
 
-      let subNote = dayRaw >= 30 ? 'Goal met' : (dayRaw > 0 ? 'Partial' : 'Rest/Miss');
+      if (dayRaw >= 30) {
+        b.classList.add('complete');
+      } else if (dayRaw > 0) {
+        b.classList.add('partial');
+      } else if (hasPassed) {
+        b.classList.add('missed'); // Only missed if day has strictly passed
+      }
+
+      let subNote = 'Upcoming';
+      if (dayRaw >= 30) subNote = 'Goal met';
+      else if (dayRaw > 0) subNote = 'Partial';
+      else if (isToday) subNote = 'Today';
+      else if (hasPassed) subNote = 'Rest/Miss';
+
       if (userHabitEnabled && d.habitClean === false) subNote += ' ⚠️';
 
       b.innerHTML = `
@@ -876,7 +906,10 @@ input,select,textarea{font-size:16px !important}
     let maxDay = 0;
     let favMap = {};
 
-    cachedDays.forEach(d => {
+    const elapsedDays = getElapsedNovemberDay();
+
+    cachedDays.forEach((d, idx) => {
+      const dayNum = idx + 1;
       const acts = Array.isArray(d.activities) ? d.activities : [];
       const dayRaw = acts.reduce((s, a) => s + (Number(a.minutes) || 0), 0);
       acts.forEach(a => {
@@ -886,11 +919,19 @@ input,select,textarea{font-size:16px !important}
       actualMinutes += dayRaw;
       countedMinutes += Math.min(dayRaw, 120);
       if (dayRaw > maxDay) maxDay = dayRaw;
-      if (dayRaw < 30) missedDays++;
+
+      // RULE: Only count as missed if the day has already completed in real time
+      if (dayNum < elapsedDays && dayRaw < 30) {
+        missedDays++;
+      }
 
       if (userHabitEnabled) {
-        if (d.habitClean === false) habitSlips++;
-        else cleanHabitDays++;
+        // Only count habit tracking for elapsed days or days where a habit interaction occurred
+        if (d.habitClean === false) {
+          habitSlips++;
+        } else if (dayNum <= elapsedDays || dayRaw > 0) {
+          cleanHabitDays++;
+        }
       }
     });
 
@@ -898,12 +939,15 @@ input,select,textarea{font-size:16px !important}
     let curCleanStreak = 0;
     let graceTokensEarned = 0;
     if (userHabitEnabled) {
-      cachedDays.forEach(d => {
-        if (d.habitClean !== false) {
-          curCleanStreak++;
-          if (curCleanStreak % 7 === 0) graceTokensEarned++;
-        } else {
-          curCleanStreak = 0;
+      cachedDays.forEach((d, idx) => {
+        const dayNum = idx + 1;
+        if (dayNum <= elapsedDays || (d.activities && d.activities.length > 0)) {
+          if (d.habitClean !== false) {
+            curCleanStreak++;
+            if (curCleanStreak % 7 === 0) graceTokensEarned++;
+          } else {
+            curCleanStreak = 0;
+          }
         }
       });
     }
@@ -917,7 +961,6 @@ input,select,textarea{font-size:16px !important}
     const progressPct = adjustedTarget > 0 ? Math.min(100, Math.round((countedMinutes / adjustedTarget) * 100)) : 0;
 
     // Consecutive 30m workout streak
-    let streak = 0;
     let maxStreak = 0;
     let curStreak = 0;
     cachedDays.forEach(d => {
@@ -930,7 +973,7 @@ input,select,textarea{font-size:16px !important}
         curStreak = 0;
       }
     });
-    streak = maxStreak;
+    const streak = maxStreak;
 
     let favType = '—';
     let favVal = 0;
@@ -969,6 +1012,39 @@ input,select,textarea{font-size:16px !important}
     renderCalendar();
   }
 
+  async function syncUserLeaderboardRecord() {
+    if (!currentUser || !computedStats) return;
+    try {
+      const payload = {
+        userId: currentUser.uid,
+        displayName: currentUser.displayName || 'Athlete',
+        photoURL: currentUser.photoURL || '',
+        baseTarget: userBaseTarget,
+        adjustedTarget: computedStats.adjustedTarget,
+        countedMinutes: computedStats.countedMinutes,
+        actualMinutes: computedStats.actualMinutes,
+        progressPct: computedStats.progressPct,
+        habitName: userHabitEnabled ? userHabitName : 'Disabled',
+        habitCleanDays: computedStats.cleanHabitDays,
+        habitSlips: computedStats.habitSlips,
+        activities: cachedDays.flatMap(d => d.activities || []),
+        updatedAt: Date.now()
+      };
+
+      // Save to primary public nov_users collection
+      await db.collection('artifacts').doc('fitness-challenge-smason')
+        .collection('public').doc('data').collection('nov_users').doc(currentUser.uid)
+        .set(payload, { merge: true });
+
+      // Mirror to nov_leaderboard for backwards compatibility
+      await db.collection('artifacts').doc('fitness-challenge-smason')
+        .collection('public').doc('data').collection('nov_leaderboard').doc(currentUser.uid)
+        .set(payload, { merge: true });
+    } catch (e) {
+      console.warn("Error syncing leaderboard summary:", e);
+    }
+  }
+
   $('saveEntryBtn').onclick = async () => {
     if (!currentUser) {
       alert("Please sign in first to record workouts.");
@@ -981,26 +1057,11 @@ input,select,textarea{font-size:16px !important}
         .collection('users').doc(currentUser.uid).collection('nov_profile').doc('days')
         .set({ days: cachedDays }, { merge: true });
 
-      // Save summary doc for leaderboard
-      await db.collection('artifacts').doc('fitness-challenge-smason')
-        .collection('public').doc('data').collection('nov_leaderboard').doc(currentUser.uid)
-        .set({
-          userId: currentUser.uid,
-          displayName: currentUser.displayName || 'Athlete',
-          photoURL: currentUser.photoURL || '',
-          countedMinutes: computedStats.countedMinutes,
-          actualMinutes: computedStats.actualMinutes,
-          adjustedTarget: computedStats.adjustedTarget,
-          progressPct: computedStats.progressPct,
-          habitName: userHabitEnabled ? userHabitName : 'Disabled',
-          habitCleanDays: computedStats.cleanHabitDays,
-          habitSlips: computedStats.habitSlips,
-          activities: cachedDays.flatMap(d => d.activities || []),
-          updatedAt: Date.now()
-        }, { merge: true });
+      await syncUserLeaderboardRecord();
 
       indicator.textContent = 'Saved ✓';
       setTimeout(() => indicator.textContent = 'Saved', 2000);
+      loadLeaderboard();
     } catch (e) {
       console.warn("Save failed:", e);
       indicator.textContent = 'Error saving';
@@ -1038,6 +1099,7 @@ input,select,textarea{font-size:16px !important}
 
       recalculateStats();
       displayDayEditor(selectedDay);
+      syncUserLeaderboardRecord();
     } catch (e) {
       console.warn("Error loading user data:", e);
     }
@@ -1074,13 +1136,31 @@ input,select,textarea{font-size:16px !important}
     tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px">Loading November standings...</td></tr>`;
 
     try {
-      const snap = await db.collection('artifacts').doc('fitness-challenge-smason')
-        .collection('public').doc('data').collection('nov_leaderboard').get();
+      const userMap = new Map();
 
-      const users = [];
-      snap.forEach(docSnap => users.push(docSnap.data()));
+      // Read from primary nov_users collection where athletes initially signed up
+      const snapUsers = await db.collection('artifacts').doc('fitness-challenge-smason')
+        .collection('public').doc('data').collection('nov_users').get();
+      snapUsers.forEach(docSnap => {
+        const data = docSnap.data();
+        userMap.set(data.userId || docSnap.id, data);
+      });
 
-      users.sort((a, b) => b.progressPct - a.progressPct || b.countedMinutes - a.countedMinutes);
+      // Also read from nov_leaderboard to catch any entries saved under that collection name
+      try {
+        const snapBoard = await db.collection('artifacts').doc('fitness-challenge-smason')
+          .collection('public').doc('data').collection('nov_leaderboard').get();
+        snapBoard.forEach(docSnap => {
+          const data = docSnap.data();
+          const uid = data.userId || docSnap.id;
+          if (!userMap.has(uid) || (data.updatedAt && (!userMap.get(uid).updatedAt || data.updatedAt > userMap.get(uid).updatedAt))) {
+            userMap.set(uid, data);
+          }
+        });
+      } catch (_) {}
+
+      const users = Array.from(userMap.values());
+      users.sort((a, b) => (b.progressPct || 0) - (a.progressPct || 0) || (b.countedMinutes || 0) - (a.countedMinutes || 0));
       $('uniqueUsersCount').textContent = `${users.length} enrolled`;
 
       if (users.length === 0) {
@@ -1132,7 +1212,7 @@ input,select,textarea{font-size:16px !important}
     feed.innerHTML = `<div style="text-align:center;color:var(--muted);padding:24px">Loading feed...</div>`;
     try {
       const snap = await db.collection('artifacts').doc('fitness-challenge-smason')
-        .collection('public').doc('data').collection('nov_leaderboard').get();
+        .collection('public').doc('data').collection('nov_users').get();
 
       const events = [];
       snap.forEach(docSnap => {
