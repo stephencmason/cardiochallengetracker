@@ -7,8 +7,9 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>November Fitness & Habit Challenge - v9.3</title>
+<title>November Fitness & Habit Challenge - v9.5</title>
 <script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <!-- Firebase SDKs -->
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
@@ -100,6 +101,110 @@ button, input, select { font: inherit; }
 .user-info { display: none; align-items: center; gap: 10px; color: white; font-size: 0.9rem; font-weight: 600; }
 .user-avatar { width: 32px; height: 32px; border-radius: 50%; border: 2px solid white; object-fit: cover; }
 .version-tag { position: absolute; right: 18px; bottom: 10px; font-size: 0.68rem; opacity: 0.85; font-weight: 800; letter-spacing: 0.04em; background: rgba(0,0,0,0.2); padding: 2px 8px; border-radius: 6px; }
+
+.btn-recap-launch {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, #ffd778, #f3a93b);
+  color: #173042;
+  border: 0;
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-size: 0.84rem;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.18);
+  transition: transform 0.15s, filter 0.15s;
+}
+.btn-recap-launch:hover { transform: translateY(-1px); filter: brightness(1.05); }
+
+/* Badges styling */
+.dashboard-badges { display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.badge-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: #f4f7f9;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.badge-chip:hover { transform: scale(1.18); box-shadow: 0 3px 8px rgba(24, 48, 66, 0.14); }
+.badges-cell { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
+
+.chart-custom-tooltip {
+  position: fixed;
+  pointer-events: none;
+  background: #173b57;
+  color: white;
+  padding: 9px 13px;
+  border-radius: 10px;
+  font-size: 0.80rem;
+  font-weight: 550;
+  box-shadow: 0 10px 28px rgba(23, 59, 87, 0.36);
+  z-index: 99999;
+  white-space: nowrap;
+  transform: translate(-50%, -115%);
+  transition: opacity 0.15s ease;
+  min-width: 130px;
+}
+
+/* Story Modal Compact Instagram Proportion */
+.story-modal-overlay { position: fixed; inset: 0; background: rgba(10, 23, 34, 0.85); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 10001; padding: 12px; overflow-y: auto; }
+.story-modal-overlay.show { display: flex; }
+.story-shell { position: relative; max-width: 390px; width: 100%; display: flex; flex-direction: column; align-items: center; margin: auto; }
+.story-card {
+  width: 100%;
+  background: linear-gradient(165deg, #0c1d2d 0%, #15364e 45%, #1c4a68 100%);
+  color: white;
+  border-radius: 22px;
+  border: 1.5px solid rgba(255, 255, 255, 0.20);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.50);
+  padding: 15px 14px 13px;
+  position: relative;
+  box-sizing: border-box;
+}
+.story-header-compact { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding-bottom: 10px; border-bottom: 1px solid rgba(255, 255, 255, 0.14); margin-bottom: 10px; }
+.story-profile-mini { display: flex; align-items: center; gap: 9px; min-width: 0; }
+.story-avatar { width: 38px; height: 38px; border-radius: 50%; border: 2px solid #24a7b6; object-fit: cover; flex-shrink: 0; }
+.story-user-meta { min-width: 0; }
+.story-user-name { font-weight: 850; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #fff; }
+.story-status-pill { display: inline-block; padding: 2px 7px; border-radius: 99px; font-size: 0.68rem; font-weight: 800; letter-spacing: 0.02em; text-transform: uppercase; }
+.story-status-finisher { background: #238255; color: #ffffff; }
+.story-status-competitor { background: #3b6d8c; color: #ffffff; }
+.story-brand-tag { text-align: right; flex-shrink: 0; }
+.story-brand-tag-title { font-size: 0.65rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: rgba(255, 255, 255, 0.75); }
+.story-brand-tag-year { font-size: 0.90rem; font-weight: 900; color: #67e8f9; line-height: 1; }
+.story-hero-split { display: flex; align-items: center; justify-content: space-between; background: radial-gradient(circle at left center, rgba(36, 167, 182, 0.22) 0%, rgba(23, 59, 87, 0) 70%); padding: 6px 8px 10px; margin-bottom: 10px; gap: 10px; }
+.story-pct-huge { font-size: 2.55rem; font-weight: 900; line-height: 1; background: linear-gradient(135deg, #67e8f9, #6ee7b7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.story-hero-right { text-align: right; }
+.story-hero-sub { font-size: 0.86rem; font-weight: 800; color: #ffffff; line-height: 1.2; }
+.story-arch-pill { display: inline-flex; align-items: center; gap: 4px; background: linear-gradient(135deg, rgba(217, 149, 33, 0.30), rgba(131, 82, 178, 0.30)); border: 1px solid rgba(236, 211, 140, 0.50); border-radius: 99px; padding: 3px 9px; margin-top: 4px; font-size: 0.75rem; font-weight: 800; color: #ffe299; }
+.story-grid-6 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 10px; }
+.story-stat-cell { background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 10px; padding: 6px 7px; text-align: center; }
+.story-stat-label { font-size: 0.65rem; color: rgba(255, 255, 255, 0.75); font-weight: 800; text-transform: uppercase; letter-spacing: 0.03em; }
+.story-stat-val { font-size: 1.02rem; font-weight: 850; color: #ffffff; margin-top: 1px; white-space: nowrap; }
+.story-stat-sub { font-size: 0.66rem; color: rgba(255, 255, 255, 0.65); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.story-discipline-box { background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.11); border-radius: 12px; padding: 8px 10px; margin-bottom: 10px; }
+.story-discipline-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.story-discipline-title { font-size: 0.68rem; font-weight: 800; color: rgba(255, 255, 255, 0.8); text-transform: uppercase; letter-spacing: 0.04em; }
+.story-discipline-totals { font-size: 0.74rem; font-weight: 800; color: #67e8f9; }
+.story-cabinet { background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.11); border-radius: 12px; padding: 8px 10px; margin-bottom: 8px; }
+.story-cabinet-title { font-size: 0.68rem; font-weight: 800; color: rgba(255, 255, 255, 0.8); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 5px; }
+.story-badge-row { display: flex; gap: 5px; flex-wrap: wrap; }
+.story-badge-item { display: inline-flex; align-items: center; gap: 4px; background: rgba(255, 255, 255, 0.12); border: 1px solid rgba(255, 255, 255, 0.20); padding: 3px 7px; border-radius: 99px; font-size: 0.72rem; font-weight: 800; color: #ffffff; }
+.story-footer-copy { text-align: center; font-size: 0.65rem; color: rgba(255, 255, 255, 0.55); letter-spacing: 0.06em; text-transform: uppercase; font-weight: 750; margin-top: 4px; }
+.story-actions-bar { display: flex; gap: 8px; width: 100%; margin-top: 10px; }
+.story-action-btn { flex: 1; padding: 11px 14px; border-radius: 11px; font-weight: 800; font-size: 0.90rem; cursor: pointer; border: 0; display: flex; align-items: center; justify-content: center; gap: 6px; transition: filter 0.15s, transform 0.12s; }
+.btn-story-image { background: linear-gradient(135deg, #34d399, #059669); color: #ffffff; box-shadow: 0 4px 14px rgba(5, 150, 105, 0.38); }
+.btn-story-image:hover { filter: brightness(1.08); transform: translateY(-1px); }
+.btn-story-close { background: rgba(255, 255, 255, 0.15); color: #ffffff; max-width: 90px; border: 1px solid rgba(255, 255, 255, 0.22); }
+.btn-story-close:hover { background: rgba(255, 255, 255, 0.24); }
 
 /* Habit Header Ribbon */
 .habit-ribbon {
@@ -276,6 +381,10 @@ button, input, select { font: inherit; }
           <span>Sign In</span>
         </button>
 
+        <button id="launchRecapBtn" class="btn-recap-launch" title="View your official November Story Card">
+          <span>📜</span> <span>Story Recap</span>
+        </button>
+
         <div id="userProfile" class="user-info">
           <img id="userImg" class="user-avatar" src="https://placehold.co/32x32/1e293b/94a3b8?text=U" alt="Profile">
           <span id="userName" style="max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Athlete</span>
@@ -283,7 +392,7 @@ button, input, select { font: inherit; }
         </div>
       </div>
     </div>
-    <div class="version-tag">v9.3 Active</div>
+    <div class="version-tag">v9.5 Active</div>
   </header>
 
   <!-- Collapsible Habit Management Ribbon -->
@@ -351,9 +460,9 @@ button, input, select { font: inherit; }
       </div>
 
       <div class="card metric">
-        <div class="label">Missed days</div>
-        <div class="value" id="statMissedTotal">0</div>
-        <div class="sub" id="statMissPenalty">+0 min penalty</div>
+        <div class="label">Penalties / Grace</div>
+        <div class="value" id="statMissedTotal">0 miss</div>
+        <div class="sub" id="statGraceTokens" style="color:#207842;font-weight:750">0 grace (-0m)</div>
       </div>
     </section>
 
@@ -364,8 +473,11 @@ button, input, select { font: inherit; }
         <section class="panel">
           <div class="panel-header-row">
             <h2>Challenge progress</h2>
-            <div id="streakPill" class="streak-pill streak-zero">
-              <span>🔥</span> <span id="streakCount">0-day streak</span>
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+              <div id="dashboardBadges" class="dashboard-badges"></div>
+              <div id="streakPill" class="streak-pill streak-zero">
+                <span>🔥</span> <span id="streakCount">0-day streak</span>
+              </div>
             </div>
           </div>
 
@@ -548,6 +660,16 @@ button, input, select { font: inherit; }
           <p>Define a personal habit to eliminate or master. Check off whether you were Clean or Slipped each day. Each slip adds +30 minutes to your monthly total.</p>
         </div>
 
+        <div class="rule-card" style="border:1.5px solid #a7f3d0;background:#f0fdf4">
+          <h3 style="color:#065f46">🕊️ 7-Day Habit Grace Redemption</h3>
+          <p style="color:#166534">Maintaining a consecutive <strong>7-day clean habit streak</strong> unlocks a Grace Token that automatically forgives one <strong>30-minute penalty</strong> (e.g. 2 habit slips [+60m] minus 1 Grace Token [-30m] = net +30m penalty debt)!</p>
+        </div>
+
+        <div class="rule-card">
+          <h3>🏅 Achievement Badges</h3>
+          <p>Unlock trophies including Century Club, Perfect 10, Perfect Game, and new habit milestones: <strong>Iron Will</strong> (7-day clean habit), <strong>Zen Master</strong> (14-day clean habit), and <strong>The Unbroken</strong> (30/30 workouts and clean habits)!</p>
+        </div>
+
         <div class="rule-card">
           <h3>📈 Leaderboard Fairness</h3>
           <p>Rankings are based strictly on <strong>% Complete</strong> ($\text{Logged} \div \text{Target including penalties}$), ensuring fair competition regardless of base target size.</p>
@@ -558,10 +680,100 @@ button, input, select { font: inherit; }
 
 </div>
 
+<!-- November Instagram Story Recap Modal -->
+<div id="recapModal" class="story-modal-overlay">
+  <div class="story-shell">
+    <div class="story-card" id="storyCardContent">
+      <div class="story-header-compact">
+        <div class="story-profile-mini">
+          <img id="recapAvatar" class="story-avatar" src="https://placehold.co/38x38/1e293b/94a3b8?text=U" alt="User">
+          <div class="story-user-meta">
+            <div id="recapName" class="story-user-name">Challenger</div>
+            <span id="recapStatusBadge" class="story-status-pill story-status-finisher">Target Met 🏆</span>
+          </div>
+        </div>
+        <div class="story-brand-tag">
+          <div class="story-brand-tag-title">November Challenge</div>
+          <div class="story-brand-tag-year">2026</div>
+        </div>
+      </div>
+
+      <div class="story-hero-split">
+        <div id="recapPct" class="story-pct-huge">100%</div>
+        <div class="story-hero-right">
+          <div id="recapMinutesSub" class="story-hero-sub">0m Counted</div>
+          <div class="story-arch-pill">
+            <span id="recapArchetypeName">👟 Hybrid Athlete</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="story-grid-6">
+        <div class="story-stat-cell">
+          <div class="story-stat-label">Peak Streak</div>
+          <div id="recapStreak" class="story-stat-val">🔥 0d</div>
+          <div class="story-stat-sub">&ge;30m days</div>
+        </div>
+        <div class="story-stat-cell">
+          <div class="story-stat-label">Habit Clean</div>
+          <div id="recapHabitRatio" class="story-stat-val">0 / 30</div>
+          <div class="story-stat-sub">Clean days</div>
+        </div>
+        <div class="story-stat-cell">
+          <div class="story-stat-label">Biggest Day</div>
+          <div id="recapBiggestDay" class="story-stat-val">⏱️ 0m</div>
+          <div class="story-stat-sub">Single day high</div>
+        </div>
+        <div class="story-stat-cell">
+          <div class="story-stat-label">Grace Earned</div>
+          <div id="recapGraceEarned" class="story-stat-val">🕊️ 0</div>
+          <div class="story-stat-sub">-0m forgiven</div>
+        </div>
+        <div class="story-stat-cell">
+          <div class="story-stat-label">Habit Slips</div>
+          <div id="recapSlipsCount" class="story-stat-val">⚠️ 0</div>
+          <div class="story-stat-sub">+0m penalty</div>
+        </div>
+        <div class="story-stat-cell">
+          <div class="story-stat-label">Net Target</div>
+          <div id="recapNetTarget" class="story-stat-val">900m</div>
+          <div class="story-stat-sub">Goal volume</div>
+        </div>
+      </div>
+
+      <div class="story-discipline-box">
+        <div class="story-discipline-header">
+          <span class="story-discipline-title">Personal Habit</span>
+          <span id="recapHabitTitle" style="font-size:0.75rem;font-weight:800;color:#67e8f9;max-width:210px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Custom Habit</span>
+        </div>
+        <div style="font-size:0.75rem;color:rgba(255,255,255,0.85);font-style:italic;margin-top:2px" id="recapHabitVerdict">
+          Unbroken discipline maintained throughout November.
+        </div>
+      </div>
+
+      <div class="story-cabinet">
+        <div class="story-cabinet-title">Trophy Cabinet (<span id="recapBadgeCount">0</span> Badges)</div>
+        <div id="recapBadgesWrap" class="story-badge-row"></div>
+      </div>
+
+      <div class="story-footer-copy">Official November 2026 Challenge Report Card</div>
+    </div>
+
+    <div class="story-actions-bar">
+      <button id="saveRecapImageBtn" class="story-action-btn btn-story-image">
+        <span>📸 Save as Image</span>
+      </button>
+      <button id="closeRecapBtn" class="story-action-btn btn-story-close">
+        <span>✕ Close</span>
+      </button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
-  const APP_VERSION = "9.3";
+  const APP_VERSION = "9.5";
 
   const firebaseConfig = {
     apiKey: "AIzaSyCbxoN1DLvMqxZb7FD4qu8p7k6lnD5ENP4",
@@ -575,6 +787,163 @@ button, input, select { font: inherit; }
 
   if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
+  }
+
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+  auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(console.error);
+
+  const $ = id => document.getElementById(id);
+  const DAYS = 30;
+  const ACTIVITY_TYPES = ["Bootcamp", "Cardio", "Cross Fit", "Weights", "Resistance Training", "Yoga"];
+
+  let currentUser = null;
+  let userProfileDoc = null;
+  let selectedDay = 1;
+  let habitState = null; // true = clean, false = slipped, null = none
+  let currentMonthDays = Array.from({ length: DAYS }, () => ({ activities: [], habitClean: null }));
+  let computedStats = null;
+
+  const MVP_BADGE = {
+    id: 'mvp',
+    icon: '🏆',
+    name: 'MVP',
+    desc: 'Awarded to Dimitri: Most Valuable Participant!'
+  };
+
+  function isDimitriUser(name, email) {
+    const combined = `${name || ''} ${email || ''}`.toLowerCase();
+    return combined.includes('dimitri') || combined.includes('dmitri');
+  }
+
+  // Tooltip helper
+  let customTooltipEl = null;
+  function getOrCreateTooltip() {
+    if (!customTooltipEl) {
+      customTooltipEl = document.createElement('div');
+      customTooltipEl.className = 'chart-custom-tooltip';
+      customTooltipEl.style.opacity = '0';
+      document.body.appendChild(customTooltipEl);
+    }
+    return customTooltipEl;
+  }
+
+  function attachBadgeTooltip(el, badge) {
+    const show = () => {
+      const tt = getOrCreateTooltip();
+      tt.innerHTML = `
+        <div style="display:flex;align-items:center;gap:6px;font-weight:800;font-size:0.85rem">
+          <span>${badge.icon}</span> <span>${badge.name}</span>
+        </div>
+        <div style="font-size:0.75rem;opacity:0.9;margin-top:2px">${badge.desc}</div>
+      `;
+      tt.style.opacity = '1';
+      const rect = el.getBoundingClientRect();
+      tt.style.left = `${rect.left + rect.width / 2}px`;
+      tt.style.top = `${rect.top - 6}px`;
+    };
+    const hide = () => { if (customTooltipEl) customTooltipEl.style.opacity = '0'; };
+    el.addEventListener('mouseenter', show);
+    el.addEventListener('mouseleave', hide);
+    el.addEventListener('click', (e) => { e.stopPropagation(); show(); });
+  }
+
+  function toast(msg) {
+    const el = $('toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), 2000);
+  }
+
+  // Calculate Badges including September Classics & November Habit milestones
+  function calculateBadges(daysArray, habitStreakClean, maxStreak, user) {
+    const badges = [];
+
+    // Dimitri MVP
+    if (user && isDimitriUser(user.displayName, user.email)) {
+      badges.push(MVP_BADGE);
+    }
+
+    // 1. Century Club (100+ min in a single day)
+    const hasCentury = daysArray.some(d => {
+      const total = d.activities.reduce((s, a) => s + (a.minutes || 0), 0);
+      return Math.min(total, 120) >= 100;
+    });
+    if (hasCentury) {
+      badges.push({ id: 'century', icon: '💯', name: 'Century Club', desc: 'Logged 100+ counted minutes in a single day' });
+    }
+
+    // 2. Perfect 10 (10 consecutive days >=30 min)
+    let runStreak = 0;
+    let tenStreakCount = 0;
+    daysArray.forEach(d => {
+      const total = d.activities.reduce((s, a) => s + (a.minutes || 0), 0);
+      if (total >= 30) {
+        runStreak++;
+        if (runStreak === 10) {
+          tenStreakCount++;
+          runStreak = 0;
+        }
+      } else {
+        runStreak = 0;
+      }
+    });
+    for (let s = 1; s <= tenStreakCount; s++) {
+      badges.push({
+        id: `streak10_${s}`,
+        icon: '🔟',
+        name: tenStreakCount > 1 ? `Perfect 10 (#${s})` : 'Perfect 10',
+        desc: `Logged 10 consecutive days meeting 30m goal${tenStreakCount > 1 ? ` (Streak #${s})` : ''}`
+      });
+    }
+
+    // 3. Perfect Game (30 for 30 days active)
+    const hasPerfectGame = daysArray.length === DAYS && daysArray.every(d => d.activities.reduce((s, a) => s + (a.minutes || 0), 0) > 0);
+    if (hasPerfectGame) {
+      badges.push({ id: 'perfect_game', icon: '⚾', name: 'Perfect Game', desc: 'Logged workouts on all 30 days of November' });
+    }
+
+    // 4. Well Deserved Rest
+    const hasRest = daysArray.some(d => d.logged && d.activities.reduce((s, a) => s + (a.minutes || 0), 0) === 0);
+    if (hasRest) {
+      badges.push({ id: 'rest', icon: '🛡️', name: 'Well Deserved Rest', desc: 'Took an intentional rest recovery day' });
+    }
+
+    // 5. Triple Threat (3 distinct activity types in a week)
+    const weeks = [[0, 6], [7, 13], [14, 20], [21, 27], [28, 29]];
+    const hasTriple = weeks.some(([start, end]) => {
+      const weekly = new Set();
+      for (let i = start; i <= end; i++) {
+        if (daysArray[i] && Array.isArray(daysArray[i].activities)) {
+          daysArray[i].activities.forEach(act => {
+            if ((act.minutes || 0) > 0 && act.type) weekly.add(act.type);
+          });
+        }
+      }
+      return weekly.size >= 3;
+    });
+    if (hasTriple) {
+      badges.push({ id: 'triple', icon: '⚡', name: 'Triple Threat', desc: 'Logged 3 distinct workout disciplines in a single week' });
+    }
+
+    // 6. Iron Will (7-day clean habit streak)
+    if (habitStreakClean >= 7) {
+      badges.push({ id: 'iron_will', icon: '🛡️', name: 'Iron Will', desc: 'Maintained 7 consecutive days clean on your personal habit!' });
+    }
+
+    // 7. Zen Master (14-day clean habit streak)
+    if (habitStreakClean >= 14) {
+      badges.push({ id: 'zen_master', icon: '🧘', name: 'Zen Master', desc: '14 consecutive days of unbroken discipline on your personal habit!' });
+    }
+
+    // 8. The Unbroken (30/30 workouts AND clean habit)
+    const allClean = daysArray.every(d => d.habitClean === true);
+    const allWorkout = daysArray.every(d => d.activities.reduce((s, a) => s + (a.minutes || 0), 0) >= 30);
+    if (allClean && allWorkout) {
+      badges.push({ id: 'unbroken', icon: '💎', name: 'The Unbroken', desc: 'Legendary discipline: 30 for 30 on both workouts AND clean habits!' });
+    }
+
+    return badges;
   }
 
   const auth = firebase.auth();
@@ -974,158 +1343,89 @@ button, input, select { font: inherit; }
         }
       }
 
-      const fresh = (await ref.get()).data();
-      userProfileDoc = fresh;
+      const refreshed = await ref.get();
+      userProfileDoc = refreshed.data();
 
-      const hName = fresh.habitName ? fresh.habitName.trim() : "";
-      $('habitDisplayTitle').textContent = hName || "No habit set yet - tap edit";
-      $('currentDayHabitLabel').textContent = hName || "Not configured";
-      $('habitInput').value = hName;
+      // Configure Habit Ribbon display
+      if (userProfileDoc && userProfileDoc.habitName && userProfileDoc.habitName.trim()) {
+        $('habitDisplayTitle').textContent = userProfileDoc.habitName.trim();
+        $('currentDayHabitLabel').textContent = userProfileDoc.habitName.trim();
+        $('habitInput').value = userProfileDoc.habitName.trim();
+      } else {
+        $('habitDisplayTitle').textContent = 'None configured (Click Edit)';
+        $('currentDayHabitLabel').textContent = 'Not configured';
+      }
 
-      setupTargetModeControls(fresh);
+      // Configure Target Mode Window (First 7 days)
+      const dayNow = getTodayDayNum();
+      if (dayNow <= 7 && userProfileDoc && userProfileDoc.septemberCalculatedTarget && userProfileDoc.septemberCalculatedTarget > 900) {
+        $('btnTargetModeToggle').classList.remove('hidden');
+        $('targetChangeWindowNotice').classList.remove('hidden');
+        $('noticeSeptVal').textContent = userProfileDoc.septemberCalculatedTarget;
+      } else {
+        $('btnTargetModeToggle').classList.add('hidden');
+        $('targetChangeWindowNotice').classList.add('hidden');
+      }
+
     } catch (err) {
-      console.error(err);
-      toast("Error loading profile: " + err.message);
+      console.warn("Init profile error:", err);
     }
   }
 
-  function isWithinFirst7Days() {
-    const d = new Date();
-    return d.getMonth() < 10 || (d.getMonth() === 10 && d.getDate() <= 7);
-  }
-
-  function setupTargetModeControls(profile) {
-    const septVal = profile.septemberCalculatedTarget || profile.baseTarget || 900;
-    $('noticeSeptVal').textContent = septVal;
-
-    if (isWithinFirst7Days() && septVal > 900) {
-      $('btnTargetModeToggle').classList.remove('hidden');
-      $('targetChangeWindowNotice').classList.remove('hidden');
-
-      const isDefault = profile.baseTarget === 900;
-      $('btnSetDefaultTarget').className = isDefault ? 'tab-btn active' : 'tab-btn';
-      $('btnSetSeptTarget').className = !isDefault ? 'tab-btn active' : 'tab-btn';
-    } else {
-      $('btnTargetModeToggle').classList.add('hidden');
-      $('targetChangeWindowNotice').classList.add('hidden');
-    }
-  }
-
-  async function setBaseTargetPreference(newTarget) {
-    if (!currentUser) return;
-    if (!isWithinFirst7Days()) {
-      toast("Target switching window closed on Nov 7.");
-      return;
-    }
-    try {
-      await db.collection('nov_users').doc(currentUser.uid).update({
-        baseTarget: newTarget,
-        targetChoice: newTarget === 900 ? 'default' : 'september'
-      });
-      userProfileDoc.baseTarget = newTarget;
-      toast(`Base target updated to ${newTarget}m!`);
-      setupTargetModeControls(userProfileDoc);
-      await recalculateAndSyncStats();
-      loadLeaderboard();
-    } catch (e) {
-      toast("Could not update target: " + e.message);
-    }
-  }
-
-  $('btnTargetModeToggle').onclick = () => {
-    $('targetChangeWindowNotice').classList.toggle('hidden');
-  };
-
-  $('btnSetSeptTarget').onclick = () => {
-    const septVal = (userProfileDoc && userProfileDoc.septemberCalculatedTarget) ? userProfileDoc.septemberCalculatedTarget : 900;
-    setBaseTargetPreference(septVal);
-  };
-
-  $('btnSetDefaultTarget').onclick = () => {
-    setBaseTargetPreference(900);
-  };
-
-  // Save Habit
+  // Save Habit Button
   $('saveHabitBtn').onclick = async () => {
     const val = $('habitInput').value.trim();
-    if (!val) { toast("Please type a habit description."); return; }
-    if (!currentUser) { toast("Sign in to save habit."); return; }
-
-    try {
-      await db.collection('nov_users').doc(currentUser.uid).update({ habitName: val });
-      $('habitDisplayTitle').textContent = val;
-      $('currentDayHabitLabel').textContent = val;
-      $('habitEditBox').classList.remove('open');
-      $('habitBtnLabel').textContent = 'Edit Habit';
-      toast("November habit saved!");
-    } catch (e) {
-      toast("Could not save habit: " + e.message);
+    if (!val) {
+      toast("Please enter a valid habit description.");
+      return;
     }
+    if (currentUser) {
+      await db.collection('nov_users').doc(currentUser.uid).update({ habitName: val });
+    }
+    $('habitDisplayTitle').textContent = val;
+    $('currentDayHabitLabel').textContent = val;
+    $('habitEditBox').classList.remove('open');
+    $('habitBtnLabel').textContent = 'Edit Habit';
+    toast("Personal habit updated!");
   };
 
-  // Save Daily Entry
-  $('saveEntryBtn').onclick = async () => {
-    if (!currentUser) { toast("Please sign in with Google to log entries."); return; }
+  // Base Target Toggle Handlers (First 7 days)
+  $('btnSetSeptTarget').onclick = async () => {
+    if (!currentUser || !userProfileDoc) return;
+    const septVal = userProfileDoc.septemberCalculatedTarget || 900;
+    await db.collection('nov_users').doc(currentUser.uid).update({ baseTarget: septVal, targetChoice: 'september' });
+    userProfileDoc.baseTarget = septVal;
+    userProfileDoc.targetChoice = 'september';
+    toast(`Base target switched to September volume (${septVal}m)`);
+    await recalculateAndSyncStats();
+  };
 
-    const dayNum = selectedDay;
-    const dateStr = getDateStringForDay(dayNum);
-    const wraps = $('activityContainer').querySelectorAll('.activity-row-wrap');
-    const activities = [];
+  $('btnSetDefaultTarget').onclick = async () => {
+    if (!currentUser || !userProfileDoc) return;
+    await db.collection('nov_users').doc(currentUser.uid).update({ baseTarget: 900, targetChoice: 'default' });
+    userProfileDoc.baseTarget = 900;
+    userProfileDoc.targetChoice = 'default';
+    toast("Base target set to default 900m!");
+    await recalculateAndSyncStats();
+  };
 
-    wraps.forEach(w => {
-      const type = w.querySelector('.activity-row select').value;
-      const mins = Math.max(0, parseInt(w.querySelector('.activity-row input[type=number]').value) || 0);
-      const noteInput = w.querySelector('.activity-note-box input');
-      const note = noteInput ? noteInput.value.trim() : "";
-      if (mins > 0) activities.push({ type, minutes: mins, note, loggedAt: new Date().toISOString() });
-    });
-
-    const dayEntry = {
-      uid: currentUser.uid,
-      userName: currentUser.displayName || 'Athlete',
-      userAvatar: currentUser.photoURL || '',
-      dayNum: dayNum,
-      date: dateStr,
-      activities: activities,
-      habitClean: habitState,
-      logged: true,
-      timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    };
-
-    try {
-      await db.collection('nov_entries').doc(`${currentUser.uid}_day_${dayNum}`).set(dayEntry);
-      toast(`Saved November ${dayNum}!`);
-      currentMonthDays[dayNum - 1] = dayEntry;
-      renderCalendar();
-      await recalculateAndSyncStats();
-      loadLeaderboard();
-    } catch (err) {
-      toast("Save failed: " + err.message);
-    }
+  $('btnTargetModeToggle').onclick = () => {
+    $('targetChangeWindowNotice').scrollIntoView({ behavior: 'smooth' });
   };
 
   // Load User Entries from Firestore
   async function loadUserEntries(uid) {
     try {
-      const snap = await db.collection('nov_entries').where('uid', '==', uid).get();
+      const snap = await db.collection('nov_entries').where('userId', '==', uid).get();
       currentMonthDays = Array.from({ length: DAYS }, () => ({ activities: [], habitClean: null, logged: false }));
 
       snap.forEach(docSnap => {
         const d = docSnap.data();
-        if (d.dayNum >= 1 && d.dayNum <= 30) {
-          let acts = [];
-          if (Array.isArray(d.activities)) {
-            acts = d.activities.map(a => ({
-              type: ACTIVITY_TYPES.includes(a.type) ? a.type : "Cardio",
-              minutes: Number(a.minutes) || 0,
-              note: a.note || ""
-            }));
-          } else if (d.minutes) {
-            acts = [{ type: d.activity || 'Cardio', minutes: Number(d.minutes) || 0, note: d.note || "" }];
-          }
-          currentMonthDays[d.dayNum - 1] = {
-            activities: acts,
-            habitClean: d.habitClean !== undefined ? d.habitClean : null,
+        const dayIdx = (d.dayNum || 1) - 1;
+        if (dayIdx >= 0 && dayIdx < DAYS) {
+          currentMonthDays[dayIdx] = {
+            activities: Array.isArray(d.activities) ? d.activities : [],
+            habitClean: (d.habitClean !== undefined) ? d.habitClean : null,
             logged: true
           };
         }
@@ -1135,15 +1435,61 @@ button, input, select { font: inherit; }
       renderCalendar();
       await recalculateAndSyncStats();
     } catch (e) {
-      console.warn("Entries load:", e);
+      console.warn("Error loading entries:", e);
     }
   }
 
-  // Dynamic Calculation: Stats, Streaks, Penalties, PBs
+  // Save Daily Entry
+  $('saveEntryBtn').onclick = async () => {
+    const dayData = currentMonthDays[selectedDay - 1];
+    const wraps = $('activityContainer').querySelectorAll('.activity-row-wrap');
+    const activities = [];
+
+    wraps.forEach(w => {
+      const type = w.querySelector('.activity-row select').value;
+      const mins = Math.max(0, parseInt(w.querySelector('.activity-row input[type=number]').value) || 0);
+      const note = w.querySelector('.activity-note-box input').value.trim();
+      if (mins > 0) {
+        activities.push({
+          type,
+          minutes: mins,
+          note,
+          loggedAt: new Date().toISOString()
+        });
+      }
+    });
+
+    dayData.activities = activities;
+    dayData.habitClean = habitState;
+    dayData.logged = true;
+
+    if (currentUser) {
+      const entryId = `${currentUser.uid}_day_${selectedDay}`;
+      await db.collection('nov_entries').doc(entryId).set({
+        userId: currentUser.uid,
+        userName: currentUser.displayName || 'Athlete',
+        userAvatar: currentUser.photoURL || '',
+        dayNum: selectedDay,
+        dateStr: getDateStringForDay(selectedDay),
+        activities: activities,
+        habitClean: habitState,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      toast(`November ${selectedDay} saved to cloud!`);
+    } else {
+      toast(`November ${selectedDay} saved locally (sign in to sync)`);
+    }
+
+    renderCalendar();
+    await recalculateAndSyncStats();
+  };
+
+  // Dynamic Calculation: Stats, Streaks, Penalties, PBs, and Grace Tokens
   async function recalculateAndSyncStats() {
     let countedMinutes = 0;
     let actualMinutes = 0;
     let habitSlips = 0;
+    let cleanHabitDays = 0;
     let missedDays = 0;
     let maxDay = 0;
     let favMap = {};
@@ -1156,13 +1502,14 @@ button, input, select { font: inherit; }
       if (dayTotal > maxDay) maxDay = dayTotal;
       if (d.logged && dayTotal < 30) missedDays++;
       if (d.habitClean === false) habitSlips++;
+      if (d.habitClean === true) cleanHabitDays++;
 
       d.activities.forEach(a => {
         favMap[a.type] = (favMap[a.type] || 0) + (a.minutes || 0);
       });
     });
 
-    // Consecutive streak (backwards from current day)
+    // Consecutive workout streak (>=30 min)
     let streak = 0;
     let checkDay = selectedDay;
     while (checkDay >= 1) {
@@ -1176,6 +1523,22 @@ button, input, select { font: inherit; }
       }
     }
 
+    // Consecutive Clean Habit Streak Calculation (Peak)
+    let maxHabitCleanStreak = 0;
+    let curHabitCleanStreak = 0;
+    currentMonthDays.forEach(d => {
+      if (d.habitClean === true) {
+        curHabitCleanStreak++;
+        if (curHabitCleanStreak > maxHabitCleanStreak) maxHabitCleanStreak = curHabitCleanStreak;
+      } else {
+        curHabitCleanStreak = 0;
+      }
+    });
+
+    // Grace Tokens: 7 consecutive clean days forgives 1 penalty (-30m)
+    const graceTokensEarned = Math.floor(maxHabitCleanStreak / 7);
+    const forgivenMinutes = graceTokensEarned * 30;
+
     // Favorite activity calculation
     let favType = '—';
     let favMins = 0;
@@ -1187,10 +1550,34 @@ button, input, select { font: inherit; }
     });
 
     const base = (userProfileDoc && userProfileDoc.baseTarget) ? userProfileDoc.baseTarget : 900;
-    const penaltyMinutes = (habitSlips + missedDays) * 30;
-    const adjustedTarget = base + penaltyMinutes;
+    const grossPenalties = (habitSlips + missedDays) * 30;
+    const netPenaltyMinutes = Math.max(0, grossPenalties - forgivenMinutes);
+    const adjustedTarget = base + netPenaltyMinutes;
     const progressPct = adjustedTarget > 0 ? Math.min(100, Math.round((countedMinutes / adjustedTarget) * 100)) : 0;
     const remaining = Math.max(0, adjustedTarget - countedMinutes);
+
+    // Compute Badges
+    const badges = calculateBadges(currentMonthDays, maxHabitCleanStreak, streak, currentUser);
+
+    computedStats = {
+      countedMinutes,
+      actualMinutes,
+      adjustedTarget,
+      base,
+      remaining,
+      streak,
+      maxDay,
+      favType,
+      favMins,
+      cleanHabitDays,
+      habitSlips,
+      missedDays,
+      maxHabitCleanStreak,
+      graceTokensEarned,
+      forgivenMinutes,
+      progressPct,
+      badges
+    };
 
     // Update Top Summary Cards
     $('statLogged').textContent = `${countedMinutes} min`;
@@ -1201,8 +1588,19 @@ button, input, select { font: inherit; }
     $('statRemainingHours').textContent = `${(remaining / 60).toFixed(1)} hours`;
     $('statHabitSlips').textContent = habitSlips;
     $('statHabitPenalty').textContent = `+${habitSlips * 30} min penalty`;
-    $('statMissedTotal').textContent = missedDays;
-    $('statMissPenalty').textContent = `+${missedDays * 30} min penalty`;
+    $('statMissedTotal').textContent = `${missedDays} missed`;
+    $('statGraceTokens').textContent = graceTokensEarned > 0 ? `${graceTokensEarned} grace (-${forgivenMinutes}m)` : `0 grace tokens`;
+
+    // Render Dashboard Badges
+    const dashBadges = $('dashboardBadges');
+    dashBadges.innerHTML = '';
+    badges.forEach(b => {
+      const span = document.createElement('span');
+      span.className = 'badge-chip';
+      span.textContent = b.icon;
+      attachBadgeTooltip(span, b);
+      dashBadges.appendChild(span);
+    });
 
     // Progress bar & PBs
     $('progressBar').style.width = `${progressPct}%`;
@@ -1225,12 +1623,114 @@ button, input, select { font: inherit; }
         progressPct: progressPct,
         streak: streak,
         habitSlips: habitSlips,
-        missedDays: missedDays
+        cleanHabitDays: cleanHabitDays,
+        graceTokens: graceTokensEarned,
+        missedDays: missedDays,
+        badges: badges
       });
     }
   }
 
-  // Leaderboard
+  // Story Recap Modal Functions
+  function openStoryRecapModal() {
+    if (!computedStats) recalculateAndSyncStats();
+    const s = computedStats;
+    const name = currentUser ? currentUser.displayName || 'Athlete' : 'Athlete';
+    const avatar = currentUser && currentUser.photoURL ? currentUser.photoURL : 'https://placehold.co/38x38/1e293b/94a3b8?text=U';
+    const habit = (userProfileDoc && userProfileDoc.habitName) ? userProfileDoc.habitName.trim() : 'Personal Habit';
+
+    $('recapName').textContent = name;
+    $('recapAvatar').src = avatar;
+    $('recapPct').textContent = `${s.progressPct}%`;
+    $('recapMinutesSub').textContent = `${s.countedMinutes}m Counted (${(s.countedMinutes / 60).toFixed(1)}h)`;
+    $('recapStreak').textContent = `🔥 ${s.streak}d`;
+    $('recapHabitRatio').textContent = `${s.cleanHabitDays} / 30`;
+    $('recapBiggestDay').textContent = `⏱️ ${s.maxDay}m`;
+    $('recapGraceEarned').textContent = `🕊️ ${s.graceTokensEarned}`;
+    $('recapGraceEarned').nextElementSibling.textContent = `-${s.forgivenMinutes}m forgiven`;
+    $('recapSlipsCount').textContent = `⚠️ ${s.habitSlips}`;
+    $('recapNetTarget').textContent = `${s.adjustedTarget}m`;
+
+    $('recapHabitTitle').textContent = habit;
+    const verdict = s.habitSlips === 0 
+      ? 'Flawless discipline! Zero habit slips recorded in November.' 
+      : `${s.cleanHabitDays} days clean with ${s.graceTokensEarned} grace tokens redeemed.`;
+    $('recapHabitVerdict').textContent = verdict;
+
+    const statusBadge = $('recapStatusBadge');
+    if (s.countedMinutes >= s.adjustedTarget && s.adjustedTarget > 0) {
+      statusBadge.className = 'story-status-pill story-status-finisher';
+      statusBadge.textContent = 'Challenge Finisher 🏆';
+    } else {
+      statusBadge.className = 'story-status-pill story-status-competitor';
+      statusBadge.textContent = `${s.progressPct}% Met 🍂`;
+    }
+
+    const badgeWrap = $('recapBadgesWrap');
+    badgeWrap.innerHTML = '';
+    $('recapBadgeCount').textContent = s.badges.length;
+    if (s.badges.length > 0) {
+      s.badges.forEach(b => {
+        const item = document.createElement('span');
+        item.className = 'story-badge-item';
+        item.innerHTML = `<span>${b.icon}</span> <span>${b.name}</span>`;
+        badgeWrap.appendChild(item);
+      });
+    } else {
+      badgeWrap.innerHTML = `<span style="font-size:0.72rem;color:rgba(255,255,255,0.5)">Log workouts and clean streaks to unlock badges!</span>`;
+    }
+
+    $('recapModal').classList.add('show');
+  }
+
+  $('launchRecapBtn').onclick = () => openStoryRecapModal();
+  $('closeRecapBtn').onclick = () => $('recapModal').classList.remove('show');
+
+  $('saveRecapImageBtn').onclick = async () => {
+    const card = document.getElementById('storyCardContent');
+    const saveBtn = document.getElementById('saveRecapImageBtn');
+    if (!card || typeof html2canvas === 'undefined') {
+      toast("Screenshot not available.");
+      return;
+    }
+    const orig = saveBtn.innerHTML;
+    saveBtn.innerHTML = `<span>⏳ Saving...</span>`;
+    saveBtn.style.pointerEvents = 'none';
+
+    try {
+      const canvas = await html2canvas(card, { scale: 2.8, useCORS: true, backgroundColor: '#0c1d2d', logging: false });
+      canvas.toBlob(async (blob) => {
+        if (!blob) throw new Error("Conversion failed");
+        const filename = `november-challenge-recap-2026.png`;
+
+        if (navigator.canShare && navigator.canShare({ files: [new File([blob], filename, { type: 'image/png' })] })) {
+          try {
+            await navigator.share({ files: [new File([blob], filename, { type: 'image/png' })], title: 'November Fitness & Habit Recap' });
+            saveBtn.innerHTML = orig;
+            saveBtn.style.pointerEvents = 'auto';
+            return;
+          } catch (_) {}
+        }
+        const link = document.createElement('a');
+        link.download = filename;
+        link.href = URL.createObjectURL(blob);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(link.href);
+        toast("📸 November story image saved!");
+        saveBtn.innerHTML = orig;
+        saveBtn.style.pointerEvents = 'auto';
+      }, 'image/png');
+    } catch (err) {
+      console.warn(err);
+      toast("Could not save picture automatically. Screenshot it!");
+      saveBtn.innerHTML = orig;
+      saveBtn.style.pointerEvents = 'auto';
+    }
+  };
+
+  // Leaderboard with Badges & Grace
   async function loadLeaderboard() {
     const tbody = $('leaderboardBody');
     tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:24px">Loading standings...</td></tr>`;
@@ -1251,6 +1751,18 @@ button, input, select { font: inherit; }
         const isMe = currentUser && currentUser.uid === u.id;
         const tr = document.createElement('tr');
         if (isMe) tr.style.background = '#eaf2f8';
+
+        const uBadges = Array.isArray(u.badges) ? u.badges : [];
+        let badgesHTML = '';
+        if (uBadges.length > 0) {
+          uBadges.slice(0, 5).forEach(b => {
+            badgesHTML += `<span class="badge-chip" title="${b.name}: ${b.desc}">${b.icon}</span>`;
+          });
+        } else {
+          badgesHTML = '<span style="color:var(--muted);font-size:0.75rem">—</span>';
+        }
+
+        const graceCopy = (u.graceTokens || 0) > 0 ? `<div style="font-size:0.68rem;color:#207842;font-weight:750">-${u.graceTokens * 30}m grace</div>` : '';
 
         tr.innerHTML = `
           <td><span class="leader-rank">#${idx + 1}</span></td>
@@ -1275,13 +1787,14 @@ button, input, select { font: inherit; }
               ? `<span style="background:#fff5eb;border:1px solid #fedbc0;color:#c84f10;padding:2px 7px;border-radius:99px;font-weight:800;font-size:0.75rem">🔥 ${u.streak}d</span>` 
               : `<span style="color:var(--muted);font-size:0.75rem">0d</span>`}
           </td>
-          <td style="font-size:0.78rem;color:var(--muted);max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
-            ${u.habitName ? `<em>${u.habitName}</em>` : '—'}
+          <td>
+            <div class="badges-cell">${badgesHTML}</div>
           </td>
           <td>
             <span style="background:#fdecec;color:#b91c1c;padding:2px 6px;border-radius:6px;font-size:0.74rem;font-weight:750">
-              +${((u.habitSlips || 0) + (u.missedDays || 0)) * 30}m
+              +${Math.max(0, ((u.habitSlips || 0) + (u.missedDays || 0)) * 30 - ((u.graceTokens || 0) * 30))}m
             </span>
+            ${graceCopy}
           </td>
         `;
         tbody.appendChild(tr);
