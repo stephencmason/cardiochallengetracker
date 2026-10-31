@@ -7,7 +7,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>November Fitness & Habit Challenge - v9.6</title>
+<title>November Fitness & Habit Challenge - v9.7</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <!-- Firebase SDKs -->
@@ -103,7 +103,7 @@ button, input, select { font: inherit; }
 .version-tag { position: absolute; right: 18px; bottom: 10px; font-size: 0.68rem; opacity: 0.85; font-weight: 800; letter-spacing: 0.04em; background: rgba(0,0,0,0.2); padding: 2px 8px; border-radius: 6px; }
 
 .btn-recap-launch {
-  display: inline-flex;
+  display: none;
   align-items: center;
   gap: 6px;
   background: linear-gradient(135deg, #ffd778, #f3a93b);
@@ -118,6 +118,7 @@ button, input, select { font: inherit; }
   transition: transform 0.15s, filter 0.15s;
 }
 .btn-recap-launch:hover { transform: translateY(-1px); filter: brightness(1.05); }
+.btn-recap-launch.visible { display: inline-flex; }
 
 /* Badges styling */
 .dashboard-badges { display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap; }
@@ -392,7 +393,7 @@ button, input, select { font: inherit; }
         </div>
       </div>
     </div>
-    <div class="version-tag">v9.6 Active</div>
+    <div class="version-tag">v9.7 Active</div>
   </header>
 
   <!-- Collapsible Habit Management Ribbon -->
@@ -408,10 +409,19 @@ button, input, select { font: inherit; }
   </div>
 
   <div id="habitEditBox" class="habit-edit-box">
-    <div style="font-size:0.82rem;color:var(--muted);margin-bottom:8px">
-      Define 1 specific habit to break or maintain in November (e.g. <em>"No phone in bed past 10 PM"</em>, <em>"Zero refined sugar"</em>, <em>"10,000 steps"</em>). Slipping on any day adds a <strong>+30 minute penalty</strong> to your monthly target.
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--line);flex-wrap:wrap">
+      <div style="font-size:0.84rem;font-weight:750;color:var(--navy)">
+        Habit Tracking Preference
+      </div>
+      <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:0.82rem;font-weight:750">
+        <input type="checkbox" id="habitEnabledToggle" checked style="width:17px;height:17px;cursor:pointer">
+        <span id="habitEnabledToggleLabel" style="color:var(--green)">Tracking Active</span>
+      </label>
     </div>
-    <div style="display:flex;gap:8px">
+    <div style="font-size:0.82rem;color:var(--muted);margin-bottom:8px">
+      (Optional) Define 1 specific habit to break or maintain in November (e.g. <em>"No phone in bed past 10 PM"</em>, <em>"Zero refined sugar"</em>). If enabled, slipping adds a <strong>+30 minute penalty</strong>. Uncheck above to disable habit tracking entirely.
+    </div>
+    <div id="habitInputRow" style="display:flex;gap:8px">
       <input type="text" id="habitInput" placeholder="Type your personal habit here..." style="flex:1;padding:8px 12px;border:1px solid var(--line);border-radius:10px;font-size:0.85rem">
       <button id="saveHabitBtn" class="btn primary" style="width:auto;padding:8px 18px;font-size:0.82rem">Save Habit</button>
     </div>
@@ -546,7 +556,7 @@ button, input, select { font: inherit; }
             </div>
 
             <!-- Habit Breaker Section -->
-            <div class="habit-check-card">
+            <div id="habitDailyCard" class="habit-check-card">
               <div style="font-size:0.80rem;font-weight:750;color:var(--navy);margin-bottom:4px">
                 Habit: <span id="currentDayHabitLabel" style="color:#b45309">Not configured</span>
               </div>
@@ -773,7 +783,7 @@ button, input, select { font: inherit; }
 <div class="toast" id="toast"></div>
 
 <script>
-  const APP_VERSION = "9.6";
+  const APP_VERSION = "9.7";
 
   const firebaseConfig = {
     apiKey: "AIzaSyCbxoN1DLvMqxZb7FD4qu8p7k6lnD5ENP4",
@@ -801,6 +811,7 @@ button, input, select { font: inherit; }
   let userProfileDoc = null;
   let selectedDay = 1;
   let habitState = null; // true = clean, false = slipped, null = none
+  let habitEnabled = true;
   let currentMonthDays = Array.from({ length: DAYS }, () => ({ activities: [], habitClean: null }));
   let computedStats = null;
 
@@ -977,6 +988,35 @@ button, input, select { font: inherit; }
   function getTodayDayNum() {
     const d = new Date();
     return (d.getMonth() === 10) ? Math.min(30, Math.max(1, d.getDate())) : 1;
+  }
+
+  // Check if November season has concluded (Dec 1st or later)
+  function isNovemberConcluded() {
+    const now = new Date();
+    const curYear = now.getFullYear();
+    const curMonth = now.getMonth(); // 10 is Nov, 11 is Dec
+    if (curYear > 2026) return true;
+    if (curYear === 2026 && curMonth >= 11) return true; // December 1st or later
+    return false;
+  }
+
+  function checkNovemberStoryRecapTiming() {
+    const concluded = isNovemberConcluded();
+    const recapBtn = $('launchRecapBtn');
+    if (recapBtn) {
+      recapBtn.classList.toggle('visible', concluded);
+    }
+    if (concluded) {
+      const autoKey = `novChallenge_recapAutoShown_2026`;
+      try {
+        if (!sessionStorage.getItem(autoKey)) {
+          sessionStorage.setItem(autoKey, '1');
+          setTimeout(() => {
+            openStoryRecapModal();
+          }, 900);
+        }
+      } catch (_) {}
+    }
   }
 
   selectedDay = getTodayDayNum();
@@ -1325,15 +1365,10 @@ button, input, select { font: inherit; }
       const refreshed = await ref.get();
       userProfileDoc = refreshed.data();
 
-      // Configure Habit Ribbon display
-      if (userProfileDoc && userProfileDoc.habitName && userProfileDoc.habitName.trim()) {
-        $('habitDisplayTitle').textContent = userProfileDoc.habitName.trim();
-        $('currentDayHabitLabel').textContent = userProfileDoc.habitName.trim();
-        $('habitInput').value = userProfileDoc.habitName.trim();
-      } else {
-        $('habitDisplayTitle').textContent = 'None configured (Click Edit)';
-        $('currentDayHabitLabel').textContent = 'Not configured';
-      }
+      // Configure Habit Tracking Enable/Disable state
+      habitEnabled = userProfileDoc.habitEnabled !== false;
+      $('habitEnabledToggle').checked = habitEnabled;
+      updateHabitUIState();
 
       // Configure Target Mode Window (First 7 days)
       const dayNow = getTodayDayNum();
@@ -1353,20 +1388,64 @@ button, input, select { font: inherit; }
 
   // Save Habit Button
   $('saveHabitBtn').onclick = async () => {
+    const isEnabled = $('habitEnabledToggle').checked;
     const val = $('habitInput').value.trim();
-    if (!val) {
-      toast("Please enter a valid habit description.");
+
+    if (isEnabled && !val) {
+      toast("Please enter a habit description or uncheck tracking to disable.");
       return;
     }
+
+    habitEnabled = isEnabled;
     if (currentUser) {
-      await db.collection('nov_users').doc(currentUser.uid).update({ habitName: val });
+      await db.collection('nov_users').doc(currentUser.uid).update({
+        habitName: val,
+        habitEnabled: isEnabled
+      });
     }
-    $('habitDisplayTitle').textContent = val;
-    $('currentDayHabitLabel').textContent = val;
+    if (userProfileDoc) {
+      userProfileDoc.habitName = val;
+      userProfileDoc.habitEnabled = isEnabled;
+    }
+
+    updateHabitUIState();
     $('habitEditBox').classList.remove('open');
     $('habitBtnLabel').textContent = 'Edit Habit';
-    toast("Personal habit updated!");
+    toast(isEnabled ? "Personal habit updated!" : "Habit tracking disabled.");
+    await recalculateAndSyncStats();
   };
+
+  $('habitEnabledToggle').onchange = (e) => {
+    const on = e.target.checked;
+    $('habitEnabledToggleLabel').textContent = on ? 'Tracking Active' : 'Tracking Disabled';
+    $('habitEnabledToggleLabel').style.color = on ? 'var(--green)' : 'var(--muted)';
+    $('habitInputRow').style.opacity = on ? '1' : '0.5';
+    $('habitInput').disabled = !on;
+  };
+
+  function updateHabitUIState() {
+    const isEnabled = habitEnabled && userProfileDoc && userProfileDoc.habitEnabled !== false;
+    $('habitEnabledToggle').checked = isEnabled;
+    $('habitEnabledToggleLabel').textContent = isEnabled ? 'Tracking Active' : 'Tracking Disabled';
+    $('habitEnabledToggleLabel').style.color = isEnabled ? 'var(--green)' : 'var(--muted)';
+    $('habitInputRow').style.opacity = isEnabled ? '1' : '0.5';
+    $('habitInput').disabled = !isEnabled;
+
+    const habitDailyCard = $('habitDailyCard');
+    if (!isEnabled) {
+      $('habitDisplayTitle').textContent = 'Disabled (Optional)';
+      $('currentDayHabitLabel').textContent = 'Disabled';
+      if (habitDailyCard) habitDailyCard.style.display = 'none';
+    } else {
+      const hName = (userProfileDoc && userProfileDoc.habitName && userProfileDoc.habitName.trim()) 
+        ? userProfileDoc.habitName.trim() 
+        : 'None configured (Click Edit)';
+      $('habitDisplayTitle').textContent = hName;
+      $('currentDayHabitLabel').textContent = hName;
+      $('habitInput').value = (userProfileDoc && userProfileDoc.habitName) ? userProfileDoc.habitName : '';
+      if (habitDailyCard) habitDailyCard.style.display = 'block';
+    }
+  }
 
   // Base Target Toggle Handlers (First 7 days)
   $('btnSetSeptTarget').onclick = async () => {
@@ -1477,11 +1556,11 @@ button, input, select { font: inherit; }
       const dayTotal = d.activities.reduce((sum, a) => sum + (a.minutes || 0), 0);
       actualMinutes += dayTotal;
       countedMinutes += Math.min(dayTotal, 120);
-
-      if (dayTotal > maxDay) maxDay = dayTotal;
-      if (d.logged && dayTotal < 30) missedDays++;
-      if (d.habitClean === false) habitSlips++;
-      if (d.habitClean === true) cleanHabitDays++;
+      const isHabitTracking = habitEnabled && userProfileDoc && userProfileDoc.habitEnabled !== false;
+      if (isHabitTracking) {
+        if (d.habitClean === false) habitSlips++;
+        if (d.habitClean === true) cleanHabitDays++;
+      }
 
       d.activities.forEach(a => {
         favMap[a.type] = (favMap[a.type] || 0) + (a.minutes || 0);
@@ -1566,7 +1645,7 @@ button, input, select { font: inherit; }
     $('statRemaining').textContent = `${remaining} min`;
     $('statRemainingHours').textContent = `${(remaining / 60).toFixed(1)} hours`;
     $('statHabitSlips').textContent = habitSlips;
-    $('statHabitPenalty').textContent = `+${habitSlips * 30} min penalty`;
+    $('statHabitPenalty').textContent = habitEnabled ? `+${habitSlips * 30} min penalty` : 'Tracking disabled';
     $('statMissedTotal').textContent = `${missedDays} missed`;
     $('statGraceTokens').textContent = graceTokensEarned > 0 ? `${graceTokensEarned} grace (-${forgivenMinutes}m)` : `0 grace tokens`;
 
@@ -1592,6 +1671,9 @@ button, input, select { font: inherit; }
     $('pbBiggestDaySub').textContent = maxDay > 0 ? (maxDay > 120 ? `120m counted (${maxDay}m raw)` : 'Single day high') : 'No activity yet';
     $('pbFavWorkout').textContent = `👟 ${favType}`;
     $('pbFavWorkoutSub').textContent = favMins > 0 ? `${favMins}m logged` : '0 min logged';
+
+    // Verify recap button status
+    checkNovemberStoryRecapTiming();
 
     // Update in Firestore
     if (currentUser) {
@@ -1881,6 +1963,7 @@ button, input, select { font: inherit; }
   // Initial Form Setup
   loadDayIntoForm(selectedDay);
   renderCalendar();
+  checkNovemberStoryRecapTiming();
   setTimeout(checkForRemoteUpdate, 2000);
 </script>
 
