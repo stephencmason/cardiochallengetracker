@@ -7,7 +7,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>November Fitness &amp; Habit Challenge - v11.1</title>
+<title>November Fitness &amp; Habit Challenge - v11.2</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -26,7 +26,7 @@ button,input,select,textarea{font:inherit;touch-action:manipulation}
 input,select,textarea{font-size:16px !important}
 .app{max-width:1180px;margin:auto;padding:12px 14px}
 
-/* Streamlined Compact Mobile Header */
+/* Streamlined Compact Header - Right Justified Mobile */
 .hero{background:linear-gradient(125deg,var(--navy),#235d7c 65%,#258b96);color:white;border-radius:18px;padding:12px 16px;box-shadow:var(--shadow);position:relative;overflow:hidden}
 .hero-compact-row{display:flex;justify-content:space-between;align-items:center;gap:10px;position:relative;z-index:1}
 .hero-title-wrap h1{margin:0;font-size:clamp(1.10rem, 2.4vw, 1.45rem);font-weight:850;letter-spacing:-0.02em;line-height:1.2}
@@ -130,16 +130,6 @@ input,select,textarea{font-size:16px !important}
 .btn-habit-choice.active-clean{background:#e6f7ec;border-color:#2b9a66;color:#18633e}
 .btn-habit-choice.active-slip{background:#fdecec;border-color:#c94d4d;color:#9b2424}
 
-/* Breakdown Charts Section */
-.charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
-.chart-card{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:12px}
-.chart-title{font-size:0.84rem;font-weight:800;color:var(--navy);margin-bottom:8px;display:flex;align-items:center;justify-content:space-between}
-.chart-body{display:flex;align-items:center;gap:14px}
-.chart-donut{width:110px;height:110px;flex-shrink:0}
-.chart-legend{display:grid;gap:4px;flex:1;font-size:0.72rem}
-.chart-legend-item{display:flex;align-items:center;justify-content:space-between;gap:6px}
-.chart-dot{width:8px;height:8px;border-radius:50%;display:inline-block;flex-shrink:0}
-
 /* Leaderboard */
 .table-wrap{overflow-x:auto}
 .leader-table{width:100%;border-collapse:collapse;text-align:left;font-size:.84rem}
@@ -150,10 +140,10 @@ input,select,textarea{font-size:16px !important}
 .habit-clickable-pill{display:inline-flex;align-items:center;gap:4px;background:#fff8eb;border:1px solid #fedbc0;color:#9a3412;padding:3px 8px;border-radius:99px;font-size:0.72rem;font-weight:750;cursor:pointer;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .habit-clickable-pill:hover{background:#ffeedb}
 
-/* Full Habit Modal Dialog */
-.modal-overlay{position:fixed;inset:0;background:rgba(15,23,42,0.7);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:9999;padding:16px}
+/* Edit Habit Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(15,23,42,0.6);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;z-index:9999;padding:16px}
 .modal-overlay.show{display:flex}
-.modal-box{background:var(--paper);border-radius:18px;max-width:440px;width:100%;padding:18px;box-shadow:0 20px 40px rgba(0,0,0,0.25);border:1px solid var(--line)}
+.modal-box{background:var(--paper);border-radius:16px;max-width:420px;width:100%;padding:18px;box-shadow:0 20px 40px rgba(0,0,0,0.2);border:1px solid var(--line)}
 
 /* Story Recap Modal */
 .story-modal-overlay{position:fixed;inset:0;background:rgba(10,23,34,0.85);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;z-index:10001;padding:12px;overflow-y:auto}
@@ -192,7 +182,7 @@ input,select,textarea{font-size:16px !important}
 .btn-story-close{background:rgba(255,255,255,0.15);color:#ffffff;max-width:85px;border:1px solid rgba(255,255,255,0.22)}
 
 .hidden{display:none !important}
-@media(max-width:900px){.summary{grid-template-columns:repeat(2,1fr)}.layout{grid-template-columns:1fr}.charts-grid{grid-template-columns:1fr}}
+@media(max-width:900px){.summary{grid-template-columns:repeat(2,1fr)}.layout{grid-template-columns:1fr}}
 @media(max-width:620px){
   .app{padding:8px}
   .hero{padding:10px 12px}
@@ -206,7 +196,7 @@ input,select,textarea{font-size:16px !important}
 <body>
 
 <div class="app">
-  <!-- Streamlined Header -->
+  <!-- Streamlined Header with Right Justified Profile and Version -->
   <header class="hero">
     <div class="hero-compact-row">
       <div class="hero-title-wrap">
@@ -214,7 +204,7 @@ input,select,textarea{font-size:16px !important}
       </div>
       <div class="hero-actions">
         <div class="hero-actions-top">
-          <div class="hero-version-pill">v11.1 &bull; 2026</div>
+          <div class="hero-version-pill">v11.2 &bull; 2026</div>
           <a href="index.html" class="btn-hub-nav">← Hub</a>
           <button id="launchRecapBtn" class="btn-recap-launch">
             <span>📜</span> <span>Story Recap</span>
@@ -396,31 +386,6 @@ input,select,textarea{font-size:16px !important}
 
   <!-- LEADERBOARD VIEW -->
   <div id="leaderboardView" class="hidden">
-    <!-- Visual Breakdown Donut Charts -->
-    <div class="charts-grid">
-      <div class="chart-card">
-        <div class="chart-title">
-          <span>⏱️ Activity by Minutes</span>
-          <span id="totalGroupMinutes" style="font-size:0.75rem;color:var(--muted)">0m Total</span>
-        </div>
-        <div class="chart-body">
-          <svg id="donutMinutes" class="chart-donut" viewBox="0 0 100 100"></svg>
-          <div id="legendMinutes" class="chart-legend"></div>
-        </div>
-      </div>
-
-      <div class="chart-card">
-        <div class="chart-title">
-          <span>🔢 Activity by Workout Count</span>
-          <span id="totalGroupSessions" style="font-size:0.75rem;color:var(--muted)">0 Sessions</span>
-        </div>
-        <div class="chart-body">
-          <svg id="donutSessions" class="chart-donut" viewBox="0 0 100 100"></svg>
-          <div id="legendSessions" class="chart-legend"></div>
-        </div>
-      </div>
-    </div>
-
     <section class="panel">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
         <h2 style="margin:0">🏆 November Standings (% Complete)</h2>
@@ -496,7 +461,7 @@ input,select,textarea{font-size:16px !important}
       <span>👥 Enrolled Athletes:</span>
       <strong id="uniqueUsersCount">-- enrolled</strong>
     </div>
-    <div>November Fitness &amp; Habit Challenge &bull; v11.1</div>
+    <div>November Fitness &amp; Habit Challenge &bull; v11.2</div>
   </footer>
 </div>
 
@@ -517,29 +482,6 @@ input,select,textarea{font-size:16px !important}
       <div style="display:flex;gap:8px;margin-top:6px">
         <button id="saveHabitBtn" class="tab-btn active" style="flex:1;padding:8px">Save Habit</button>
         <button id="cancelHabitBtn" class="tab-btn" style="flex:0 0 auto;padding:8px 14px">Cancel</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Habit Details Modal for Leaderboard -->
-<div id="habitModalOverlay" class="modal-overlay">
-  <div class="modal-box">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-      <h3 id="modalHabitAthlete" style="margin:0;font-size:1.02rem;font-weight:800;color:var(--navy)">Athlete's Habit</h3>
-      <button id="closeHabitModalBtn" style="background:none;border:0;font-size:1.1rem;cursor:pointer;color:var(--muted)">✕</button>
-    </div>
-    <div id="modalHabitText" style="padding:10px 12px;background:#fff8eb;border:1px solid #fedbc0;border-radius:8px;font-size:0.86rem;font-weight:700;color:#9a3412;margin-bottom:12px">
-      Habit name here
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:0.80rem;text-align:center">
-      <div style="background:#f8fafb;padding:8px;border-radius:8px;border:1px solid var(--line)">
-        <div style="color:var(--muted);font-size:0.70rem;text-transform:uppercase">Clean Streak</div>
-        <strong id="modalHabitClean" style="color:#2b9a66;font-size:1.05rem">0 days</strong>
-      </div>
-      <div style="background:#f8fafb;padding:8px;border-radius:8px;border:1px solid var(--line)">
-        <div style="color:var(--muted);font-size:0.70rem;text-transform:uppercase">Slips / Debt</div>
-        <strong id="modalHabitSlips" style="color:#c94d4d;font-size:1.05rem">0 slips</strong>
       </div>
     </div>
   </div>
@@ -634,7 +576,7 @@ input,select,textarea{font-size:16px !important}
 </div>
 
 <script>
-  const APP_VERSION = "11.1";
+  const APP_VERSION = "11.2";
 
   const firebaseConfig = {
     apiKey: "AIzaSyCbxoN1DLvMqxZb7FD4qu8p7k6lnD5ENP4",
@@ -657,14 +599,6 @@ input,select,textarea{font-size:16px !important}
   const $ = id => document.getElementById(id);
   const DAYS = 30;
   const ACTIVITY_TYPES = ['Bootcamp', 'Cardio', 'Cross Fit', 'Weights', 'Resistance Training', 'Yoga'];
-  const DISCIPLINE_COLORS = {
-    'Bootcamp': '#f97316',
-    'Cardio': '#06b6d4',
-    'Cross Fit': '#e11d48',
-    'Weights': '#8b5cf6',
-    'Resistance Training': '#3b82f6',
-    'Yoga': '#10b981'
-  };
 
   let currentUser = null;
   let selectedDay = 1;
@@ -723,17 +657,6 @@ input,select,textarea{font-size:16px !important}
   $('tabRules').onclick = () => showTab('tabRules', 'rulesView');
   $('refreshBoardBtn').onclick = () => loadLeaderboard();
   $('refreshFeedBtn').onclick = () => loadFeed();
-
-  // Habit Modal handlers
-  function openHabitModal(userName, habitText, cleanDays, slips) {
-    $('modalHabitAthlete').textContent = `${userName}'s Habit`;
-    $('modalHabitText').textContent = habitText || 'No habit defined';
-    $('modalHabitClean').textContent = `${cleanDays} days`;
-    $('modalHabitSlips').textContent = `${slips} slips`;
-    $('habitModalOverlay').classList.add('show');
-  }
-  $('closeHabitModalBtn').onclick = () => $('habitModalOverlay').classList.remove('show');
-  $('habitModalOverlay').onclick = e => { if (e.target === $('habitModalOverlay')) $('habitModalOverlay').classList.remove('show'); };
 
   // Target Drawer handlers
   $('openTargetDrawerBtn').onclick = () => $('targetDrawer').classList.toggle('hidden');
@@ -1146,60 +1069,6 @@ input,select,textarea{font-size:16px !important}
     }
   }
 
-  // Visual Breakdown SVG Donut Drawing
-  function renderDonutChart(svgId, legendId, dataMap, totalUnit) {
-    const svg = $(svgId);
-    const legend = $(legendId);
-    svg.innerHTML = '';
-    legend.innerHTML = '';
-
-    const entries = Object.entries(dataMap).filter(([_, v]) => v > 0);
-    const total = entries.reduce((s, [_, v]) => s + v, 0);
-
-    if (total === 0) {
-      svg.innerHTML = `<circle cx="50" cy="50" r="38" fill="none" stroke="#e2e8f0" stroke-width="14" />
-                       <text x="50" y="54" text-anchor="middle" font-size="9" fill="#94a3b8" font-weight="700">No data</text>`;
-      legend.innerHTML = `<div style="color:var(--muted);font-style:italic">No activity logged yet</div>`;
-      return;
-    }
-
-    const radius = 38;
-    const circumference = 2 * Math.PI * radius;
-    let accumulatedOffset = 0;
-
-    entries.forEach(([type, val]) => {
-      const pct = val / total;
-      const strokeLength = pct * circumference;
-      const color = DISCIPLINE_COLORS[type] || '#64748b';
-
-      const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-      circle.setAttribute('cx', '50');
-      circle.setAttribute('cy', '50');
-      circle.setAttribute('r', radius);
-      circle.setAttribute('fill', 'none');
-      circle.setAttribute('stroke', color);
-      circle.setAttribute('stroke-width', '14');
-      circle.setAttribute('stroke-dasharray', `${strokeLength} ${circumference - strokeLength}`);
-      circle.setAttribute('stroke-dashoffset', -accumulatedOffset);
-      circle.setAttribute('transform', 'rotate(-90 50 50)');
-      svg.appendChild(circle);
-
-      accumulatedOffset += strokeLength;
-
-      // Legend Item
-      const leg = document.createElement('div');
-      leg.className = 'chart-legend-item';
-      leg.innerHTML = `
-        <div style="display:flex;align-items:center;gap:5px;min-width:0">
-          <span class="chart-dot" style="background:${color}"></span>
-          <span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${type}</span>
-        </div>
-        <strong>${val}${totalUnit} <span style="color:var(--muted);font-weight:normal">(${Math.round(pct * 100)}%)</span></strong>
-      `;
-      legend.appendChild(leg);
-    });
-  }
-
   async function loadLeaderboard() {
     const tbody = $('leaderboardBody');
     tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px">Loading November standings...</td></tr>`;
@@ -1209,31 +1078,7 @@ input,select,textarea{font-size:16px !important}
         .collection('public').doc('data').collection('nov_leaderboard').get();
 
       const users = [];
-      const minuteMap = {};
-      const sessionMap = {};
-      ACTIVITY_TYPES.forEach(t => { minuteMap[t] = 0; sessionMap[t] = 0; });
-
-      snap.forEach(docSnap => {
-        const u = docSnap.data();
-        users.push(u);
-
-        if (Array.isArray(u.activities)) {
-          u.activities.forEach(act => {
-            if (act.type && minuteMap[act.type] !== undefined) {
-              minuteMap[act.type] += (Number(act.minutes) || 0);
-              sessionMap[act.type] += 1;
-            }
-          });
-        }
-      });
-
-      // Render Charts
-      const totalMins = Object.values(minuteMap).reduce((s, v) => s + v, 0);
-      const totalSess = Object.values(sessionMap).reduce((s, v) => s + v, 0);
-      $('totalGroupMinutes').textContent = `${totalMins}m Total`;
-      $('totalGroupSessions').textContent = `${totalSess} Sessions`;
-      renderDonutChart('donutMinutes', 'legendMinutes', minuteMap, 'm');
-      renderDonutChart('donutSessions', 'legendSessions', sessionMap, ' sess');
+      snap.forEach(docSnap => users.push(docSnap.data()));
 
       users.sort((a, b) => b.progressPct - a.progressPct || b.countedMinutes - a.countedMinutes);
       $('uniqueUsersCount').textContent = `${users.length} enrolled`;
@@ -1266,22 +1111,15 @@ input,select,textarea{font-size:16px !important}
           <td><strong style="color:var(--navy);font-size:0.92rem">${u.progressPct || 0}%</strong></td>
           <td><span style="font-weight:750">${u.countedMinutes || 0}m</span> / <span style="color:var(--muted)">${u.adjustedTarget || 1432}m</span></td>
           <td>
-            <button class="habit-clickable-pill" data-name="${u.displayName || 'Athlete'}" data-habit="${habitName}" data-clean="${cleanDays}" data-slips="${slips}">
-              ⚡ <span>${habitName}</span>
-            </button>
+            <span class="habit-clickable-pill" title="${habitName} (${cleanDays}d clean, ${slips} slips)">
+              ⚡ ${habitName}
+            </span>
           </td>
           <td>
             <span style="font-size:0.86rem">${cleanDays >= 7 ? '🛡️' : ''}${u.progressPct >= 100 ? ' 🏆' : ''}</span>
           </td>
         `;
         tbody.appendChild(tr);
-      });
-
-      tbody.querySelectorAll('.habit-clickable-pill').forEach(btn => {
-        btn.onclick = e => {
-          const el = e.currentTarget;
-          openHabitModal(el.dataset.name, el.dataset.habit, el.dataset.clean, el.dataset.slips);
-        };
       });
     } catch (e) {
       console.warn("Leaderboard fetch error:", e);
