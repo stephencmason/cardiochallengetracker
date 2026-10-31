@@ -1,13 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#173b57">
+<!-- ... existing code -->
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>September Fitness Challenge - v9.2 Archive</title>
+<title>September Fitness Challenge - v9.6 Archive</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
@@ -410,7 +405,7 @@ button,input,select{font:inherit}
         </div>
       </div>
     </div>
-    <div class="version-tag">v9.2 Archive</div>
+    <div class="version-tag">v9.6 Archive</div>
   </header>
 
   <div class="toolbar">
@@ -673,7 +668,7 @@ button,input,select{font:inherit}
       <strong id="uniqueUsersCount">1 enrolled</strong>
     </div>
     <div id="footerVersion" class="footer-version" style="cursor:pointer;padding:4px 8px;border-radius:6px;transition:background 0.15s" title="Tap to preview End-of-Challenge Story Recap">
-      September Fitness Challenge &bull; v9.2 Archive
+      September Fitness Challenge &bull; v9.6 Archive
     </div>
   </footer>
 </div>
@@ -820,6 +815,7 @@ button,input,select{font:inherit}
     measurementId: "G-PP4QLCW7Q4"
   };
 
+  const APP_VERSION = "9.6";
   let auth = null;
   let db = null;
   let provider = null;
@@ -839,7 +835,7 @@ button,input,select{font:inherit}
     catch (_) { return memoryStorage[key] || null; }
   }
 
-  const APP_VERSION = "9.2";
+  const APP_VERSION = "9.3";
   const DAYS = 30;
   const ACTIVITY_TYPES = ["Bootcamp", "Cardio", "Cross Fit", "Weights", "Resistance Training", "Yoga", "Other"];
   const PALETTE = ['#d95b32', '#2674a8', '#d99521', '#2b9a66', '#8352b2', '#209699', '#8b9ba5'];
