@@ -3,7 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Fitness Challenge Hub - v9.0</title>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>Fitness Challenge Hub - v9.2</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
@@ -48,7 +51,7 @@
         <div>
           <div class="flex items-center gap-2">
             <span class="text-sm font-black tracking-tight text-white block leading-tight">CHALLENGE HUB</span>
-            <span class="text-[9px] uppercase tracking-wider font-extrabold px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">v9.0</span>
+            <span class="text-[9px] uppercase tracking-wider font-extrabold px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">v9.2</span>
           </div>
           <span class="text-[10px] text-slate-400 font-medium tracking-wide">Community Performance League</span>
         </div>
@@ -191,8 +194,10 @@
 
   <!-- Footer -->
   <footer class="border-t border-slate-900 text-center py-5 text-[11px] text-slate-600">
-    Fitness Challenge Hub &bull; Version 9.0 &bull; Firebase Synchronized
+    Fitness Challenge Hub &bull; Version 9.2 &bull; Firebase Synchronized
   </footer>
+
+  <div id="toast" class="fixed left-1/2 bottom-6 -translate-x-1/2 translate-y-20 bg-slate-900 border border-indigo-500/40 text-white px-5 py-2.5 rounded-full text-xs font-semibold shadow-2xl transition-all duration-300 pointer-events-none opacity-0 z-50"></div>
 
   <!-- Universal Auth Modal Overlay -->
   <div id="loginPromptModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 hidden">
@@ -225,6 +230,8 @@
   </div>
 
   <script>
+    const APP_VERSION = "9.2";
+
     const firebaseConfig = {
       apiKey: "AIzaSyCbxoN1DLvMqxZb7FD4qu8p7k6lnD5ENP4",
       authDomain: "fitness-challenge-smason.firebaseapp.com",
@@ -254,6 +261,42 @@
     const modalDismissBtn = document.getElementById('modalDismissBtn');
     const closeModalBtn = document.getElementById('closeModalBtn');
     const authErrorMsg = document.getElementById('authErrorMsg');
+    const toastEl = document.getElementById('toast');
+
+    function showToast(msg) {
+      if (!toastEl) return;
+      toastEl.textContent = msg;
+      toastEl.classList.remove('translate-y-20', 'opacity-0');
+      setTimeout(() => toastEl.classList.add('translate-y-20', 'opacity-0'), 2200);
+    }
+
+    async function checkForRemoteUpdate() {
+      if (window.location.protocol === 'file:' || !window.fetch) return;
+      try {
+        const bustUrl = window.location.pathname + (window.location.pathname.endsWith('/') ? '' : '/') + `?_cb=${Date.now()}`;
+        const response = await fetch(bustUrl, {
+          method: 'GET',
+          cache: 'no-store',
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache'
+          }
+        });
+        if (!response.ok) return;
+
+        const html = await response.text();
+        const match = html.match(/const\s+APP_VERSION\s*=\s*["']([^"']+)["']/);
+        if (match && match[1]) {
+          const remoteVersion = match[1].trim();
+          if (remoteVersion && remoteVersion !== APP_VERSION) {
+            showToast(`Updating Hub to v${remoteVersion}...`);
+            setTimeout(() => window.location.reload(), 1200);
+          }
+        }
+      } catch (e) {
+        console.warn("Version check skipped:", e);
+      }
+    }
 
     async function performLogin() {
       authErrorMsg.classList.add('hidden');
@@ -307,6 +350,8 @@
         }
       }
     });
+
+    setTimeout(checkForRemoteUpdate, 2000);
   </script>
 </body>
 </html>
