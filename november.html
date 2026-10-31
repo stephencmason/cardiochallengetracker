@@ -7,7 +7,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>November Fitness &amp; Habit Challenge - v11.6</title>
+<title>November Fitness &amp; Habit Challenge - v11.7</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -217,7 +217,7 @@ input,select,textarea{font-size:16px !important}
       </div>
       <div class="hero-actions">
         <div class="hero-actions-top">
-          <div class="hero-version-pill">v11.6 &bull; 2026</div>
+          <div class="hero-version-pill">v11.7 &bull; 2026</div>
           <a href="index.html" class="btn-hub-nav">← Hub</a>
           <button id="launchRecapBtn" class="btn-recap-launch">
             <span>📜</span> <span>Story Recap</span>
@@ -490,7 +490,7 @@ input,select,textarea{font-size:16px !important}
           </div>
           <div style="background:#f8fafb;border-left:4px solid var(--purple);padding:10px 12px;border-radius:6px">
             <strong>5. Baseline Target &amp; 7-Day Window:</strong>
-            <div>Standard baseline is 900 minutes. During November 1–7, athletes who achieved &ge;900m in September can scale their baseline to their September actual volume.</div>
+            <div>Standard baseline is strictly 900 minutes. During November 1–7, athletes who achieved &ge;900m in September can scale their baseline to their September actual volume.</div>
           </div>
         </div>
       </section>
@@ -502,7 +502,7 @@ input,select,textarea{font-size:16px !important}
       <span>👥 Enrolled Athletes:</span>
       <strong id="uniqueUsersCount">-- enrolled</strong>
     </div>
-    <div>November Fitness &amp; Habit Challenge &bull; v11.6</div>
+    <div>November Fitness &amp; Habit Challenge &bull; v11.7</div>
   </footer>
 </div>
 
@@ -639,7 +639,7 @@ input,select,textarea{font-size:16px !important}
 </div>
 
 <script>
-  const APP_VERSION = "11.6";
+  const APP_VERSION = "11.7";
 
   const firebaseConfig = {
     apiKey: "AIzaSyCbxoN1DLvMqxZb7FD4qu8p7k6lnD5ENP4",
@@ -672,6 +672,27 @@ input,select,textarea{font-size:16px !important}
   let userHabitName = "";
   let userHabitEnabled = true;
   let computedStats = null;
+
+  // Known verified September baselines from completed September 2026 challenge
+  // Tpasquill: 1602m, Jon: 1594m, Stephen Mason: 1432m, Mike Madsen: 2640m, Peter Mason: 1831m, Aidan Mason: 1857m
+  // Athletes without >=900m or new athletes (e.g. Mya N, Alison Mason) strictly default to 900m
+  const VERIFIED_SEPT_BASELINES = {
+    "tpasquill": 1602,
+    "jon": 1594,
+    "stephen mason": 1432,
+    "mike madsen": 2640,
+    "peter mason": 1831,
+    "aidan mason": 1857
+  };
+
+  function getVerifiedSeptTarget(nameStr) {
+    if (!nameStr) return 900;
+    const lower = nameStr.toLowerCase().trim();
+    for (const [key, val] of Object.entries(VERIFIED_SEPT_BASELINES)) {
+      if (lower.includes(key)) return val;
+    }
+    return 900;
+  }
 
   // Clean Display Name & Email Sanitizer: Strips everything from '@' onward
   function formatCleanName(userOrName, email) {
@@ -787,6 +808,7 @@ input,select,textarea{font-size:16px !important}
       await db.collection('artifacts').doc('fitness-challenge-smason')
         .collection('users').doc(currentUser.uid).collection('nov_profile').doc('meta')
         .set({ baseTarget: userBaseTarget }, { merge: true });
+      await syncUserLeaderboardRecord();
     } catch (e) {
       console.warn("Failed saving target preference:", e);
     }
@@ -1269,21 +1291,37 @@ input,select,textarea{font-size:16px !important}
 
   async function loadUserData(uid) {
     try {
+      const cleanName = formatCleanName(currentUser?.displayName, currentUser?.email);
+      const isStephen = cleanName.toLowerCase().includes('stephen');
+      const verifiedTarget = getVerifiedSeptTarget(cleanName);
+
       const metaSnap = await db.collection('artifacts').doc('fitness-challenge-smason')
         .collection('users').doc(uid).collection('nov_profile').doc('meta').get();
 
       if (metaSnap.exists) {
         const meta = metaSnap.data();
-        userBaseTarget = meta.baseTarget || 900;
-        userSeptCalculated = meta.septemberCalculatedTarget || userBaseTarget;
-        userHabitName = meta.habitName || "";
+        userSeptCalculated = meta.septemberCalculatedTarget || verifiedTarget;
+        
+        // Strict fix: If stored target was corrupted to 1432 for an athlete who is NOT Stephen and didn't hit 1432
+        if (!isStephen && meta.baseTarget === 1432 && verifiedTarget !== 1432) {
+          userBaseTarget = verifiedTarget; // strictly 900m
+        } else {
+          userBaseTarget = meta.baseTarget || verifiedTarget;
+        }
+
+        // Strict fix: If habit name was copied from Stephen to another athlete
+        if (!isStephen && meta.habitName === "Stop biting finger nails") {
+          userHabitName = "";
+        } else {
+          userHabitName = meta.habitName || (isStephen ? "Stop biting finger nails" : "");
+        }
+        
         if (meta.habitEnabled !== undefined) userHabitEnabled = meta.habitEnabled;
       } else {
-        userBaseTarget = 900;
-        userSeptCalculated = 900;
-        userHabitName = "";
+        userBaseTarget = verifiedTarget;
+        userSeptCalculated = verifiedTarget;
+        userHabitName = isStephen ? "Stop biting finger nails" : "";
         userHabitEnabled = true;
-        checkSeptemberBaselineOnce(uid);
       }
 
       $('baseTargetDisplay').textContent = `${userBaseTarget}m`;
@@ -1301,37 +1339,57 @@ input,select,textarea{font-size:16px !important}
 
       recalculateStats();
       displayDayEditor(selectedDay);
-      syncUserLeaderboardRecord();
+      await syncUserLeaderboardRecord();
+
+      // If Stephen logs in, run a silent scrub on any stale public documents that were corrupted in prior builds
+      if (isStephen) {
+        scrubCorruptedPublicRecords();
+      }
     } catch (e) {
       console.warn("Error loading user data:", e);
     }
   }
 
-  async function checkSeptemberBaselineOnce(uid) {
+  // Silent maintenance function: heals Alison, Mya, etc. in Firestore if they received Stephen's defaults in v11.4
+  async function scrubCorruptedPublicRecords() {
     try {
-      const snap = await db.collection('users').doc(uid).collection('challenges').doc('2026').get();
-      if (snap.exists && Array.isArray(snap.data().days)) {
-        let septMins = 0;
-        snap.data().days.forEach(d => {
-          const acts = Array.isArray(d.activities) ? d.activities : [];
-          const raw = acts.reduce((s, a) => s + (Number(a.minutes) || 0), 0) || (Number(d.minutes) || 0);
-          septMins += Math.min(raw, 120);
-        });
-        if (septMins >= 900) {
-          userBaseTarget = septMins;
-          userSeptCalculated = septMins;
-          $('baseTargetDisplay').textContent = `${userBaseTarget}m`;
-          $('drawerSeptMins').textContent = userSeptCalculated;
-          $('btnChooseSeptTarget').classList.add('active');
-          $('btnChooseDefaultTarget').classList.remove('active');
-          await db.collection('artifacts').doc('fitness-challenge-smason')
-            .collection('users').doc(uid).collection('nov_profile').doc('meta')
-            .set({ baseTarget: userBaseTarget, septemberCalculatedTarget: userSeptCalculated }, { merge: true });
-          recalculateStats();
+      const snapUsers = await db.collection('artifacts').doc('fitness-challenge-smason')
+        .collection('public').doc('data').collection('nov_users').get();
+      
+      snapUsers.forEach(async docSnap => {
+        const u = docSnap.data();
+        const docId = docSnap.id;
+        const name = formatCleanName(u.displayName, u.email);
+        const isStephen = name.toLowerCase().includes('stephen');
+        let needsFix = false;
+        const patch = {};
+
+        // If an athlete is not Stephen and has his 1432 baseline or habit
+        if (!isStephen) {
+          const verifiedTarget = getVerifiedSeptTarget(name);
+          if (u.baseTarget === 1432 && verifiedTarget !== 1432) {
+            patch.baseTarget = verifiedTarget;
+            patch.adjustedTarget = verifiedTarget;
+            needsFix = true;
+          }
+          if (u.habitName === "Stop biting finger nails") {
+            patch.habitName = "Not set yet";
+            needsFix = true;
+          }
         }
-      }
+
+        if (needsFix) {
+          await db.collection('artifacts').doc('fitness-challenge-smason')
+            .collection('public').doc('data').collection('nov_users').doc(docId)
+            .set(patch, { merge: true });
+          
+          await db.collection('artifacts').doc('fitness-challenge-smason')
+            .collection('public').doc('data').collection('nov_leaderboard').doc(docId)
+            .set(patch, { merge: true });
+        }
+      });
     } catch (e) {
-      console.warn("September lookup skipped:", e);
+      console.warn("Scrub notice:", e);
     }
   }
 
@@ -1376,7 +1434,23 @@ input,select,textarea{font-size:16px !important}
         if (currentUser && currentUser.uid === u.userId) tr.style.background = '#eaf2f8';
 
         const participantName = formatCleanName(u.displayName, u.email);
-        const habitDisplay = u.habitName && u.habitName !== 'Disabled' ? u.habitName : (u.habitName === 'Disabled' ? 'Disabled' : 'Not set yet');
+        const isStephen = participantName.toLowerCase().includes('stephen');
+        const verifiedTarget = getVerifiedSeptTarget(participantName);
+
+        // Sanitize Target Display: If user isn't Stephen and had 1432, fallback cleanly to their verified September total (or 900)
+        let displayTarget = u.adjustedTarget || verifiedTarget;
+        if (!isStephen && displayTarget === 1432 && verifiedTarget !== 1432) {
+          displayTarget = verifiedTarget; // strictly 900m
+        }
+
+        // Sanitize Habit Display: Alison / others shouldn't show Stephen's habit
+        let habitDisplay = u.habitName || '';
+        if (!isStephen && habitDisplay === "Stop biting finger nails") {
+          habitDisplay = "Not set yet";
+        }
+        if (habitDisplay === 'Disabled') habitDisplay = 'Disabled';
+        else if (!habitDisplay) habitDisplay = "Not set yet";
+
         const cleanDays = u.habitCleanDays || 0;
         const slips = u.habitSlips || 0;
         const isNotSet = habitDisplay === "Not set yet" || habitDisplay === "Disabled";
@@ -1393,7 +1467,7 @@ input,select,textarea{font-size:16px !important}
             </div>
           </td>
           <td><strong style="color:var(--navy);font-size:0.92rem">${u.progressPct || 0}%</strong></td>
-          <td><span style="font-weight:750">${u.countedMinutes || 0}m</span> / <span style="color:var(--muted)">${u.adjustedTarget || 900}m</span></td>
+          <td><span style="font-weight:750">${u.countedMinutes || 0}m</span> / <span style="color:var(--muted)">${displayTarget}m</span></td>
           <td>
             <span class="habit-clickable-pill ${isNotSet ? 'habit-none' : ''}" onclick="showAthleteHabitDetails('${encodeURIComponent(participantName)}', '${encodeURIComponent(habitDisplay)}', ${cleanDays}, ${slips})">
               ${isNotSet ? '⚪' : '⚡'} ${habitDisplay}
