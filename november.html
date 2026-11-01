@@ -7,7 +7,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>November Fitness &amp; Habit Challenge - v11.8</title>
+<title>November Fitness &amp; Habit Challenge - v11.9</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -26,7 +26,7 @@ button,input,select,textarea{font:inherit;touch-action:manipulation}
 input,select,textarea{font-size:16px !important}
 .app{max-width:1180px;margin:auto;padding:12px 14px}
 
-/* Streamlined Compact Header - Right Justified Mobile */
+/* Compact Header */
 .hero{background:linear-gradient(125deg,var(--navy),#235d7c 65%,#258b96);color:white;border-radius:18px;padding:12px 16px;box-shadow:var(--shadow);position:relative;overflow:hidden}
 .hero-compact-row{display:flex;justify-content:space-between;align-items:center;gap:10px;position:relative;z-index:1}
 .hero-title-wrap h1{margin:0;font-size:clamp(1.10rem, 2.4vw, 1.45rem);font-weight:850;letter-spacing:-0.02em;line-height:1.2}
@@ -52,7 +52,7 @@ input,select,textarea{font-size:16px !important}
 .btn-hub-nav:hover{background:rgba(255,255,255,0.28)}
 
 .btn-recap-launch{
-  display:none; /* Controlled dynamically by checkRecapAvailability() until Dec 1st */
+  display:none; /* Shown Dec 1st */
   align-items:center;
   gap:4px;
   background:linear-gradient(135deg,#ffd778,#f3a93b);
@@ -71,7 +71,7 @@ input,select,textarea{font-size:16px !important}
 .user-avatar{width:28px;height:28px;border-radius:50%;border:2px solid rgba(255,255,255,0.8);object-fit:cover;background:#1e293b}
 .btn-logout-link{background:none;border:0;color:#ffd5d5;cursor:pointer;font-size:0.74rem;text-decoration:underline;padding:0}
 
-/* Top Challenge Configuration Bar */
+/* Config Ribbon */
 .config-strip{background:var(--paper);border:1px solid rgba(220,229,234,.9);border-radius:12px;padding:8px 12px;margin:8px 0 10px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;box-shadow:0 2px 8px rgba(24,48,66,.03)}
 .config-pill{display:inline-flex;align-items:center;gap:6px;font-size:0.78rem;font-weight:750;color:var(--ink);background:#f6f9fb;border:1px solid var(--line);border-radius:99px;padding:3px 10px}
 .config-action-btn{background:none;border:0;color:var(--blue);font-weight:800;font-size:0.76rem;cursor:pointer;text-decoration:underline;padding:0 2px}
@@ -82,7 +82,7 @@ input,select,textarea{font-size:16px !important}
 .tab-btn:hover{color:var(--ink)}
 .tab-btn.active{background:var(--navy);color:white;border-color:var(--navy)}
 
-/* Compact 5-Metric Summary Cards */
+/* Summary Metrics */
 .summary{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:0 0 12px 0}
 .card,.panel{background:var(--paper);border:1px solid rgba(220,229,234,.8);border-radius:14px;box-shadow:var(--shadow)}
 .metric{background:#f8fafb;border:1px solid rgba(220,229,234,.8);border-radius:10px;padding:8px 10px;display:flex;flex-direction:column;gap:1px}
@@ -124,12 +124,10 @@ input,select,textarea{font-size:16px !important}
 .day-min{font-size:.82rem;margin-top:6px;font-weight:750}
 .day-note{font-size:.64rem;color:var(--muted);margin-top:2px}
 
-/* Quick Session Presets */
 .preset-chips{display:flex;gap:5px;margin-bottom:8px;flex-wrap:wrap}
 .chip-preset{background:#f1f5f9;border:1px solid var(--line);border-radius:6px;padding:3px 8px;font-size:0.72rem;font-weight:750;color:var(--navy);cursor:pointer;transition:all 0.12s}
 .chip-preset:hover{background:#e2e8f0}
 
-/* Habit Toggle Component */
 .habit-toggle-row{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:8px 0}
 .btn-habit-choice{padding:8px;border:1px solid var(--line);border-radius:8px;font-weight:750;font-size:0.78rem;cursor:pointer;background:#fbfcfd;color:var(--muted);display:flex;align-items:center;justify-content:center;gap:5px}
 .btn-habit-choice.active-clean{background:#e6f7ec;border-color:#2b9a66;color:#18633e}
@@ -209,7 +207,6 @@ input,select,textarea{font-size:16px !important}
 <body>
 
 <div class="app">
-  <!-- Streamlined Header with Right Justified Profile and Version -->
   <header class="hero">
     <div class="hero-compact-row">
       <div class="hero-title-wrap">
@@ -217,7 +214,7 @@ input,select,textarea{font-size:16px !important}
       </div>
       <div class="hero-actions">
         <div class="hero-actions-top">
-          <div class="hero-version-pill">v11.8 &bull; 2026</div>
+          <div class="hero-version-pill">v11.9 &bull; 2026</div>
           <a href="index.html" class="btn-hub-nav">← Hub</a>
           <button id="launchRecapBtn" class="btn-recap-launch">
             <span>📜</span> <span>Story Recap</span>
@@ -235,7 +232,6 @@ input,select,textarea{font-size:16px !important}
     </div>
   </header>
 
-  <!-- Challenge Configuration Ribbon -->
   <div class="config-strip">
     <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
       <div class="config-pill" id="habitStripPill">
@@ -251,7 +247,6 @@ input,select,textarea{font-size:16px !important}
     </div>
   </div>
 
-  <!-- Target Switcher Drawer (Nov 1-7) -->
   <div id="targetDrawer" class="card panel hidden" style="background:#f4f8fb;border-color:#b9d5e8;padding:12px;margin-bottom:10px">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
       <strong style="font-size:0.86rem;color:var(--navy)">🎯 Select November Baseline Target</strong>
@@ -276,7 +271,6 @@ input,select,textarea{font-size:16px !important}
     </nav>
   </div>
 
-  <!-- DASHBOARD VIEW -->
   <div id="dashboardView">
     <div class="summary">
       <div class="metric">
@@ -358,7 +352,6 @@ input,select,textarea{font-size:16px !important}
             <span id="saveStatusIndicator" style="font-size:0.75rem;color:var(--muted)">Saved</span>
           </div>
 
-          <!-- Quick Presets -->
           <div class="preset-chips">
             <span style="font-size:0.70rem;color:var(--muted);align-self:center">Quick:</span>
             <button type="button" class="chip-preset" onclick="quickAddPreset('Cardio', 30)">+30m Cardio</button>
@@ -366,14 +359,12 @@ input,select,textarea{font-size:16px !important}
             <button type="button" class="chip-preset" onclick="quickAddPreset('Bootcamp', 60)">+60m Bootcamp</button>
           </div>
 
-          <!-- Workouts Session List -->
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
             <span style="font-size:0.78rem;font-weight:750;color:var(--navy)">Track Workout Sessions</span>
             <button id="addActivityBtn" class="tab-btn" style="flex:0 0 auto;padding:3px 8px;font-size:0.74rem">+ Add Session</button>
           </div>
           <div id="activityContainer" style="display:grid;gap:8px"></div>
 
-          <!-- Habit Daily Check -->
           <div id="dailyHabitCard" style="background:#f9fbfd;border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin:12px 0 10px">
             <div style="display:flex;justify-content:space-between;align-items:center">
               <span style="font-size:0.76rem;font-weight:750;color:var(--ink)">⚡ Daily Habit Check</span>
@@ -403,7 +394,6 @@ input,select,textarea{font-size:16px !important}
     </div>
   </div>
 
-  <!-- LEADERBOARD VIEW -->
   <div id="leaderboardView" class="hidden">
     <section class="panel">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
@@ -430,7 +420,6 @@ input,select,textarea{font-size:16px !important}
     </section>
   </div>
 
-  <!-- ACTIVITY FEED VIEW -->
   <div id="feedView" class="hidden">
     <section class="panel">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
@@ -444,7 +433,6 @@ input,select,textarea{font-size:16px !important}
     </section>
   </div>
 
-  <!-- DISCIPLINE BREAKDOWN / CHARTS VIEW -->
   <div id="chartsView" class="hidden">
     <section class="panel">
       <h2 style="margin:0 0 4px">📊 Workout Discipline Analytics</h2>
@@ -463,7 +451,6 @@ input,select,textarea{font-size:16px !important}
     </section>
   </div>
 
-  <!-- CHALLENGE RULES VIEW -->
   <div id="rulesView" class="hidden">
     <div style="display:grid;gap:12px;max-width:850px;margin:auto">
       <section class="panel">
@@ -471,7 +458,7 @@ input,select,textarea{font-size:16px !important}
         <div style="display:grid;gap:10px;font-size:0.86rem;line-height:1.5">
           <div style="background:#f8fafb;border-left:4px solid var(--blue);padding:10px 12px;border-radius:6px">
             <strong>1. Daily 30-Minute Streak Minimum:</strong>
-            <div>Every calendar day requires at least 30 minutes of logged exercise to maintain your streak. Any day under 30 minutes in the past incurs a <strong>+30m penalty debt</strong>. Future days are never treated as misses.</div>
+            <div>Every calendar day requires at least 30 minutes of logged exercise to maintain your streak. Any past day under 30 minutes incurs a <strong>+30m penalty debt</strong>. Today and future days are never treated as misses!</div>
           </div>
           <div style="background:#f8fafb;border-left:4px solid #2b9a66;padding:10px 12px;border-radius:6px">
             <strong>2. 120-Minute Daily Cap:</strong>
@@ -499,7 +486,7 @@ input,select,textarea{font-size:16px !important}
       <span>👥 Enrolled Athletes:</span>
       <strong id="uniqueUsersCount">-- enrolled</strong>
     </div>
-    <div>November Fitness &amp; Habit Challenge &bull; v11.8</div>
+    <div>November Fitness &amp; Habit Challenge &bull; v11.9</div>
   </footer>
 </div>
 
@@ -636,7 +623,7 @@ input,select,textarea{font-size:16px !important}
 </div>
 
 <script>
-  const APP_VERSION = "11.8";
+  const APP_VERSION = "11.9";
 
   const firebaseConfig = {
     apiKey: "AIzaSyCbxoN1DLvMqxZb7FD4qu8p7k6lnD5ENP4",
@@ -660,7 +647,6 @@ input,select,textarea{font-size:16px !important}
   const DAYS = 30;
   const ACTIVITY_TYPES = ['Bootcamp', 'Cardio', 'Cross Fit', 'Weights', 'Resistance Training', 'Yoga'];
 
-  // Global State: Default strictly initializes to 900m
   let currentUser = null;
   let selectedDay = 1;
   let cachedDays = Array.from({ length: DAYS }, () => ({ habitClean: true, activities: [] }));
@@ -670,9 +656,6 @@ input,select,textarea{font-size:16px !important}
   let userHabitEnabled = true;
   let computedStats = null;
 
-  // Known verified September baselines from completed September 2026 challenge
-  // Tpasquill: 1602m, Jon: 1594m, Stephen Mason: 1432m, Mike Madsen: 2640m, Peter Mason: 1831m, Aidan Mason: 1857m
-  // Athletes without >=900m or new athletes (e.g. Mya N, Alison Mason) strictly default to 900m
   const VERIFIED_SEPT_BASELINES = {
     "tpasquill": 1602,
     "jon": 1594,
@@ -691,7 +674,6 @@ input,select,textarea{font-size:16px !important}
     return 900;
   }
 
-  // Clean Display Name & Email Sanitizer: Strips everything from '@' onward
   function formatCleanName(userOrName, email) {
     let name = '';
     if (typeof userOrName === 'string') {
@@ -712,11 +694,11 @@ input,select,textarea{font-size:16px !important}
   function getElapsedNovemberDay() {
     const now = new Date();
     const curYear = now.getFullYear();
-    const curMonth = now.getMonth(); // 10 is November (0-indexed)
+    const curMonth = now.getMonth(); // 10 is November
     const curDate = now.getDate();
 
     if (curYear < 2026 || (curYear === 2026 && curMonth < 10)) {
-      return 0; // November has not started yet; no days can be counted as missed!
+      return 0;
     }
     if (curYear === 2026 && curMonth === 10) {
       return Math.min(30, curDate);
@@ -726,14 +708,12 @@ input,select,textarea{font-size:16px !important}
 
   function checkRecapAvailability() {
     const now = new Date();
-    // Dec 1, 2026: month is 11 (0-indexed) or year > 2026
     const isDecOrLater = (now.getFullYear() > 2026) || (now.getFullYear() === 2026 && now.getMonth() >= 11);
     const recapBtn = $('launchRecapBtn');
     if (recapBtn) {
       recapBtn.style.display = isDecOrLater ? 'inline-flex' : 'none';
     }
 
-    // Auto-pop modal once on or after Dec 1st for signed-in athletes
     if (isDecOrLater && currentUser) {
       const shownKey = `nov_recap_auto_shown_${currentUser.uid}_2026`;
       if (!sessionStorage.getItem(shownKey)) {
@@ -796,7 +776,6 @@ input,select,textarea{font-size:16px !important}
   $('refreshBoardBtn').onclick = () => loadLeaderboard();
   $('refreshFeedBtn').onclick = () => loadFeed();
 
-  // Target Switcher Drawer Handlers
   $('openTargetDrawerBtn').onclick = () => $('targetDrawer').classList.toggle('hidden');
   $('closeTargetDrawerBtn').onclick = () => $('targetDrawer').classList.add('hidden');
 
@@ -830,7 +809,6 @@ input,select,textarea{font-size:16px !important}
     }
   }
 
-  // Edit Habit Handlers
   $('editHabitBtn').onclick = () => {
     $('habitNameInput').value = userHabitName;
     $('habitTrackingToggle').checked = userHabitEnabled;
@@ -895,7 +873,7 @@ input,select,textarea{font-size:16px !important}
       const dayRaw = acts.reduce((s, a) => s + (Number(a.minutes) || 0), 0);
       const dayCounted = Math.min(dayRaw, 120);
 
-      const hasPassed = day <= elapsedDays;
+      const hasPassed = day < elapsedDays;
       const isToday = day === elapsedDays;
 
       if (dayRaw >= 30) {
@@ -1028,7 +1006,6 @@ input,select,textarea{font-size:16px !important}
     $('dayTotalDisplay').textContent = `${counted} min counted (${raw}m actual)`;
   }
 
-  // BADGE SYSTEM ENGINE
   const BADGES_CONFIG = [
     { id: 'finisher', name: 'Challenge Finisher', icon: '🏆', desc: 'Reached 100% of required November adjusted target volume.' },
     { id: 'century', name: 'Century Club', icon: '💯', desc: 'Logged 100 or more minutes in a single calendar day.' },
@@ -1111,8 +1088,8 @@ input,select,textarea{font-size:16px !important}
       countedMinutes += Math.min(dayRaw, 120);
       if (dayRaw > maxDay) maxDay = dayRaw;
 
-      // Missed day: only if the day has already passed and has < 30m
-      if (dayNum <= elapsedDays && dayRaw < 30) {
+      // Missed day: ONLY past days (< elapsedDays). Today and future days are NOT misses.
+      if (dayNum < elapsedDays && dayRaw < 30) {
         missedDays++;
       }
 
@@ -1130,7 +1107,7 @@ input,select,textarea{font-size:16px !important}
     if (userHabitEnabled) {
       cachedDays.forEach((d, idx) => {
         const dayNum = idx + 1;
-        if (dayNum <= elapsedDays || (d.activities && d.activities.length > 0)) {
+        if (dayNum < elapsedDays || (d.activities && d.activities.length > 0)) {
           if (d.habitClean !== false) {
             curCleanStreak++;
             if (curCleanStreak % 7 === 0) graceTokensEarned++;
@@ -1318,14 +1295,12 @@ input,select,textarea{font-size:16px !important}
         const meta = metaSnap.data();
         userSeptCalculated = meta.septemberCalculatedTarget || verifiedTarget;
         
-        // Strict fix: If stored target was corrupted to 1432 for an athlete who is NOT Stephen and didn't hit 1432
         if (!isStephen && meta.baseTarget === 1432 && verifiedTarget !== 1432) {
-          userBaseTarget = verifiedTarget; // strictly 900m
+          userBaseTarget = verifiedTarget;
         } else {
           userBaseTarget = meta.baseTarget || verifiedTarget;
         }
 
-        // Strict fix: If habit name was copied from Stephen to another athlete
         if (!isStephen && meta.habitName === "Stop biting finger nails") {
           userHabitName = "";
         } else {
@@ -1357,7 +1332,6 @@ input,select,textarea{font-size:16px !important}
       displayDayEditor(selectedDay);
       await syncUserLeaderboardRecord();
 
-      // If Stephen logs in, run a silent scrub on any stale public documents that were corrupted in prior builds
       if (isStephen) {
         scrubCorruptedPublicRecords();
       }
@@ -1366,7 +1340,6 @@ input,select,textarea{font-size:16px !important}
     }
   }
 
-  // Silent maintenance function: heals Alison, Mya, etc. in Firestore if they received Stephen's defaults in v11.4
   async function scrubCorruptedPublicRecords() {
     try {
       const snapUsers = await db.collection('artifacts').doc('fitness-challenge-smason')
@@ -1380,17 +1353,27 @@ input,select,textarea{font-size:16px !important}
         let needsFix = false;
         const patch = {};
 
-        // If an athlete is not Stephen and has his 1432 baseline or habit
+        const verifiedTarget = getVerifiedSeptTarget(name);
+
         if (!isStephen) {
-          const verifiedTarget = getVerifiedSeptTarget(name);
-          if (u.baseTarget === 1432 && verifiedTarget !== 1432) {
+          if ((u.baseTarget === 1432 || !u.baseTarget) && verifiedTarget !== 1432) {
             patch.baseTarget = verifiedTarget;
-            patch.adjustedTarget = verifiedTarget;
             needsFix = true;
           }
           if (u.habitName === "Stop biting finger nails") {
             patch.habitName = "Not set yet";
             needsFix = true;
+          }
+        }
+
+        const elapsed = getElapsedNovemberDay();
+        const expectedBase = patch.baseTarget || u.baseTarget || verifiedTarget;
+        if (elapsed <= 1) {
+          if ((!u.habitSlips || u.habitSlips === 0) && (!u.actualMinutes || u.actualMinutes === 0)) {
+            if (u.adjustedTarget !== expectedBase) {
+              patch.adjustedTarget = expectedBase;
+              needsFix = true;
+            }
           }
         }
 
@@ -1453,13 +1436,19 @@ input,select,textarea{font-size:16px !important}
         const isStephen = participantName.toLowerCase().includes('stephen');
         const verifiedTarget = getVerifiedSeptTarget(participantName);
 
-        // Sanitize Target Display: If user isn't Stephen and had 1432, fallback cleanly to their verified September total (or 900)
         let displayTarget = u.adjustedTarget || verifiedTarget;
         if (!isStephen && displayTarget === 1432 && verifiedTarget !== 1432) {
-          displayTarget = verifiedTarget; // strictly 900m
+          displayTarget = verifiedTarget;
         }
 
-        // Sanitize Habit Display: Alison / others shouldn't show Stephen's habit
+        const elapsed = getElapsedNovemberDay();
+        if (elapsed <= 1 && (!u.habitSlips || u.habitSlips === 0)) {
+          const expectedBase = u.baseTarget || verifiedTarget;
+          if (displayTarget === expectedBase + 30) {
+            displayTarget = expectedBase;
+          }
+        }
+
         let habitDisplay = u.habitName || '';
         if (!isStephen && habitDisplay === "Stop biting finger nails") {
           habitDisplay = "Not set yet";
@@ -1583,7 +1572,6 @@ input,select,textarea{font-size:16px !important}
     }
   }
 
-  // Story Recap Modal Engine
   function openStoryRecap() {
     if (!computedStats) recalculateStats();
     const s = computedStats;
@@ -1670,7 +1658,6 @@ input,select,textarea{font-size:16px !important}
     }
   };
 
-  // Auth Handlers
   $('authBtn').onclick = async () => {
     const provider = new firebase.auth.GoogleAuthProvider();
     provider.setCustomParameters({ prompt: 'select_account' });
