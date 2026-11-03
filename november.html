@@ -7,7 +7,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>November Fitness &amp; Habit Challenge - v12.0</title>
+<title>November Fitness &amp; Habit Challenge - v12.1</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -214,7 +214,7 @@ input,select,textarea{font-size:16px !important}
       </div>
       <div class="hero-actions">
         <div class="hero-actions-top">
-          <div class="hero-version-pill">v12.0 &bull; 2026</div>
+          <div class="hero-version-pill">v12.1 &bull; 2026</div>
           <a href="index.html" class="btn-hub-nav">← Hub</a>
           <button id="launchRecapBtn" class="btn-recap-launch">
             <span>📜</span> <span>Story Recap</span>
@@ -486,7 +486,7 @@ input,select,textarea{font-size:16px !important}
       <span>👥 Enrolled Athletes:</span>
       <strong id="uniqueUsersCount">-- enrolled</strong>
     </div>
-    <div>November Fitness &amp; Habit Challenge &bull; v12.0</div>
+    <div>November Fitness &amp; Habit Challenge &bull; v12.1</div>
   </footer>
 </div>
 
@@ -623,7 +623,7 @@ input,select,textarea{font-size:16px !important}
 </div>
 
 <script>
-  const APP_VERSION = "12.0";
+  const APP_VERSION = "12.1";
 
   const firebaseConfig = {
     apiKey: "AIzaSyCbxoN1DLvMqxZb7FD4qu8p7k6lnD5ENP4",
@@ -1525,29 +1525,14 @@ input,select,textarea{font-size:16px !important}
   }
 
   window.showAthleteHabitDetails = (nameEnc, habitEnc, cleanDays, slips) => {
-    const name = decodeURIComponent(nameEnc);
-    const habit = decodeURIComponent(habitEnc);
-    $('athHabitTitle').textContent = `${name}'s Habit Tracker`;
-    $('athHabitBody').innerHTML = `
-      <div style="background:#f8fafb;border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:10px">
-        <div style="font-size:0.75rem;color:var(--muted);font-weight:750;text-transform:uppercase">Personal Breaker</div>
-        <div style="font-size:0.95rem;font-weight:800;color:var(--navy);margin-top:2px">${habit}</div>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-        <div style="background:#e8f6ee;border:1px solid #a8d9be;border-radius:8px;padding:8px;text-align:center">
-          <div style="font-size:0.70rem;color:#18633e;font-weight:800;text-transform:uppercase">Clean Days</div>
-          <div style="font-size:1.15rem;font-weight:850;color:#18633e">${cleanDays}</div>
-        </div>
-        <div style="background:#fdecec;border:1px solid #edb2b2;border-radius:8px;padding:8px;text-align:center">
-          <div style="font-size:0.70rem;color:#9b2424;font-weight:800;text-transform:uppercase">Slips (+30 min each)</div>
-          <div style="font-size:1.15rem;font-weight:850;color:#9b2424">${slips}</div>
-        </div>
-      </div>
-    `;
-    $('athleteHabitModal').classList.add('show');
-  };
-
-  $('closeAthHabitBtn').onclick = () => $('athleteHabitModal').classList.remove('show');
+  function parseTimestampToMillis(val) {
+    if (!val) return 0;
+    if (typeof val === 'number') return val;
+    if (typeof val.toMillis === 'function') return val.toMillis();
+    if (val.seconds) return val.seconds * 1000 + Math.floor((val.nanoseconds || 0) / 1000000);
+    const parsed = Date.parse(val);
+    return isNaN(parsed) ? 0 : parsed;
+  }
 
   async function loadFeed() {
     const feed = $('feedContainer');
@@ -1562,18 +1547,29 @@ input,select,textarea{font-size:16px !important}
         const cleanName = formatCleanName(u.displayName, u.email);
         const avatar = u.photoURL || 'https://placehold.co/32x32/1e293b/94a3b8?text=U';
 
+        // Extract a reliable doc-level timestamp
+        const docTime = parseTimestampToMillis(u.updatedAt) || parseTimestampToMillis(u.lastUpdated) || 0;
+
         if (Array.isArray(u.activities)) {
-          u.activities.forEach(act => {
+          u.activities.forEach((act, actIdx) => {
             const m = Number(act.minutes) || 0;
             if (m > 0) {
+              const day = Number(act.dayNum) || 1;
+              let actTime = parseTimestampToMillis(act.loggedAt) || parseTimestampToMillis(act.timestamp);
+              
+              // If individual activity has no timestamp, use docTime adjusted by array index so order is preserved
+              if (!actTime || actTime <= 0) {
+                actTime = docTime > 0 ? (docTime - (actIdx * 1000)) : new Date(2026, 10, day, 12, 0, 0).getTime();
+              }
+
               events.push({
                 name: cleanName,
                 avatar: avatar,
                 type: act.type || 'Workout',
                 minutes: m,
                 note: act.note || '',
-                dayNum: act.dayNum || 1,
-                loggedAt: Number(act.loggedAt) || (u.updatedAt || 0)
+                dayNum: day,
+                loggedAt: actTime
               });
             }
           });
@@ -1585,11 +1581,15 @@ input,select,textarea{font-size:16px !important}
         return;
       }
 
-      // Order chronologically by entry timestamp (newest first); fallback to dayNum
-      events.sort((a, b) => (b.loggedAt - a.loggedAt) || (b.dayNum - a.dayNum));
+      // Strictly numeric sort descending (newest entries first)
+      events.sort((a, b) => {
+        const diff = (b.loggedAt || 0) - (a.loggedAt || 0);
+        if (diff !== 0) return diff;
+        return (b.dayNum || 0) - (a.dayNum || 0);
+      });
 
       feed.innerHTML = '';
-      events.slice(0, 40).forEach(evt => {
+      events.slice(0, 50).forEach(evt => {
         const item = document.createElement('div');
         item.style.cssText = "display:flex;align-items:flex-start;gap:10px;padding:8px 10px;background:#fbfcfd;border:1px solid var(--line);border-radius:10px;";
         
@@ -1603,7 +1603,7 @@ input,select,textarea{font-size:16px !important}
         }
 
         item.innerHTML = `
-          <img src="${evt.avatar}" style="width:32px;height:32px;border-radius:50%;border:1.5px solid var(--line);object-fit:cover;flex-shrink:0">
+          <img src="${evt.avatar}" style="width:32px;height:32px;border-radius:50%;border:1.5px solid var(--line);object-fit:cover;flex-shrink:0" onerror="this.src='https://placehold.co/32x32/1e293b/94a3b8?text=U'">
           <div style="flex:1">
             <div style="display:flex;justify-content:space-between;align-items:center">
               <span style="font-weight:750;color:var(--navy);font-size:0.82rem">${evt.name}</span>
