@@ -7,7 +7,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>November Fitness &amp; Habit Challenge - v12.3</title>
+<title>November Fitness &amp; Habit Challenge - v12.4</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -214,7 +214,7 @@ input,select,textarea{font-size:16px !important}
       </div>
       <div class="hero-actions">
         <div class="hero-actions-top">
-          <div class="hero-version-pill">v12.3 &bull; 2026</div>
+          <div class="hero-version-pill">v12.4 &bull; 2026</div>
           <a href="index.html" class="btn-hub-nav">← Hub</a>
           <button id="launchRecapBtn" class="btn-recap-launch">
             <span>📜</span> <span>Story Recap</span>
@@ -486,7 +486,7 @@ input,select,textarea{font-size:16px !important}
       <span>👥 Enrolled Athletes:</span>
       <strong id="uniqueUsersCount">-- enrolled</strong>
     </div>
-    <div>November Fitness &amp; Habit Challenge &bull; v12.3</div>
+    <div>November Fitness &amp; Habit Challenge &bull; v12.4</div>
   </footer>
 </div>
 
@@ -623,7 +623,7 @@ input,select,textarea{font-size:16px !important}
 </div>
 
 <script>
-  const APP_VERSION = "12.3";
+  const APP_VERSION = "12.4";
 
   const firebaseConfig = {
     apiKey: "AIzaSyCbxoN1DLvMqxZb7FD4qu8p7k6lnD5ENP4",
@@ -1290,11 +1290,15 @@ input,select,textarea{font-size:16px !important}
         .collection('public').doc('data').collection('nov_leaderboard').doc(currentUser.uid)
         .set(payload, { merge: true });
 
-      // Append active day sessions directly to the public live stream collection nov_feed
+      // Append ONLY current selectedDay sessions to nov_feed with distinct stable IDs to prevent duplicate pushes
       const currentDayActs = cachedDays[selectedDay - 1]?.activities || [];
-      for (const act of currentDayActs) {
+      for (let actIdx = 0; actIdx < currentDayActs.length; actIdx++) {
+        const act = currentDayActs[actIdx];
         if (Number(act.minutes) > 0) {
-          const feedDocId = `${currentUser.uid}_d${selectedDay}_${act.loggedAt || now}`;
+          // Use an immutable deterministic ID based on user, day, activity index, and note hash
+          const cleanNoteKey = (act.note || '').toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 15);
+          const feedDocId = `${currentUser.uid}_d${selectedDay}_${act.type}_${act.minutes}_${cleanNoteKey || actIdx}`;
+          
           await db.collection('artifacts').doc('fitness-challenge-smason')
             .collection('public').doc('data').collection('nov_feed').doc(feedDocId)
             .set({
@@ -1305,7 +1309,7 @@ input,select,textarea{font-size:16px !important}
               minutes: Number(act.minutes) || 0,
               note: act.note || '',
               dayNum: selectedDay,
-              loggedAt: act.loggedAt || now
+              loggedAt: act.loggedAt || (now - (actIdx * 1000))
             }, { merge: true });
         }
       }
@@ -1594,38 +1598,50 @@ input,select,textarea{font-size:16px !important}
     feed.innerHTML = `<div style="text-align:center;color:var(--muted);padding:24px">Loading feed...</div>`;
     try {
       const events = [];
+      const seenSignatures = new Set();
+
+      function makeSignature(name, dayNum, type, minutes, note) {
+        const normNote = (note || '').trim().toLowerCase().replace(/\s+/g, ' ');
+        return `${(name || '').toLowerCase()}|${dayNum}|${type}|${minutes}|${normNote}`;
+      }
 
       // 1. Check dedicated append-only activity feed collection nov_feed
       try {
         const feedSnap = await db.collection('artifacts').doc('fitness-challenge-smason')
           .collection('public').doc('data').collection('nov_feed')
           .orderBy('loggedAt', 'desc')
-          .limit(60)
+          .limit(80)
           .get();
 
         feedSnap.forEach(docSnap => {
           const d = docSnap.data();
-          if (d.minutes > 0) {
-            events.push({
-              name: formatCleanName(d.name, ''),
-              avatar: d.avatar || 'https://placehold.co/32x32/1e293b/94a3b8?text=U',
-              type: d.type || 'Workout',
-              minutes: Number(d.minutes) || 0,
-              note: d.note || '',
-              dayNum: Number(d.dayNum) || 1,
-              loggedAt: parseTimestampToMillis(d.loggedAt)
-            });
+          const mins = Number(d.minutes) || 0;
+          if (mins > 0) {
+            const cleanName = formatCleanName(d.name, '');
+            const day = Number(d.dayNum) || 1;
+            const sig = makeSignature(cleanName, day, d.type || 'Workout', mins, d.note);
+            
+            if (!seenSignatures.has(sig)) {
+              seenSignatures.add(sig);
+              events.push({
+                name: cleanName,
+                avatar: d.avatar || 'https://placehold.co/32x32/1e293b/94a3b8?text=U',
+                type: d.type || 'Workout',
+                minutes: mins,
+                note: d.note || '',
+                dayNum: day,
+                loggedAt: parseTimestampToMillis(d.loggedAt)
+              });
+            }
           }
         });
       } catch (feedErr) {
         console.warn("Direct nov_feed read skipped or index pending:", feedErr);
       }
 
-      // 2. Also incorporate/supplement from nov_users so existing workouts appear seamlessly
+      // 2. Also incorporate past sessions from nov_users with comprehensive signature matching
       const snap = await db.collection('artifacts').doc('fitness-challenge-smason')
         .collection('public').doc('data').collection('nov_users').get();
-
-      const existingKeys = new Set(events.map(e => `${e.name}_${e.dayNum}_${e.type}_${e.minutes}`));
 
       snap.forEach(docSnap => {
         const u = docSnap.data();
@@ -1638,11 +1654,14 @@ input,select,textarea{font-size:16px !important}
             const m = Number(act.minutes) || 0;
             if (m > 0) {
               const day = Number(act.dayNum) || 1;
-              const dedupeKey = `${cleanName}_${day}_${act.type || 'Workout'}_${m}`;
-              if (!existingKeys.has(dedupeKey)) {
+              const sig = makeSignature(cleanName, day, act.type || 'Workout', m, act.note);
+
+              if (!seenSignatures.has(sig)) {
+                seenSignatures.add(sig);
                 let actTime = parseTimestampToMillis(act.loggedAt) || parseTimestampToMillis(act.timestamp);
                 if (!actTime || actTime <= 0) {
-                  actTime = docTime > 0 ? (docTime - (actIdx * 1000)) : new Date(2026, 10, day, 12, 0, 0).getTime() - (actIdx * 1000);
+                  // Fallback: staggered from docTime so batch entries retain relative ordering
+                  actTime = docTime > 0 ? (docTime - (actIdx * 1000)) : (new Date(2026, 10, day, 12, 0, 0).getTime() - (actIdx * 1000));
                 }
 
                 events.push({
@@ -1665,7 +1684,7 @@ input,select,textarea{font-size:16px !important}
         return;
       }
 
-      // Global strict chronological sort: newest entries across ALL athletes first
+      // Strict global chronological sort: newest across ALL athletes first
       events.sort((a, b) => (b.loggedAt || 0) - (a.loggedAt || 0));
 
       feed.innerHTML = '';
