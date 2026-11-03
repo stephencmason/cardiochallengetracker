@@ -7,7 +7,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>November Fitness &amp; Habit Challenge - v12.2</title>
+<title>November Fitness &amp; Habit Challenge - v12.3</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -214,7 +214,7 @@ input,select,textarea{font-size:16px !important}
       </div>
       <div class="hero-actions">
         <div class="hero-actions-top">
-          <div class="hero-version-pill">v12.2 &bull; 2026</div>
+          <div class="hero-version-pill">v12.3 &bull; 2026</div>
           <a href="index.html" class="btn-hub-nav">← Hub</a>
           <button id="launchRecapBtn" class="btn-recap-launch">
             <span>📜</span> <span>Story Recap</span>
@@ -486,7 +486,7 @@ input,select,textarea{font-size:16px !important}
       <span>👥 Enrolled Athletes:</span>
       <strong id="uniqueUsersCount">-- enrolled</strong>
     </div>
-    <div>November Fitness &amp; Habit Challenge &bull; v12.2</div>
+    <div>November Fitness &amp; Habit Challenge &bull; v12.3</div>
   </footer>
 </div>
 
@@ -623,7 +623,7 @@ input,select,textarea{font-size:16px !important}
 </div>
 
 <script>
-  const APP_VERSION = "12.2";
+  const APP_VERSION = "12.3";
 
   const firebaseConfig = {
     apiKey: "AIzaSyCbxoN1DLvMqxZb7FD4qu8p7k6lnD5ENP4",
@@ -1243,15 +1243,24 @@ input,select,textarea{font-size:16px !important}
     try {
       const cleanName = formatCleanName(currentUser.displayName, currentUser.email);
 
-      // Flatten activities while preserving target calendar day and timestamp
+      // Flatten activities while preserving target calendar day and permanent unique timestamps
       const allActivities = [];
+      const now = Date.now();
       cachedDays.forEach((d, idx) => {
         const dayNum = idx + 1;
-        (d.activities || []).forEach(act => {
+        (d.activities || []).forEach((act, aIdx) => {
+          if (!act.loggedAt) {
+            act.loggedAt = now - (aIdx * 100);
+          }
+          if (!act.dayNum) {
+            act.dayNum = dayNum;
+          }
           allActivities.push({
-            ...act,
-            dayNum: act.dayNum || dayNum,
-            loggedAt: act.loggedAt || Date.now()
+            type: act.type,
+            minutes: Number(act.minutes) || 0,
+            note: act.note || '',
+            dayNum: act.dayNum,
+            loggedAt: act.loggedAt
           });
         });
       });
@@ -1270,7 +1279,7 @@ input,select,textarea{font-size:16px !important}
         habitCleanDays: computedStats.cleanHabitDays,
         habitSlips: computedStats.habitSlips,
         activities: allActivities,
-        updatedAt: Date.now()
+        updatedAt: now
       };
 
       await db.collection('artifacts').doc('fitness-challenge-smason')
@@ -1280,6 +1289,26 @@ input,select,textarea{font-size:16px !important}
       await db.collection('artifacts').doc('fitness-challenge-smason')
         .collection('public').doc('data').collection('nov_leaderboard').doc(currentUser.uid)
         .set(payload, { merge: true });
+
+      // Append active day sessions directly to the public live stream collection nov_feed
+      const currentDayActs = cachedDays[selectedDay - 1]?.activities || [];
+      for (const act of currentDayActs) {
+        if (Number(act.minutes) > 0) {
+          const feedDocId = `${currentUser.uid}_d${selectedDay}_${act.loggedAt || now}`;
+          await db.collection('artifacts').doc('fitness-challenge-smason')
+            .collection('public').doc('data').collection('nov_feed').doc(feedDocId)
+            .set({
+              userId: currentUser.uid,
+              name: cleanName,
+              avatar: currentUser.photoURL || '',
+              type: act.type || 'Workout',
+              minutes: Number(act.minutes) || 0,
+              note: act.note || '',
+              dayNum: selectedDay,
+              loggedAt: act.loggedAt || now
+            }, { merge: true });
+        }
+      }
     } catch (e) {
       console.warn("Error syncing leaderboard summary:", e);
     }
@@ -1293,11 +1322,12 @@ input,select,textarea{font-size:16px !important}
     const indicator = $('saveStatusIndicator');
     indicator.textContent = 'Saving...';
     try {
-      // Ensure dayNum and loggedAt are embedded in saved day activities
+      // Ensure dayNum and unique loggedAt timestamps are assigned before writing
+      const saveTime = Date.now();
       if (Array.isArray(cachedDays[selectedDay - 1].activities)) {
-        cachedDays[selectedDay - 1].activities.forEach(act => {
+        cachedDays[selectedDay - 1].activities.forEach((act, idx) => {
           if (!act.dayNum) act.dayNum = selectedDay;
-          if (!act.loggedAt) act.loggedAt = Date.now();
+          if (!act.loggedAt) act.loggedAt = saveTime - (idx * 50);
         });
       }
 
@@ -1310,6 +1340,7 @@ input,select,textarea{font-size:16px !important}
       indicator.textContent = 'Saved ✓';
       setTimeout(() => indicator.textContent = 'Saved', 2000);
       loadLeaderboard();
+      loadFeed();
     } catch (e) {
       console.warn("Save failed:", e);
       indicator.textContent = 'Error saving';
@@ -1562,16 +1593,44 @@ input,select,textarea{font-size:16px !important}
     const feed = $('feedContainer');
     feed.innerHTML = `<div style="text-align:center;color:var(--muted);padding:24px">Loading feed...</div>`;
     try {
+      const events = [];
+
+      // 1. Check dedicated append-only activity feed collection nov_feed
+      try {
+        const feedSnap = await db.collection('artifacts').doc('fitness-challenge-smason')
+          .collection('public').doc('data').collection('nov_feed')
+          .orderBy('loggedAt', 'desc')
+          .limit(60)
+          .get();
+
+        feedSnap.forEach(docSnap => {
+          const d = docSnap.data();
+          if (d.minutes > 0) {
+            events.push({
+              name: formatCleanName(d.name, ''),
+              avatar: d.avatar || 'https://placehold.co/32x32/1e293b/94a3b8?text=U',
+              type: d.type || 'Workout',
+              minutes: Number(d.minutes) || 0,
+              note: d.note || '',
+              dayNum: Number(d.dayNum) || 1,
+              loggedAt: parseTimestampToMillis(d.loggedAt)
+            });
+          }
+        });
+      } catch (feedErr) {
+        console.warn("Direct nov_feed read skipped or index pending:", feedErr);
+      }
+
+      // 2. Also incorporate/supplement from nov_users so existing workouts appear seamlessly
       const snap = await db.collection('artifacts').doc('fitness-challenge-smason')
         .collection('public').doc('data').collection('nov_users').get();
 
-      const events = [];
+      const existingKeys = new Set(events.map(e => `${e.name}_${e.dayNum}_${e.type}_${e.minutes}`));
+
       snap.forEach(docSnap => {
         const u = docSnap.data();
         const cleanName = formatCleanName(u.displayName, u.email);
         const avatar = u.photoURL || 'https://placehold.co/32x32/1e293b/94a3b8?text=U';
-
-        // Extract a reliable doc-level timestamp
         const docTime = parseTimestampToMillis(u.updatedAt) || parseTimestampToMillis(u.lastUpdated) || 0;
 
         if (Array.isArray(u.activities)) {
@@ -1579,22 +1638,23 @@ input,select,textarea{font-size:16px !important}
             const m = Number(act.minutes) || 0;
             if (m > 0) {
               const day = Number(act.dayNum) || 1;
-              let actTime = parseTimestampToMillis(act.loggedAt) || parseTimestampToMillis(act.timestamp);
-              
-              // If individual activity has no timestamp, use docTime adjusted by array index so order is preserved
-              if (!actTime || actTime <= 0) {
-                actTime = docTime > 0 ? (docTime - (actIdx * 1000)) : new Date(2026, 10, day, 12, 0, 0).getTime();
-              }
+              const dedupeKey = `${cleanName}_${day}_${act.type || 'Workout'}_${m}`;
+              if (!existingKeys.has(dedupeKey)) {
+                let actTime = parseTimestampToMillis(act.loggedAt) || parseTimestampToMillis(act.timestamp);
+                if (!actTime || actTime <= 0) {
+                  actTime = docTime > 0 ? (docTime - (actIdx * 1000)) : new Date(2026, 10, day, 12, 0, 0).getTime() - (actIdx * 1000);
+                }
 
-              events.push({
-                name: cleanName,
-                avatar: avatar,
-                type: act.type || 'Workout',
-                minutes: m,
-                note: act.note || '',
-                dayNum: day,
-                loggedAt: actTime
-              });
+                events.push({
+                  name: cleanName,
+                  avatar: avatar,
+                  type: act.type || 'Workout',
+                  minutes: m,
+                  note: act.note || '',
+                  dayNum: day,
+                  loggedAt: actTime
+                });
+              }
             }
           });
         }
@@ -1605,12 +1665,8 @@ input,select,textarea{font-size:16px !important}
         return;
       }
 
-      // Strictly numeric sort descending (newest entries first)
-      events.sort((a, b) => {
-        const diff = (b.loggedAt || 0) - (a.loggedAt || 0);
-        if (diff !== 0) return diff;
-        return (b.dayNum || 0) - (a.dayNum || 0);
-      });
+      // Global strict chronological sort: newest entries across ALL athletes first
+      events.sort((a, b) => (b.loggedAt || 0) - (a.loggedAt || 0));
 
       feed.innerHTML = '';
       events.slice(0, 50).forEach(evt => {
