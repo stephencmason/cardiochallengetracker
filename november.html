@@ -7,7 +7,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>November Fitness &amp; Habit Challenge - v12.6</title>
+<title>November Fitness &amp; Habit Challenge - v12.7</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -485,7 +485,7 @@ input,select,textarea{font-size:16px !important}
       <span>👥 Enrolled Athletes:</span>
       <strong id="uniqueUsersCount">-- enrolled</strong>
     </div>
-    <div>November Fitness &amp; Habit Challenge &bull; v12.6</div>
+    <div>November Fitness &amp; Habit Challenge &bull; v12.7</div>
   </footer>
 </div>
 
@@ -622,7 +622,7 @@ input,select,textarea{font-size:16px !important}
 </div>
 
 <script>
-  const APP_VERSION = "12.6";
+  const APP_VERSION = "12.7";
 
   const firebaseConfig = {
     apiKey: "AIzaSyCbxoN1DLvMqxZb7FD4qu8p7k6lnD5ENP4",
@@ -1678,14 +1678,13 @@ input,select,textarea{font-size:16px !important}
       cachedDays.forEach((d, idx) => {
         const dayNum = idx + 1;
         (d.activities || []).forEach((act, aIdx) => {
-          // Only assign a fresh timestamp if missing; never overwrite existing
+          if (!act.dayNum) {
+            act.dayNum = dayNum;
+          }
           if (!act.loggedAt) {
             act.loggedAt = normalizeActivityTimestamp(now - (aIdx * 100), dayNum);
           } else {
             act.loggedAt = normalizeActivityTimestamp(act.loggedAt, dayNum);
-          }
-          if (!act.dayNum) {
-            act.dayNum = dayNum;
           }
           allActivities.push({
             type: act.type,
@@ -1694,6 +1693,9 @@ input,select,textarea{font-size:16px !important}
             dayNum: act.dayNum,
             loggedAt: act.loggedAt
           });
+        });
+      });
+
       const unlockedBadges = evaluateBadges(computedStats, cachedDays);
 
       const payload = {
@@ -1740,7 +1742,7 @@ input,select,textarea{font-size:16px !important}
               minutes: Number(act.minutes) || 0,
               note: act.note || '',
               dayNum: selectedDay,
-              loggedAt: act.loggedAt || (now - (actIdx * 1000))
+              loggedAt: act.loggedAt || normalizeActivityTimestamp(now - (actIdx * 1000), selectedDay)
             }, { merge: true });
         }
       }
