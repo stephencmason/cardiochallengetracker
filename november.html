@@ -7,7 +7,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>November Fitness &amp; Habit Challenge - v12.1</title>
+<title>November Fitness &amp; Habit Challenge - v12.2</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -214,7 +214,7 @@ input,select,textarea{font-size:16px !important}
       </div>
       <div class="hero-actions">
         <div class="hero-actions-top">
-          <div class="hero-version-pill">v12.1 &bull; 2026</div>
+          <div class="hero-version-pill">v12.2 &bull; 2026</div>
           <a href="index.html" class="btn-hub-nav">← Hub</a>
           <button id="launchRecapBtn" class="btn-recap-launch">
             <span>📜</span> <span>Story Recap</span>
@@ -486,7 +486,7 @@ input,select,textarea{font-size:16px !important}
       <span>👥 Enrolled Athletes:</span>
       <strong id="uniqueUsersCount">-- enrolled</strong>
     </div>
-    <div>November Fitness &amp; Habit Challenge &bull; v12.1</div>
+    <div>November Fitness &amp; Habit Challenge &bull; v12.2</div>
   </footer>
 </div>
 
@@ -623,7 +623,7 @@ input,select,textarea{font-size:16px !important}
 </div>
 
 <script>
-  const APP_VERSION = "12.1";
+  const APP_VERSION = "12.2";
 
   const firebaseConfig = {
     apiKey: "AIzaSyCbxoN1DLvMqxZb7FD4qu8p7k6lnD5ENP4",
@@ -1525,6 +1525,30 @@ input,select,textarea{font-size:16px !important}
   }
 
   window.showAthleteHabitDetails = (nameEnc, habitEnc, cleanDays, slips) => {
+    const name = decodeURIComponent(nameEnc);
+    const habit = decodeURIComponent(habitEnc);
+    $('athHabitTitle').textContent = `${name}'s Habit Tracker`;
+    $('athHabitBody').innerHTML = `
+      <div style="background:#f8fafb;border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:10px">
+        <div style="font-size:0.75rem;color:var(--muted);font-weight:750;text-transform:uppercase">Personal Breaker</div>
+        <div style="font-size:0.95rem;font-weight:800;color:var(--navy);margin-top:2px">${habit}</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div style="background:#e8f6ee;border:1px solid #a8d9be;border-radius:8px;padding:8px;text-align:center">
+          <div style="font-size:0.70rem;color:#18633e;font-weight:800;text-transform:uppercase">Clean Days</div>
+          <div style="font-size:1.15rem;font-weight:850;color:#18633e">${cleanDays}</div>
+        </div>
+        <div style="background:#fdecec;border:1px solid #edb2b2;border-radius:8px;padding:8px;text-align:center">
+          <div style="font-size:0.70rem;color:#9b2424;font-weight:800;text-transform:uppercase">Slips (+30 min each)</div>
+          <div style="font-size:1.15rem;font-weight:850;color:#9b2424">${slips}</div>
+        </div>
+      </div>
+    `;
+    $('athleteHabitModal').classList.add('show');
+  };
+
+  $('closeAthHabitBtn').onclick = () => $('athleteHabitModal').classList.remove('show');
+
   function parseTimestampToMillis(val) {
     if (!val) return 0;
     if (typeof val === 'number') return val;
