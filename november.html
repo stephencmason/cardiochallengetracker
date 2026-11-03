@@ -7,7 +7,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>November Fitness &amp; Habit Challenge - v12.4</title>
+<title>November Fitness &amp; Habit Challenge - v12.5</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -214,7 +214,7 @@ input,select,textarea{font-size:16px !important}
       </div>
       <div class="hero-actions">
         <div class="hero-actions-top">
-          <div class="hero-version-pill">v12.4 &bull; 2026</div>
+          <div class="hero-version-pill">v12.5 &bull; 2026</div>
           <a href="index.html" class="btn-hub-nav">← Hub</a>
           <button id="launchRecapBtn" class="btn-recap-launch">
             <span>📜</span> <span>Story Recap</span>
@@ -486,7 +486,7 @@ input,select,textarea{font-size:16px !important}
       <span>👥 Enrolled Athletes:</span>
       <strong id="uniqueUsersCount">-- enrolled</strong>
     </div>
-    <div>November Fitness &amp; Habit Challenge &bull; v12.4</div>
+    <div>November Fitness &amp; Habit Challenge &bull; v12.5</div>
   </footer>
 </div>
 
@@ -623,7 +623,7 @@ input,select,textarea{font-size:16px !important}
 </div>
 
 <script>
-  const APP_VERSION = "12.4";
+  const APP_VERSION = "12.5";
 
   const firebaseConfig = {
     apiKey: "AIzaSyCbxoN1DLvMqxZb7FD4qu8p7k6lnD5ENP4",
@@ -1243,14 +1243,18 @@ input,select,textarea{font-size:16px !important}
     try {
       const cleanName = formatCleanName(currentUser.displayName, currentUser.email);
 
-      // Flatten activities while preserving target calendar day and permanent unique timestamps
+      // Preserve permanent timestamps on every individual activity
       const allActivities = [];
       const now = Date.now();
       cachedDays.forEach((d, idx) => {
         const dayNum = idx + 1;
         (d.activities || []).forEach((act, aIdx) => {
+          // If already timestamped, NEVER overwrite it.
+          // Only assign a timestamp if it's completely missing.
           if (!act.loggedAt) {
-            act.loggedAt = now - (aIdx * 100);
+            // Anchor missing timestamps to the actual calendar day of the workout
+            const anchorDate = new Date(2026, 10, dayNum, 12, 0, 0);
+            act.loggedAt = (dayNum === selectedDay) ? (now - (aIdx * 100)) : anchorDate.getTime();
           }
           if (!act.dayNum) {
             act.dayNum = dayNum;
@@ -1290,12 +1294,11 @@ input,select,textarea{font-size:16px !important}
         .collection('public').doc('data').collection('nov_leaderboard').doc(currentUser.uid)
         .set(payload, { merge: true });
 
-      // Append ONLY current selectedDay sessions to nov_feed with distinct stable IDs to prevent duplicate pushes
+      // Append ONLY current selectedDay sessions to nov_feed with distinct stable IDs
       const currentDayActs = cachedDays[selectedDay - 1]?.activities || [];
       for (let actIdx = 0; actIdx < currentDayActs.length; actIdx++) {
         const act = currentDayActs[actIdx];
         if (Number(act.minutes) > 0) {
-          // Use an immutable deterministic ID based on user, day, activity index, and note hash
           const cleanNoteKey = (act.note || '').toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 15);
           const feedDocId = `${currentUser.uid}_d${selectedDay}_${act.type}_${act.minutes}_${cleanNoteKey || actIdx}`;
           
@@ -1326,7 +1329,8 @@ input,select,textarea{font-size:16px !important}
     const indicator = $('saveStatusIndicator');
     indicator.textContent = 'Saving...';
     try {
-      // Ensure dayNum and unique loggedAt timestamps are assigned before writing
+      // ONLY assign timestamps to the currently selected day being saved!
+      // Past days must NEVER have their timestamps modified.
       const saveTime = Date.now();
       if (Array.isArray(cachedDays[selectedDay - 1].activities)) {
         cachedDays[selectedDay - 1].activities.forEach((act, idx) => {
@@ -1593,6 +1597,103 @@ input,select,textarea{font-size:16px !important}
     return isNaN(parsed) ? 0 : parsed;
   }
 
+  // Safe retroactive normalizer: ensures past entries retain their calendar day ordering
+  function normalizeActivityTimestamp(rawMillis, dayNum) {
+    const targetDay = Number(dayNum) || 1;
+    if (!rawMillis || rawMillis <= 0) {
+      return new Date(2026, 10, targetDay, 12, 0, 0).getTime();
+    }
+    const d = new Date(rawMillis);
+    // If an entry for Nov 1 was stamped on Nov 2 (or later), anchor date strictly to Nov 1
+    if (d.getFullYear() === 2026 && d.getMonth() === 10 && d.getDate() !== targetDay) {
+      d.setDate(targetDay);
+      return d.getTime();
+    }
+    return rawMillis;
+  }
+
+  async function syncUserLeaderboardRecord() {
+    if (!currentUser || !computedStats) return;
+    try {
+      const cleanName = formatCleanName(currentUser.displayName, currentUser.email);
+
+      // Flatten activities while preserving target calendar day and permanent unique timestamps
+      const allActivities = [];
+      const now = Date.now();
+      cachedDays.forEach((d, idx) => {
+        const dayNum = idx + 1;
+        (d.activities || []).forEach((act, aIdx) => {
+          // Only assign a fresh timestamp if missing; never overwrite existing
+          if (!act.loggedAt) {
+            act.loggedAt = normalizeActivityTimestamp(now - (aIdx * 100), dayNum);
+          } else {
+            act.loggedAt = normalizeActivityTimestamp(act.loggedAt, dayNum);
+          }
+          if (!act.dayNum) {
+            act.dayNum = dayNum;
+          }
+          allActivities.push({
+            type: act.type,
+            minutes: Number(act.minutes) || 0,
+            note: act.note || '',
+            dayNum: act.dayNum,
+            loggedAt: act.loggedAt
+          });
+        });
+      });
+
+      const payload = {
+        userId: currentUser.uid,
+        displayName: cleanName,
+        email: currentUser.email || '',
+        photoURL: currentUser.photoURL || '',
+        baseTarget: userBaseTarget,
+        adjustedTarget: computedStats.adjustedTarget,
+        countedMinutes: computedStats.countedMinutes,
+        actualMinutes: computedStats.actualMinutes,
+        progressPct: computedStats.progressPct,
+        habitName: userHabitEnabled ? (userHabitName || 'Clean Living') : 'Disabled',
+        habitCleanDays: computedStats.cleanHabitDays,
+        habitSlips: computedStats.habitSlips,
+        activities: allActivities,
+        updatedAt: now
+      };
+
+      await db.collection('artifacts').doc('fitness-challenge-smason')
+        .collection('public').doc('data').collection('nov_users').doc(currentUser.uid)
+        .set(payload, { merge: true });
+
+      await db.collection('artifacts').doc('fitness-challenge-smason')
+        .collection('public').doc('data').collection('nov_leaderboard').doc(currentUser.uid)
+        .set(payload, { merge: true });
+
+      // Append ONLY current selectedDay sessions to nov_feed with distinct stable IDs to prevent duplicate pushes
+      const currentDayActs = cachedDays[selectedDay - 1]?.activities || [];
+      for (let actIdx = 0; actIdx < currentDayActs.length; actIdx++) {
+        const act = currentDayActs[actIdx];
+        if (Number(act.minutes) > 0) {
+          const cleanNoteKey = (act.note || '').toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 15);
+          const feedDocId = `${currentUser.uid}_d${selectedDay}_${act.type}_${act.minutes}_${cleanNoteKey || actIdx}`;
+          
+          await db.collection('artifacts').doc('fitness-challenge-smason')
+            .collection('public').doc('data').collection('nov_feed').doc(feedDocId)
+            .set({
+              userId: currentUser.uid,
+              name: cleanName,
+              avatar: currentUser.photoURL || '',
+              type: act.type || 'Workout',
+              minutes: Number(act.minutes) || 0,
+              note: act.note || '',
+              dayNum: selectedDay,
+              loggedAt: act.loggedAt || (now - (actIdx * 1000))
+            }, { merge: true });
+        }
+      }
+    } catch (e) {
+      console.warn("Error syncing leaderboard summary:", e);
+    }
+  }
+
   async function loadFeed() {
     const feed = $('feedContainer');
     feed.innerHTML = `<div style="text-align:center;color:var(--muted);padding:24px">Loading feed...</div>`;
@@ -1623,6 +1724,7 @@ input,select,textarea{font-size:16px !important}
             
             if (!seenSignatures.has(sig)) {
               seenSignatures.add(sig);
+              const rawT = parseTimestampToMillis(d.loggedAt);
               events.push({
                 name: cleanName,
                 avatar: d.avatar || 'https://placehold.co/32x32/1e293b/94a3b8?text=U',
@@ -1630,7 +1732,7 @@ input,select,textarea{font-size:16px !important}
                 minutes: mins,
                 note: d.note || '',
                 dayNum: day,
-                loggedAt: parseTimestampToMillis(d.loggedAt)
+                loggedAt: normalizeActivityTimestamp(rawT, day)
               });
             }
           }
@@ -1660,7 +1762,6 @@ input,select,textarea{font-size:16px !important}
                 seenSignatures.add(sig);
                 let actTime = parseTimestampToMillis(act.loggedAt) || parseTimestampToMillis(act.timestamp);
                 if (!actTime || actTime <= 0) {
-                  // Fallback: staggered from docTime so batch entries retain relative ordering
                   actTime = docTime > 0 ? (docTime - (actIdx * 1000)) : (new Date(2026, 10, day, 12, 0, 0).getTime() - (actIdx * 1000));
                 }
 
@@ -1671,7 +1772,7 @@ input,select,textarea{font-size:16px !important}
                   minutes: m,
                   note: act.note || '',
                   dayNum: day,
-                  loggedAt: actTime
+                  loggedAt: normalizeActivityTimestamp(actTime, day)
                 });
               }
             }
@@ -1722,90 +1823,121 @@ input,select,textarea{font-size:16px !important}
       feed.innerHTML = `<div style="text-align:center;color:var(--muted);padding:24px">Failed to load activity stream.</div>`;
     }
   }
+  async function syncUserLeaderboardRecord() {
+    if (!currentUser || !computedStats) return;
+    try {
+      const cleanName = formatCleanName(currentUser.displayName, currentUser.email);
 
-  function openStoryRecap() {
-    if (!computedStats) recalculateStats();
-    const s = computedStats;
-    const name = formatCleanName(currentUser?.displayName, currentUser?.email);
-    const avatar = currentUser?.photoURL || 'https://placehold.co/38x38/1e293b/94a3b8?text=U';
+      // Flatten activities while preserving target calendar day and permanent unique timestamps
+      const allActivities = [];
+      const now = Date.now();
+      cachedDays.forEach((d, idx) => {
+        const dayNum = idx + 1;
+        (d.activities || []).forEach((act, aIdx) => {
+          if (!act.dayNum) {
+            act.dayNum = dayNum;
+          }
+          if (!act.loggedAt) {
+            act.loggedAt = normalizeActivityTimestamp(now - (aIdx * 100), dayNum);
+          } else {
+            act.loggedAt = normalizeActivityTimestamp(act.loggedAt, dayNum);
+          }
+          allActivities.push({
+            type: act.type,
+            minutes: Number(act.minutes) || 0,
+            note: act.note || '',
+            dayNum: act.dayNum,
+            loggedAt: act.loggedAt
+          });
+        });
+      });
 
-    $('recapName').textContent = name;
-    $('recapAvatar').src = avatar;
-    $('recapPct').textContent = `${s.progressPct}%`;
-    $('recapMinutesSub').textContent = `${s.countedMinutes} min Counted (${(s.countedMinutes / 60).toFixed(1)}h)`;
-    $('recapStreak').textContent = `🔥 ${s.streak}d`;
-    $('recapGraceEarned').textContent = `🕊️ ${s.graceTokensEarned}`;
-    $('recapSlipsCount').textContent = `⚠️ ${s.habitSlips}`;
-    $('recapMissed').textContent = `${s.missedDays}`;
-    $('recapActualTotal').textContent = `${s.actualMinutes} min`;
-    $('recapNetTarget').textContent = `${s.adjustedTarget} min`;
+      const payload = {
+        userId: currentUser.uid,
+        displayName: cleanName,
+        email: currentUser.email || '',
+        photoURL: currentUser.photoURL || '',
+        baseTarget: userBaseTarget,
+        adjustedTarget: computedStats.adjustedTarget,
+        countedMinutes: computedStats.countedMinutes,
+        actualMinutes: computedStats.actualMinutes,
+        progressPct: computedStats.progressPct,
+        habitName: userHabitEnabled ? (userHabitName || 'Clean Living') : 'Disabled',
+        habitCleanDays: computedStats.cleanHabitDays,
+        habitSlips: computedStats.habitSlips,
+        activities: allActivities,
+        updatedAt: now
+      };
 
-    const statusBadge = $('recapStatusBadge');
-    if (s.progressPct >= 100) {
-      statusBadge.textContent = 'Finisher 🏆';
-      statusBadge.style.background = '#238255';
-    } else {
-      statusBadge.textContent = `${s.progressPct}% Achieved`;
-      statusBadge.style.background = '#3b6d8c';
-    }
+      await db.collection('artifacts').doc('fitness-challenge-smason')
+        .collection('public').doc('data').collection('nov_users').doc(currentUser.uid)
+        .set(payload, { merge: true });
 
-    $('recapHabitTitle').textContent = userHabitEnabled ? (userHabitName || 'Clean Habit') : 'Fitness Only (Habit Disabled)';
-    if (userHabitEnabled) {
-      $('recapHabitVerdict').textContent = s.habitSlips === 0 
-        ? "Unbroken discipline maintained throughout November!"
-        : `${s.cleanHabitDays} clean days recorded with ${s.habitSlips} slips (+${s.habitSlips * 30} min penalty debt).`;
-    } else {
-      $('recapHabitVerdict').textContent = "Focused strictly on fitness activity volume.";
-    }
+      await db.collection('artifacts').doc('fitness-challenge-smason')
+        .collection('public').doc('data').collection('nov_leaderboard').doc(currentUser.uid)
+        .set(payload, { merge: true });
 
-    const badgeWrap = $('recapBadgesWrap');
-    badgeWrap.innerHTML = '';
-    const unlocked = evaluateBadges(s, cachedDays);
-    unlocked.forEach(id => {
-      const b = BADGES_CONFIG.find(x => x.id === id);
-      if (b) {
-        const span = document.createElement('span');
-        span.className = 'story-badge-item';
-        span.innerHTML = `<span>${b.icon}</span> <span>${b.name}</span>`;
-        badgeWrap.appendChild(span);
+      // Append ONLY current selectedDay sessions to nov_feed with distinct stable IDs to prevent duplicate pushes
+      const currentDayActs = cachedDays[selectedDay - 1]?.activities || [];
+      for (let actIdx = 0; actIdx < currentDayActs.length; actIdx++) {
+        const act = currentDayActs[actIdx];
+        if (Number(act.minutes) > 0) {
+          const cleanNoteKey = (act.note || '').toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 15);
+          const feedDocId = `${currentUser.uid}_d${selectedDay}_${act.type}_${act.minutes}_${cleanNoteKey || actIdx}`;
+          
+          await db.collection('artifacts').doc('fitness-challenge-smason')
+            .collection('public').doc('data').collection('nov_feed').doc(feedDocId)
+            .set({
+              userId: currentUser.uid,
+              name: cleanName,
+              avatar: currentUser.photoURL || '',
+              type: act.type || 'Workout',
+              minutes: Number(act.minutes) || 0,
+              note: act.note || '',
+              dayNum: selectedDay,
+              loggedAt: act.loggedAt || normalizeActivityTimestamp(now - (actIdx * 1000), selectedDay)
+            }, { merge: true });
+        }
       }
-    });
-    $('recapBadgeCount').textContent = unlocked.length;
-
-    $('recapModal').classList.add('show');
+    } catch (e) {
+      console.warn("Error syncing leaderboard summary:", e);
+    }
   }
 
-  $('launchRecapBtn').onclick = openStoryRecap;
-  $('closeRecapBtn').onclick = () => $('recapModal').classList.remove('show');
-
-  $('saveRecapImageBtn').onclick = async () => {
-    const card = document.getElementById('storyCardContent');
-    const saveBtn = document.getElementById('saveRecapImageBtn');
-    if (!card || typeof html2canvas === 'undefined') return;
-
-    const orig = saveBtn.innerHTML;
-    saveBtn.innerHTML = `<span>⏳ Saving...</span>`;
-    saveBtn.style.pointerEvents = 'none';
-
+  $('saveEntryBtn').onclick = async () => {
+    if (!currentUser) {
+      alert("Please sign in first to record workouts.");
+      return;
+    }
+    const indicator = $('saveStatusIndicator');
+    indicator.textContent = 'Saving...';
     try {
-      const canvas = await html2canvas(card, { scale: 2.8, useCORS: true, backgroundColor: '#0c1d2d', logging: false });
-      canvas.toBlob((blob) => {
-        if (!blob) throw new Error("Conversion failed");
-        const filename = `november-challenge-recap-2026.png`;
-        const link = document.createElement('a');
-        link.download = filename;
-        link.href = URL.createObjectURL(blob);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(link.href);
-        saveBtn.innerHTML = orig;
-        saveBtn.style.pointerEvents = 'auto';
-      }, 'image/png');
+      // Ensure dayNum and unique loggedAt timestamps are assigned before writing
+      const saveTime = Date.now();
+      if (Array.isArray(cachedDays[selectedDay - 1].activities)) {
+        cachedDays[selectedDay - 1].activities.forEach((act, idx) => {
+          if (!act.dayNum) act.dayNum = selectedDay;
+          if (!act.loggedAt) {
+            act.loggedAt = normalizeActivityTimestamp(saveTime - (idx * 50), selectedDay);
+          } else {
+            act.loggedAt = normalizeActivityTimestamp(act.loggedAt, selectedDay);
+          }
+        });
+      }
+
+      await db.collection('artifacts').doc('fitness-challenge-smason')
+        .collection('users').doc(currentUser.uid).collection('nov_profile').doc('days')
+        .set({ days: cachedDays }, { merge: true });
+
+      await syncUserLeaderboardRecord();
+
+      indicator.textContent = 'Saved ✓';
+      setTimeout(() => indicator.textContent = 'Saved', 2000);
+      loadLeaderboard();
+      loadFeed();
     } catch (e) {
-      console.warn("Recap image generation failed:", e);
-      saveBtn.innerHTML = orig;
-      saveBtn.style.pointerEvents = 'auto';
+      console.warn("Save failed:", e);
+      indicator.textContent = 'Error saving';
     }
   };
 
