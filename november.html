@@ -7,7 +7,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>November Fitness &amp; Habit Challenge - v12.5</title>
+<title>November Fitness &amp; Habit Challenge - v12.6</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -214,7 +214,7 @@ input,select,textarea{font-size:16px !important}
       </div>
       <div class="hero-actions">
         <div class="hero-actions-top">
-          <div class="hero-version-pill">v12.5 &bull; 2026</div>
+          <div class="hero-version-pill">v12.6 &bull; 2026</div>
           <a href="index.html" class="btn-hub-nav">← Hub</a>
           <button id="launchRecapBtn" class="btn-recap-launch">
             <span>📜</span> <span>Story Recap</span>
@@ -406,14 +406,13 @@ input,select,textarea{font-size:16px !important}
             <tr>
               <th style="width:28px">Rank</th>
               <th>Participant</th>
-              <th>Progress</th>
-              <th>Counted / Req</th>
+              <th>Progress &amp; Volume</th>
               <th>Habit</th>
               <th>Badges</th>
             </tr>
           </thead>
           <tbody id="leaderboardBody">
-            <tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px">Loading November standings...</td></tr>
+            <tr><td colspan="5" style="text-align:center;color:var(--muted);padding:24px">Loading November standings...</td></tr>
           </tbody>
         </table>
       </div>
@@ -486,7 +485,7 @@ input,select,textarea{font-size:16px !important}
       <span>👥 Enrolled Athletes:</span>
       <strong id="uniqueUsersCount">-- enrolled</strong>
     </div>
-    <div>November Fitness &amp; Habit Challenge &bull; v12.5</div>
+    <div>November Fitness &amp; Habit Challenge &bull; v12.6</div>
   </footer>
 </div>
 
@@ -623,7 +622,7 @@ input,select,textarea{font-size:16px !important}
 </div>
 
 <script>
-  const APP_VERSION = "12.5";
+  const APP_VERSION = "12.6";
 
   const firebaseConfig = {
     apiKey: "AIzaSyCbxoN1DLvMqxZb7FD4qu8p7k6lnD5ENP4",
@@ -1048,6 +1047,44 @@ input,select,textarea{font-size:16px !important}
     return unlocked;
   }
 
+  // Derive badges from public leaderboard records
+  function computeLeaderboardBadges(u, displayTarget) {
+    const badges = [];
+    const pct = u.progressPct || 0;
+    if (pct >= 100 && displayTarget > 0) badges.push({ icon: '🏆', name: 'Finisher' });
+
+    // Group activities by dayNum to detect century club (100+ min in a day) and quad days
+    const dayTotals = {};
+    const dayCounts = {};
+    if (Array.isArray(u.activities)) {
+      u.activities.forEach(a => {
+        const d = a.dayNum || 1;
+        const mins = Number(a.minutes) || 0;
+        dayTotals[d] = (dayTotals[d] || 0) + mins;
+        dayCounts[d] = (dayCounts[d] || 0) + 1;
+      });
+    }
+
+    const hasCentury = Object.values(dayTotals).some(m => m >= 100);
+    if (hasCentury || (u.badges && u.badges.includes('century'))) {
+      badges.push({ icon: '💯', name: 'Century Club (100+ min in a day)' });
+    }
+
+    if (Object.values(dayCounts).some(c => c >= 4) || (u.badges && u.badges.includes('quad_day'))) {
+      badges.push({ icon: '⚡', name: 'Quad Workout (4 sessions in a day)' });
+    }
+
+    if ((u.habitCleanDays || 0) >= 7 || (u.badges && u.badges.includes('habit_clean'))) {
+      badges.push({ icon: '🛡️', name: 'Clean Living (7d clean habit)' });
+    }
+
+    if (u.badges && u.badges.includes('streak_7')) {
+      badges.push({ icon: '🔥', name: '7-Day Streak' });
+    }
+
+    return badges;
+  }
+
   function renderDashboardBadges(unlockedBadgeIds) {
     const container = $('dashboardBadges');
     container.innerHTML = '';
@@ -1467,7 +1504,7 @@ input,select,textarea{font-size:16px !important}
 
   async function loadLeaderboard() {
     const tbody = $('leaderboardBody');
-    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px">Loading November standings...</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:24px">Loading November standings...</td></tr>`;
 
     try {
       const userMap = new Map();
@@ -1496,7 +1533,7 @@ input,select,textarea{font-size:16px !important}
       $('uniqueUsersCount').textContent = `${users.length} enrolled`;
 
       if (users.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px">No November logs recorded yet. Be the first!</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:24px">No November logs recorded yet. Be the first!</td></tr>`;
         return;
       }
 
@@ -1533,6 +1570,14 @@ input,select,textarea{font-size:16px !important}
         const slips = u.habitSlips || 0;
         const isNotSet = habitDisplay === "Not set yet" || habitDisplay === "Disabled";
 
+        // Badges calculation
+        const badgesEarned = computeLeaderboardBadges(u, displayTarget);
+        const badgesHtml = badgesEarned.length > 0
+          ? badgesEarned.map(b => `<span style="font-size:1.02rem;cursor:default" title="${b.name}">${b.icon}</span>`).join(' ')
+          : '<span style="color:var(--muted);font-size:0.75rem">—</span>';
+
+        const progressPct = u.progressPct || 0;
+
         tr.innerHTML = `
           <td><span class="leader-rank">#${idx + 1}</span></td>
           <td>
@@ -1544,22 +1589,32 @@ input,select,textarea{font-size:16px !important}
               </div>
             </div>
           </td>
-          <td><strong style="color:var(--navy);font-size:0.92rem">${u.progressPct || 0}%</strong></td>
-          <td><span style="font-weight:750">${u.countedMinutes || 0} min</span> / <span style="color:var(--muted)">${displayTarget} min</span></td>
+          <td>
+            <div style="display:flex;align-items:baseline;gap:6px">
+              <strong style="color:var(--navy);font-size:0.95rem">${progressPct}%</strong>
+              <span style="font-size:0.75rem;color:var(--muted)">•</span>
+              <span style="font-weight:750;font-size:0.82rem">${u.countedMinutes || 0} min <span style="font-weight:400;color:var(--muted)">/ ${displayTarget} min</span></span>
+            </div>
+            <div style="width:100%;max-width:130px;height:5px;background:#e5edf2;border-radius:99px;overflow:hidden;margin-top:3px">
+              <div style="width:${Math.min(100, progressPct)}%;height:100%;background:linear-gradient(90deg,var(--cyan),var(--green));border-radius:99px"></div>
+            </div>
+          </td>
           <td>
             <span class="habit-clickable-pill ${isNotSet ? 'habit-none' : ''}" onclick="showAthleteHabitDetails('${encodeURIComponent(participantName)}', '${encodeURIComponent(habitDisplay)}', ${cleanDays}, ${slips})">
               ${isNotSet ? '⚪' : '⚡'} ${habitDisplay}
             </span>
           </td>
           <td>
-            <span style="font-size:0.86rem">${cleanDays >= 7 ? '🛡️' : ''}${u.progressPct >= 100 ? ' 🏆' : ''}</span>
+            <div style="display:flex;align-items:center;gap:4px">
+              ${badgesHtml}
+            </div>
           </td>
         `;
         tbody.appendChild(tr);
       });
     } catch (e) {
       console.warn("Leaderboard fetch error:", e);
-      tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px">Failed to load standings.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:24px">Failed to load standings.</td></tr>`;
     }
   }
 
@@ -1639,8 +1694,7 @@ input,select,textarea{font-size:16px !important}
             dayNum: act.dayNum,
             loggedAt: act.loggedAt
           });
-        });
-      });
+      const unlockedBadges = evaluateBadges(computedStats, cachedDays);
 
       const payload = {
         userId: currentUser.uid,
@@ -1655,6 +1709,7 @@ input,select,textarea{font-size:16px !important}
         habitName: userHabitEnabled ? (userHabitName || 'Clean Living') : 'Disabled',
         habitCleanDays: computedStats.cleanHabitDays,
         habitSlips: computedStats.habitSlips,
+        badges: unlockedBadges,
         activities: allActivities,
         updatedAt: now
       };
