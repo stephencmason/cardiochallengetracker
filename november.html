@@ -7,7 +7,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>November Fitness &amp; Habit Challenge - v13.1</title>
+<title>November Fitness &amp; Habit Challenge - v13.2</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -214,7 +214,7 @@ input,select,textarea{font-size:16px !important}
       </div>
       <div class="hero-actions">
         <div class="hero-actions-top">
-          <div class="hero-version-pill">v13.1 &bull; 2026</div>
+          <div class="hero-version-pill">v13.2 &bull; 2026</div>
           <a href="index.html" class="btn-hub-nav">← Hub</a>
           <button id="launchRecapBtn" class="btn-recap-launch">
             <span>📜</span> <span>Story Recap</span>
@@ -485,7 +485,7 @@ input,select,textarea{font-size:16px !important}
       <span>👥 Enrolled Athletes:</span>
       <strong id="uniqueUsersCount">-- enrolled</strong>
     </div>
-    <div>November Fitness &amp; Habit Challenge &bull; v13.1</div>
+    <div>November Fitness &amp; Habit Challenge &bull; v13.2</div>
   </footer>
 </div>
 
@@ -622,7 +622,7 @@ input,select,textarea{font-size:16px !important}
 </div>
 
 <script>
-  const APP_VERSION = "13.1";
+  const APP_VERSION = "13.2";
 
   const firebaseConfig = {
     apiKey: "AIzaSyCbxoN1DLvMqxZb7FD4qu8p7k6lnD5ENP4",
@@ -1501,6 +1501,33 @@ input,select,textarea{font-size:16px !important}
             .set(patch, { merge: true });
         }
       });
+
+      // Permanent Firestore Cleanup: purge orphaned duplicate docs in nov_feed for the same user/day/type
+      try {
+        const feedSnap = await db.collection('artifacts').doc('fitness-challenge-smason')
+          .collection('public').doc('data').collection('nov_feed').get();
+        const seenFeedSlots = new Map();
+        feedSnap.forEach(fDoc => {
+          const fd = fDoc.data();
+          const slotKey = `${fd.userId}_d${fd.dayNum}_${(fd.type || '').toLowerCase()}`;
+          const existing = seenFeedSlots.get(slotKey);
+          if (!existing) {
+            seenFeedSlots.set(slotKey, { id: fDoc.id, loggedAt: fd.loggedAt || 0 });
+          } else {
+            // Compare timestamps: keep the newest update, delete the stale duplicate
+            if ((fd.loggedAt || 0) >= existing.loggedAt) {
+              db.collection('artifacts').doc('fitness-challenge-smason')
+                .collection('public').doc('data').collection('nov_feed').doc(existing.id).delete().catch(console.warn);
+              seenFeedSlots.set(slotKey, { id: fDoc.id, loggedAt: fd.loggedAt || 0 });
+            } else {
+              db.collection('artifacts').doc('fitness-challenge-smason')
+                .collection('public').doc('data').collection('nov_feed').doc(fDoc.id).delete().catch(console.warn);
+            }
+          }
+        });
+      } catch (feedCleanErr) {
+        console.warn("Feed maintenance notice:", feedCleanErr);
+      }
     } catch (e) {
       console.warn("Scrub notice:", e);
     }
@@ -1823,23 +1850,28 @@ input,select,textarea{font-size:16px !important}
             const cleanName = formatCleanName(d.name, '');
             const day = Number(d.dayNum) || 1;
             const uid = d.userId || cleanName;
-            const noteKey = cleanTextKey(d.note);
             const typeKey = (d.type || 'workout').toLowerCase();
 
-            // Primary signature: user + day + type + note (deduplicates updates & cross-collection twins)
-            const itemKey = `${uid}_d${day}_${typeKey}_${noteKey || mins}`;
+            // Slot-based key: collapse edits of the same workout slot on the same day for that user
+            const itemKey = `${uid}_d${day}_${typeKey}`;
             const rawT = parseTimestampToMillis(d.loggedAt);
 
-            eventMap.set(itemKey, {
-              key: itemKey,
-              name: cleanName,
-              avatar: d.avatar || 'https://placehold.co/32x32/1e293b/94a3b8?text=U',
-              type: d.type || 'Workout',
-              minutes: mins,
-              note: d.note || '',
-              dayNum: day,
-              loggedAt: normalizeActivityTimestamp(rawT, day)
-            });
+            const existing = eventMap.get(itemKey);
+            const thisTime = normalizeActivityTimestamp(rawT, day);
+
+            // Keep the newer revision (e.g. 32 min with corrected note replaces 30 min with typo)
+            if (!existing || (existing.loggedAt || 0) < thisTime) {
+              eventMap.set(itemKey, {
+                key: itemKey,
+                name: cleanName,
+                avatar: d.avatar || 'https://placehold.co/32x32/1e293b/94a3b8?text=U',
+                type: d.type || 'Workout',
+                minutes: mins,
+                note: d.note || '',
+                dayNum: day,
+                loggedAt: thisTime
+              });
+            }
           }
         });
       } catch (feedErr) {
@@ -1862,11 +1894,10 @@ input,select,textarea{font-size:16px !important}
             const m = Number(act.minutes) || 0;
             if (m > 0) {
               const day = Number(act.dayNum) || 1;
-              const noteKey = cleanTextKey(act.note);
               const typeKey = (act.type || 'workout').toLowerCase();
 
-              // Matches the same itemKey as nov_feed
-              const itemKey = `${uid}_d${day}_${typeKey}_${noteKey || m}`;
+              // Resolves to identical slot key so the authoritative user array overwrites stale feed docs
+              const itemKey = `${uid}_d${day}_${typeKey}`;
 
               let actTime = parseTimestampToMillis(act.loggedAt) || parseTimestampToMillis(act.timestamp);
               if (!actTime || actTime <= 0) {
@@ -1875,8 +1906,7 @@ input,select,textarea{font-size:16px !important}
 
               const normalizedTime = normalizeActivityTimestamp(actTime, day);
 
-              // If entry exists from nov_feed, keep the one with the latest timestamp/updated minutes
-              if (!eventMap.has(itemKey) || (eventMap.get(itemKey).loggedAt || 0) < normalizedTime) {
+              if (!eventMap.has(itemKey) || (eventMap.get(itemKey).loggedAt || 0) <= normalizedTime) {
                 eventMap.set(itemKey, {
                   key: itemKey,
                   name: cleanName,
