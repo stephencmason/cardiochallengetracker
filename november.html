@@ -7,7 +7,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>November Fitness &amp; Habit Challenge - v13.0</title>
+<title>November Fitness &amp; Habit Challenge - v13.1</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -214,7 +214,7 @@ input,select,textarea{font-size:16px !important}
       </div>
       <div class="hero-actions">
         <div class="hero-actions-top">
-          <div class="hero-version-pill">v13.0 &bull; 2026</div>
+          <div class="hero-version-pill">v13.1 &bull; 2026</div>
           <a href="index.html" class="btn-hub-nav">← Hub</a>
           <button id="launchRecapBtn" class="btn-recap-launch">
             <span>📜</span> <span>Story Recap</span>
@@ -485,7 +485,7 @@ input,select,textarea{font-size:16px !important}
       <span>👥 Enrolled Athletes:</span>
       <strong id="uniqueUsersCount">-- enrolled</strong>
     </div>
-    <div>November Fitness &amp; Habit Challenge &bull; v13.0</div>
+    <div>November Fitness &amp; Habit Challenge &bull; v13.1</div>
   </footer>
 </div>
 
@@ -622,7 +622,7 @@ input,select,textarea{font-size:16px !important}
 </div>
 
 <script>
-  const APP_VERSION = "13.0";
+  const APP_VERSION = "13.1";
 
   const firebaseConfig = {
     apiKey: "AIzaSyCbxoN1DLvMqxZb7FD4qu8p7k6lnD5ENP4",
@@ -1803,6 +1803,11 @@ input,select,textarea{font-size:16px !important}
     try {
       const eventMap = new Map();
 
+      // Normalize note strings for robust matching across revisions
+      function cleanTextKey(str) {
+        return (str || '').toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 30);
+      }
+
       // 1. Check dedicated activity feed collection nov_feed
       try {
         const feedSnap = await db.collection('artifacts').doc('fitness-challenge-smason')
@@ -1818,7 +1823,11 @@ input,select,textarea{font-size:16px !important}
             const cleanName = formatCleanName(d.name, '');
             const day = Number(d.dayNum) || 1;
             const uid = d.userId || cleanName;
-            const itemKey = `${uid}_d${day}_${d.activityId || docSnap.id}`;
+            const noteKey = cleanTextKey(d.note);
+            const typeKey = (d.type || 'workout').toLowerCase();
+
+            // Primary signature: user + day + type + note (deduplicates updates & cross-collection twins)
+            const itemKey = `${uid}_d${day}_${typeKey}_${noteKey || mins}`;
             const rawT = parseTimestampToMillis(d.loggedAt);
 
             eventMap.set(itemKey, {
@@ -1837,7 +1846,7 @@ input,select,textarea{font-size:16px !important}
         console.warn("Direct nov_feed read skipped or index pending:", feedErr);
       }
 
-      // 2. Incorporate workouts from nov_users
+      // 2. Incorporate workouts from nov_users, resolving against already-fetched entries
       const snap = await db.collection('artifacts').doc('fitness-challenge-smason')
         .collection('public').doc('data').collection('nov_users').get();
 
@@ -1853,24 +1862,32 @@ input,select,textarea{font-size:16px !important}
             const m = Number(act.minutes) || 0;
             if (m > 0) {
               const day = Number(act.dayNum) || 1;
-              const stableActId = act.id || `slot_${actIdx}`;
-              const itemKey = `${uid}_d${day}_${stableActId}`;
+              const noteKey = cleanTextKey(act.note);
+              const typeKey = (act.type || 'workout').toLowerCase();
+
+              // Matches the same itemKey as nov_feed
+              const itemKey = `${uid}_d${day}_${typeKey}_${noteKey || m}`;
 
               let actTime = parseTimestampToMillis(act.loggedAt) || parseTimestampToMillis(act.timestamp);
               if (!actTime || actTime <= 0) {
                 actTime = docTime > 0 ? (docTime - (actIdx * 1000)) : (new Date(2026, 10, day, 12, 0, 0).getTime() - (actIdx * 1000));
               }
 
-              eventMap.set(itemKey, {
-                key: itemKey,
-                name: cleanName,
-                avatar: avatar,
-                type: act.type || 'Workout',
-                minutes: m,
-                note: act.note || '',
-                dayNum: day,
-                loggedAt: normalizeActivityTimestamp(actTime, day)
-              });
+              const normalizedTime = normalizeActivityTimestamp(actTime, day);
+
+              // If entry exists from nov_feed, keep the one with the latest timestamp/updated minutes
+              if (!eventMap.has(itemKey) || (eventMap.get(itemKey).loggedAt || 0) < normalizedTime) {
+                eventMap.set(itemKey, {
+                  key: itemKey,
+                  name: cleanName,
+                  avatar: avatar,
+                  type: act.type || 'Workout',
+                  minutes: m,
+                  note: act.note || '',
+                  dayNum: day,
+                  loggedAt: normalizedTime
+                });
+              }
             }
           });
         }
