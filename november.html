@@ -7,7 +7,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>November Fitness &amp; Habit Challenge - v13.8</title>
+<title>November Fitness &amp; Habit Challenge - v13.9</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -207,7 +207,7 @@ input,select,textarea{font-size:16px !important}
       </div>
       <div class="hero-actions">
         <div class="hero-actions-top">
-          <div class="hero-version-pill">v13.8 &bull; 2026</div>
+          <div class="hero-version-pill">v13.9 &bull; 2026</div>
           <a href="index.html" class="btn-hub-nav">← Hub</a>
           <button id="launchRecapBtn" class="btn-recap-launch">
             <span>📜</span> <span>Story Recap</span>
@@ -482,7 +482,7 @@ input,select,textarea{font-size:16px !important}
       <strong>👥 Enrolled Athletes:</strong>
       <strong id="uniqueUsersCount">-- enrolled</strong>
     </div>
-    <div>November Fitness &amp; Habit Challenge &bull; v13.8</div>
+    <div>November Fitness &amp; Habit Challenge &bull; v13.9</div>
   </footer>
 </div>
 
@@ -619,7 +619,7 @@ input,select,textarea{font-size:16px !important}
 </div>
 
 <script>
-  const APP_VERSION = "13.8";
+  const APP_VERSION = "13.9";
 
   const firebaseConfig = {
     apiKey: "AIzaSyCbxoN1DLvMqxZb7FD4qu8p7k6lnD5ENP4",
@@ -675,16 +675,16 @@ input,select,textarea{font-size:16px !important}
     if (typeof userOrName === 'string') {
       name = userOrName;
     } else if (userOrName && typeof userOrName === 'object') {
-      name = userOrName.displayName || '';
-      if (!name && userOrName.email) email = userOrName.email;
+      name = userOrName.displayName || userOrName.name || userOrName.userName || userOrName.fullName || '';
+      if (!email) email = userOrName.email || userOrName.userEmail || '';
     }
-    if (!name && email) {
+    if ((!name || name.trim() === 'Athlete') && email) {
       name = email.split('@')[0];
     }
     if (name && name.includes('@')) {
       name = name.split('@')[0];
     }
-    return (name && name.trim()) ? name.trim() : 'Athlete';
+    return (name && name.trim() && name.trim() !== 'Athlete') ? name.trim() : 'Athlete';
   }
 
   function getElapsedNovemberDay() {
@@ -1464,7 +1464,7 @@ input,select,textarea{font-size:16px !important}
       snapUsers.forEach(async docSnap => {
         const u = docSnap.data();
         const docId = docSnap.id;
-        const name = formatCleanName(u.displayName, u.email);
+        const name = formatCleanName(u, u.email);
         const isStephen = name.toLowerCase().includes('stephen');
         let needsFix = false;
         const patch = {};
@@ -1576,7 +1576,7 @@ input,select,textarea{font-size:16px !important}
         const tr = document.createElement('tr');
         if (currentUser && currentUser.uid === u.userId) tr.style.background = '#eaf2f8';
 
-        const participantName = formatCleanName(u.displayName, u.email);
+        const participantName = formatCleanName(u, u.email);
         const isStephen = participantName.toLowerCase().includes('stephen');
         const verifiedTarget = getVerifiedSeptTarget(participantName);
 
@@ -1678,10 +1678,28 @@ input,select,textarea{font-size:16px !important}
     feed.innerHTML = `<div style="text-align:center;color:var(--muted);padding:24px">Loading feed...</div>`;
     try {
       const eventMap = new Map();
+      const directoryMap = new Map();
+
+      function registerUserProfile(u, fallbackId) {
+        if (!u) return;
+        const uid = u.userId || u.uid || fallbackId;
+        if (!uid) return;
+        const resolvedName = formatCleanName(u, u.email);
+        const resolvedAvatar = u.photoURL || u.avatar || u.photo || '';
+        const prev = directoryMap.get(uid) || { name: 'Athlete', avatar: '' };
+        directoryMap.set(uid, {
+          name: (resolvedName && resolvedName !== 'Athlete') ? resolvedName : prev.name,
+          avatar: resolvedAvatar || prev.avatar
+        });
+      }
 
       function ingestActivity(uid, cleanName, avatar, act, defaultDay, fallbackTs) {
         const mins = Number(act.minutes) || 0;
         if (mins <= 0) return;
+
+        const dir = directoryMap.get(uid) || {};
+        const finalName = (cleanName && cleanName !== 'Athlete') ? cleanName : (dir.name || 'Athlete');
+        const finalAvatar = avatar || dir.avatar || `https://placehold.co/32x32/1e293b/94a3b8?text=${encodeURIComponent((finalName[0] || 'U').toUpperCase())}`;
 
         const typeStr = act.type || 'Workout';
         const noteStr = (act.note || '').trim();
@@ -1699,10 +1717,10 @@ input,select,textarea{font-size:16px !important}
         const itemKey = `${uid}_d${day}_${typeKey}_${mins}_${noteKey}`;
 
         const existing = eventMap.get(itemKey);
-        if (!existing || (act.loggedAt && !existing.hasDirectTs)) {
+        if (!existing) {
           eventMap.set(itemKey, {
-            name: cleanName,
-            avatar: avatar || 'https://placehold.co/32x32/1e293b/94a3b8?text=U',
+            name: finalName,
+            avatar: finalAvatar,
             type: typeStr,
             minutes: mins,
             note: noteStr,
@@ -1710,11 +1728,23 @@ input,select,textarea{font-size:16px !important}
             loggedAt: normTs,
             hasDirectTs: Boolean(act.loggedAt)
           });
+        } else {
+          if ((existing.name === 'Athlete' || !existing.name) && finalName !== 'Athlete') {
+            existing.name = finalName;
+          }
+          if (existing.avatar.includes('placehold.co') && !finalAvatar.includes('placehold.co')) {
+            existing.avatar = finalAvatar;
+          }
+          if (act.loggedAt && !existing.hasDirectTs) {
+            existing.loggedAt = normTs;
+            existing.hasDirectTs = true;
+          }
         }
       }
 
       function ingestUserActivityList(u, uid) {
-        const cleanName = formatCleanName(u.displayName, u.email);
+        registerUserProfile(u, uid);
+        const cleanName = formatCleanName(u, u.email);
         if (!Array.isArray(u.activities)) return;
 
         const validActs = u.activities.filter(a => (Number(a.minutes) || 0) > 0);
@@ -1730,26 +1760,11 @@ input,select,textarea{font-size:16px !important}
         validActs.forEach((act, idx) => {
           let inferredDay = Number(act.dayNum);
           if (!inferredDay) {
-            // Legacy activities in u.activities are stored in calendar order (Day 1 -> Day N).
-            // Distribute undated items across their active days ending on maxUpdatedDay so they don't clump on one timestamp.
             const offsetFromEnd = Math.max(0, validActs.length - 1 - idx);
             inferredDay = Math.max(1, maxUpdatedDay - offsetFromEnd);
           }
-          ingestActivity(uid, cleanName, u.photoURL, act, inferredDay, u.updatedAt);
+          ingestActivity(uid, cleanName, u.photoURL || u.avatar, act, inferredDay, u.updatedAt);
         });
-      }
-
-      try {
-        const feedSnap = await db.collection('artifacts').doc('fitness-challenge-smason')
-          .collection('public').doc('data').collection('nov_feed').get();
-        feedSnap.forEach(docSnap => {
-          const d = docSnap.data();
-          const uid = d.userId || docSnap.id;
-          const cleanName = formatCleanName(d.displayName, d.email);
-          ingestActivity(uid, cleanName, d.photoURL, d, d.dayNum, d.loggedAt);
-        });
-      } catch (err) {
-        console.warn("nov_feed query notice:", err);
       }
 
       try {
@@ -1772,6 +1787,20 @@ input,select,textarea{font-size:16px !important}
         });
       } catch (err) {
         console.warn("nov_leaderboard feed notice:", err);
+      }
+
+      try {
+        const feedSnap = await db.collection('artifacts').doc('fitness-challenge-smason')
+          .collection('public').doc('data').collection('nov_feed').get();
+        feedSnap.forEach(docSnap => {
+          const d = docSnap.data();
+          const uid = d.userId || (docSnap.id.includes('_d') ? docSnap.id.split('_d')[0] : docSnap.id);
+          registerUserProfile(d, uid);
+          const cleanName = formatCleanName(d, d.email);
+          ingestActivity(uid, cleanName, d.photoURL || d.avatar, d, d.dayNum, d.loggedAt);
+        });
+      } catch (err) {
+        console.warn("nov_feed query notice:", err);
       }
 
       const events = Array.from(eventMap.values());
