@@ -7,7 +7,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>November Fitness &amp; Habit Challenge - v13.7</title>
+<title>November Fitness &amp; Habit Challenge - v13.8</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -207,7 +207,7 @@ input,select,textarea{font-size:16px !important}
       </div>
       <div class="hero-actions">
         <div class="hero-actions-top">
-          <div class="hero-version-pill">v13.7 &bull; 2026</div>
+          <div class="hero-version-pill">v13.8 &bull; 2026</div>
           <a href="index.html" class="btn-hub-nav">← Hub</a>
           <button id="launchRecapBtn" class="btn-recap-launch">
             <span>📜</span> <span>Story Recap</span>
@@ -479,10 +479,10 @@ input,select,textarea{font-size:16px !important}
 
   <footer class="app-footer" style="display:flex;justify-content:space-between;align-items:center;margin-top:16px;padding-top:12px;border-top:1px solid var(--line);font-size:0.78rem;color:var(--muted);flex-wrap:wrap;gap:8px">
     <div style="display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid var(--line);padding:4px 10px;border-radius:99px;font-size:0.75rem;color:var(--ink)">
-      <span>👥 Enrolled Athletes:</span>
+      <strong>👥 Enrolled Athletes:</strong>
       <strong id="uniqueUsersCount">-- enrolled</strong>
     </div>
-    <div>November Fitness &amp; Habit Challenge &bull; v13.7</div>
+    <div>November Fitness &amp; Habit Challenge &bull; v13.8</div>
   </footer>
 </div>
 
@@ -619,7 +619,7 @@ input,select,textarea{font-size:16px !important}
 </div>
 
 <script>
-  const APP_VERSION = "13.7";
+  const APP_VERSION = "13.8";
 
   const firebaseConfig = {
     apiKey: "AIzaSyCbxoN1DLvMqxZb7FD4qu8p7k6lnD5ENP4",
@@ -1691,33 +1691,51 @@ input,select,textarea{font-size:16px !important}
         }
 
         const rawTs = Number(act.loggedAt) || Number(fallbackTs) || 0;
-        let explicitDay = Number(act.dayNum) || Number(defaultDay) || 0;
-        let day = explicitDay;
-
-        if (!day && rawTs > 1000000000000) {
-          const dt = new Date(rawTs);
-          if (!isNaN(dt.getTime()) && dt.getMonth() === 10) {
-            day = dt.getDate();
-          }
-        }
-        if (!day) day = 1;
-
-        const normTs = explicitDay
-          ? normalizeActivityTimestamp(rawTs, day)
-          : (rawTs > 1000000000000 ? rawTs : normalizeActivityTimestamp(0, day));
+        const day = Math.max(1, Math.min(30, Number(act.dayNum) || Number(defaultDay) || 1));
+        const normTs = normalizeActivityTimestamp(rawTs, day);
 
         const typeKey = typeStr.toLowerCase().replace(/[^a-z0-9]/g, '');
         const noteKey = noteStr.toLowerCase().replace(/[^a-z0-9]/g, '');
         const itemKey = `${uid}_d${day}_${typeKey}_${mins}_${noteKey}`;
 
-        eventMap.set(itemKey, {
-          name: cleanName,
-          avatar: avatar || 'https://placehold.co/32x32/1e293b/94a3b8?text=U',
-          type: typeStr,
-          minutes: mins,
-          note: noteStr,
-          dayNum: day,
-          loggedAt: normTs
+        const existing = eventMap.get(itemKey);
+        if (!existing || (act.loggedAt && !existing.hasDirectTs)) {
+          eventMap.set(itemKey, {
+            name: cleanName,
+            avatar: avatar || 'https://placehold.co/32x32/1e293b/94a3b8?text=U',
+            type: typeStr,
+            minutes: mins,
+            note: noteStr,
+            dayNum: day,
+            loggedAt: normTs,
+            hasDirectTs: Boolean(act.loggedAt)
+          });
+        }
+      }
+
+      function ingestUserActivityList(u, uid) {
+        const cleanName = formatCleanName(u.displayName, u.email);
+        if (!Array.isArray(u.activities)) return;
+
+        const validActs = u.activities.filter(a => (Number(a.minutes) || 0) > 0);
+        const elapsed = getElapsedNovemberDay();
+        let maxUpdatedDay = elapsed;
+        if (u.updatedAt && Number(u.updatedAt) > 1000000000000) {
+          const dt = new Date(Number(u.updatedAt));
+          if (!isNaN(dt.getTime()) && dt.getMonth() === 10) {
+            maxUpdatedDay = Math.min(elapsed, dt.getDate());
+          }
+        }
+
+        validActs.forEach((act, idx) => {
+          let inferredDay = Number(act.dayNum);
+          if (!inferredDay) {
+            // Legacy activities in u.activities are stored in calendar order (Day 1 -> Day N).
+            // Distribute undated items across their active days ending on maxUpdatedDay so they don't clump on one timestamp.
+            const offsetFromEnd = Math.max(0, validActs.length - 1 - idx);
+            inferredDay = Math.max(1, maxUpdatedDay - offsetFromEnd);
+          }
+          ingestActivity(uid, cleanName, u.photoURL, act, inferredDay, u.updatedAt);
         });
       }
 
@@ -1739,13 +1757,7 @@ input,select,textarea{font-size:16px !important}
           .collection('public').doc('data').collection('nov_users').get();
         snapUsers.forEach(docSnap => {
           const u = docSnap.data();
-          const uid = u.userId || docSnap.id;
-          const cleanName = formatCleanName(u.displayName, u.email);
-          if (Array.isArray(u.activities)) {
-            u.activities.forEach(act => {
-              ingestActivity(uid, cleanName, u.photoURL, act, act.dayNum, u.updatedAt);
-            });
-          }
+          ingestUserActivityList(u, u.userId || docSnap.id);
         });
       } catch (err) {
         console.warn("nov_users feed notice:", err);
@@ -1756,13 +1768,7 @@ input,select,textarea{font-size:16px !important}
           .collection('public').doc('data').collection('nov_leaderboard').get();
         snapBoard.forEach(docSnap => {
           const u = docSnap.data();
-          const uid = u.userId || docSnap.id;
-          const cleanName = formatCleanName(u.displayName, u.email);
-          if (Array.isArray(u.activities)) {
-            u.activities.forEach(act => {
-              ingestActivity(uid, cleanName, u.photoURL, act, act.dayNum, u.updatedAt);
-            });
-          }
+          ingestUserActivityList(u, u.userId || docSnap.id);
         });
       } catch (err) {
         console.warn("nov_leaderboard feed notice:", err);
