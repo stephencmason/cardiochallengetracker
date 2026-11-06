@@ -7,7 +7,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>November Fitness &amp; Habit Challenge - v13.2</title>
+<title>November Fitness &amp; Habit Challenge - v13.6</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -26,7 +26,6 @@ button,input,select,textarea{font:inherit;touch-action:manipulation}
 input,select,textarea{font-size:16px !important}
 .app{max-width:1180px;margin:auto;padding:12px 14px}
 
-/* Compact Header */
 .hero{background:linear-gradient(125deg,var(--navy),#235d7c 65%,#258b96);color:white;border-radius:18px;padding:12px 16px;box-shadow:var(--shadow);position:relative;overflow:hidden}
 .hero-compact-row{display:flex;justify-content:space-between;align-items:center;gap:10px;position:relative;z-index:1}
 .hero-title-wrap h1{margin:0;font-size:clamp(1.10rem, 2.4vw, 1.45rem);font-weight:850;letter-spacing:-0.02em;line-height:1.2}
@@ -52,7 +51,7 @@ input,select,textarea{font-size:16px !important}
 .btn-hub-nav:hover{background:rgba(255,255,255,0.28)}
 
 .btn-recap-launch{
-  display:none; /* Shown Dec 1st */
+  display:none;
   align-items:center;
   gap:4px;
   background:linear-gradient(135deg,#ffd778,#f3a93b);
@@ -71,7 +70,6 @@ input,select,textarea{font-size:16px !important}
 .user-avatar{width:28px;height:28px;border-radius:50%;border:2px solid rgba(255,255,255,0.8);object-fit:cover;background:#1e293b}
 .btn-logout-link{background:none;border:0;color:#ffd5d5;cursor:pointer;font-size:0.74rem;text-decoration:underline;padding:0}
 
-/* Config Ribbon */
 .config-strip{background:var(--paper);border:1px solid rgba(220,229,234,.9);border-radius:12px;padding:8px 12px;margin:8px 0 10px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;box-shadow:0 2px 8px rgba(24,48,66,.03)}
 .config-pill{display:inline-flex;align-items:center;gap:6px;font-size:0.78rem;font-weight:750;color:var(--ink);background:#f6f9fb;border:1px solid var(--line);border-radius:99px;padding:3px 10px}
 .config-action-btn{background:none;border:0;color:var(--blue);font-weight:800;font-size:0.76rem;cursor:pointer;text-decoration:underline;padding:0 2px}
@@ -82,7 +80,6 @@ input,select,textarea{font-size:16px !important}
 .tab-btn:hover{color:var(--ink)}
 .tab-btn.active{background:var(--navy);color:white;border-color:var(--navy)}
 
-/* Summary Metrics */
 .summary{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:0 0 12px 0}
 .card,.panel{background:var(--paper);border:1px solid rgba(220,229,234,.8);border-radius:14px;box-shadow:var(--shadow)}
 .metric{background:#f8fafb;border:1px solid rgba(220,229,234,.8);border-radius:10px;padding:8px 10px;display:flex;flex-direction:column;gap:1px}
@@ -133,7 +130,6 @@ input,select,textarea{font-size:16px !important}
 .btn-habit-choice.active-clean{background:#e6f7ec;border-color:#2b9a66;color:#18633e}
 .btn-habit-choice.active-slip{background:#fdecec;border-color:#c94d4d;color:#9b2424}
 
-/* Leaderboard */
 .table-wrap{overflow-x:auto}
 .leader-table{width:100%;border-collapse:collapse;text-align:left;font-size:.84rem}
 .leader-table th{background:#f4f7f9;color:var(--muted);font-size:.72rem;font-weight:750;text-transform:uppercase;padding:8px 10px;border-bottom:1px solid var(--line)}
@@ -144,12 +140,10 @@ input,select,textarea{font-size:16px !important}
 .habit-clickable-pill:hover{background:#ffeedb}
 .habit-clickable-pill.habit-none{background:#f4f6f8;border-color:var(--line);color:var(--muted)}
 
-/* Modals */
 .modal-overlay{position:fixed;inset:0;background:rgba(15,23,42,0.6);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;z-index:9999;padding:16px}
 .modal-overlay.show{display:flex}
 .modal-box{background:var(--paper);border-radius:16px;max-width:420px;width:100%;padding:18px;box-shadow:0 20px 40px rgba(0,0,0,0.2);border:1px solid var(--line)}
 
-/* Story Recap Modal */
 .story-modal-overlay{position:fixed;inset:0;background:rgba(10,23,34,0.85);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;z-index:10001;padding:12px;overflow-y:auto}
 .story-modal-overlay.show{display:flex}
 .story-shell{position:relative;max-width:390px;width:100%;display:flex;flex-direction:column;align-items:center;margin:auto}
@@ -185,7 +179,6 @@ input,select,textarea{font-size:16px !important}
 .btn-story-image{background:linear-gradient(135deg,#34d399,#059669);color:#ffffff}
 .btn-story-close{background:rgba(255,255,255,0.15);color:#ffffff;max-width:85px;border:1px solid rgba(255,255,255,0.22)}
 
-/* Charts Component */
 .charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
 .chart-card{background:#f8fafb;border:1px solid var(--line);border-radius:10px;padding:10px}
 .chart-bar-row{display:flex;align-items:center;gap:8px;margin-bottom:5px;font-size:0.75rem}
@@ -214,7 +207,7 @@ input,select,textarea{font-size:16px !important}
       </div>
       <div class="hero-actions">
         <div class="hero-actions-top">
-          <div class="hero-version-pill">v13.2 &bull; 2026</div>
+          <div class="hero-version-pill">v13.6 &bull; 2026</div>
           <a href="index.html" class="btn-hub-nav">← Hub</a>
           <button id="launchRecapBtn" class="btn-recap-launch">
             <span>📜</span> <span>Story Recap</span>
@@ -276,7 +269,7 @@ input,select,textarea{font-size:16px !important}
       <div class="metric">
         <div class="label">Counted Activity</div>
         <div class="value" id="completed">0 min</div>
-        <div class="sub" id="actualMinutes">0 actual min</div>
+        <div class="sub" id="actualMinutes">0 actual minutes</div>
       </div>
       <div class="metric">
         <div class="label">Adjusted Target</div>
@@ -394,6 +387,7 @@ input,select,textarea{font-size:16px !important}
     </div>
   </div>
 
+  <!-- LEADERBOARD VIEW -->
   <div id="leaderboardView" class="hidden">
     <section class="panel">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
@@ -419,6 +413,7 @@ input,select,textarea{font-size:16px !important}
     </section>
   </div>
 
+  <!-- ACTIVITY FEED VIEW -->
   <div id="feedView" class="hidden">
     <section class="panel">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
@@ -432,6 +427,7 @@ input,select,textarea{font-size:16px !important}
     </section>
   </div>
 
+  <!-- DISCIPLINE BREAKDOWN / CHARTS VIEW -->
   <div id="chartsView" class="hidden">
     <section class="panel">
       <h2 style="margin:0 0 4px">📊 Workout Discipline Analytics</h2>
@@ -450,6 +446,7 @@ input,select,textarea{font-size:16px !important}
     </section>
   </div>
 
+  <!-- CHALLENGE RULES VIEW -->
   <div id="rulesView" class="hidden">
     <div style="display:grid;gap:12px;max-width:850px;margin:auto">
       <section class="panel">
@@ -457,7 +454,7 @@ input,select,textarea{font-size:16px !important}
         <div style="display:grid;gap:10px;font-size:0.86rem;line-height:1.5">
           <div style="background:#f8fafb;border-left:4px solid var(--blue);padding:10px 12px;border-radius:6px">
             <strong>1. Daily 30-Minute Streak Minimum:</strong>
-            <div>Every calendar day requires at least 30 minutes of logged exercise to maintain your streak. Any past day under 30 minutes incurs a <strong>+30 min penalty debt</strong>. Today and future days are never treated as misses!</div>
+            <div>Every calendar day requires at least 30 minutes of logged exercise to maintain your streak. Any day under 30 minutes in the past incurs a <strong>+30 min penalty debt</strong>. Today and future days are never treated as misses!</div>
           </div>
           <div style="background:#f8fafb;border-left:4px solid #2b9a66;padding:10px 12px;border-radius:6px">
             <strong>2. 120-Minute Daily Cap:</strong>
@@ -485,7 +482,7 @@ input,select,textarea{font-size:16px !important}
       <span>👥 Enrolled Athletes:</span>
       <strong id="uniqueUsersCount">-- enrolled</strong>
     </div>
-    <div>November Fitness &amp; Habit Challenge &bull; v13.2</div>
+    <div>November Fitness &amp; Habit Challenge &bull; v13.6</div>
   </footer>
 </div>
 
@@ -622,7 +619,7 @@ input,select,textarea{font-size:16px !important}
 </div>
 
 <script>
-  const APP_VERSION = "13.2";
+  const APP_VERSION = "13.6";
 
   const firebaseConfig = {
     apiKey: "AIzaSyCbxoN1DLvMqxZb7FD4qu8p7k6lnD5ENP4",
@@ -644,7 +641,7 @@ input,select,textarea{font-size:16px !important}
 
   const $ = id => document.getElementById(id);
   const DAYS = 30;
-  const ACTIVITY_TYPES = ['Bootcamp', 'Cardio', 'Cross Fit', 'Stretching', 'Weights', 'Resistance Training', 'Yoga'];
+  const ACTIVITY_TYPES = ['Bootcamp', 'Cardio', 'Cross Fit', 'Weights', 'Resistance Training', 'Stretching', 'Yoga'];
 
   let currentUser = null;
   let selectedDay = 1;
@@ -692,17 +689,37 @@ input,select,textarea{font-size:16px !important}
 
   function getElapsedNovemberDay() {
     const now = new Date();
-    const curYear = now.getFullYear();
-    const curMonth = now.getMonth(); // 10 is November
+    const curMonth = now.getMonth();
     const curDate = now.getDate();
-
-    if (curYear < 2026 || (curYear === 2026 && curMonth < 10)) {
-      return 0;
-    }
-    if (curYear === 2026 && curMonth === 10) {
+    if (curMonth === 10) {
       return Math.min(30, curDate);
     }
-    return 30;
+    if (curMonth > 10) return 30;
+    return 1;
+  }
+
+  function formatFeedTimestamp(ts, fallbackDayNum) {
+    const dayNum = Number(fallbackDayNum) || 1;
+    if (ts && Number(ts) > 1000000000000) {
+      const dt = new Date(Number(ts));
+      if (!isNaN(dt.getTime())) {
+        const timeStr = dt.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+        return `Nov ${dayNum} \u2022 ${timeStr}`;
+      }
+    }
+    return `Nov ${dayNum}`;
+  }
+
+  function normalizeActivityTimestamp(rawTs, dayNum) {
+    const validDay = Math.max(1, Math.min(30, Number(dayNum) || 1));
+    const nowYear = new Date().getFullYear();
+    if (rawTs && Number(rawTs) > 1000000000000) {
+      const d = new Date(Number(rawTs));
+      if (!isNaN(d.getTime())) {
+        return new Date(nowYear, 10, validDay, d.getHours(), d.getMinutes(), d.getSeconds(), d.getMilliseconds()).getTime();
+      }
+    }
+    return new Date(nowYear, 10, validDay, 12, 0, 0).getTime();
   }
 
   function checkRecapAvailability() {
@@ -712,7 +729,6 @@ input,select,textarea{font-size:16px !important}
     if (recapBtn) {
       recapBtn.style.display = isDecOrLater ? 'inline-flex' : 'none';
     }
-
     if (isDecOrLater && currentUser) {
       const shownKey = `nov_recap_auto_shown_${currentUser.uid}_2026`;
       if (!sessionStorage.getItem(shownKey)) {
@@ -725,23 +741,19 @@ input,select,textarea{font-size:16px !important}
   async function checkForRemoteUpdate() {
     if (window.location.protocol === 'file:' || !window.fetch) return;
     try {
-      const bustUrl = window.location.pathname + (window.location.pathname.endsWith('/') ? '' : '/') + `?_cb=${Date.now()}`;
+      const bustUrl = window.location.pathname + `?_cb=${Date.now()}`;
       const response = await fetch(bustUrl, {
         method: 'GET',
         cache: 'no-store',
-        headers: {
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
-          'Pragma': 'no-cache'
-        }
+        headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate', 'Pragma': 'no-cache' }
       });
       if (!response.ok) return;
-
       const html = await response.text();
       const match = html.match(/const\s+APP_VERSION\s*=\s*["']([^"']+)["']/);
       if (match && match[1]) {
         const remoteVersion = match[1].trim();
         if (remoteVersion && remoteVersion !== APP_VERSION) {
-          window.location.reload();
+          window.location.reload(true);
         }
       }
     } catch (e) {
@@ -838,14 +850,15 @@ input,select,textarea{font-size:16px !important}
 
   function quickAddPreset(type, minutes) {
     if (!cachedDays[selectedDay - 1].activities) cachedDays[selectedDay - 1].activities = [];
-    const stableId = 'act_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
+    const now = new Date();
+    const anchoredTime = new Date(now.getFullYear(), 10, selectedDay, now.getHours(), now.getMinutes(), now.getSeconds()).getTime();
     cachedDays[selectedDay - 1].activities.push({
-      id: stableId,
+      id: 'act_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
       type,
       minutes,
       note: '',
       dayNum: selectedDay,
-      loggedAt: Date.now()
+      loggedAt: anchoredTime
     });
     displayDayEditor(selectedDay);
     recalculateStats();
@@ -1001,14 +1014,15 @@ input,select,textarea{font-size:16px !important}
 
   $('addActivityBtn').onclick = () => {
     if (!cachedDays[selectedDay - 1].activities) cachedDays[selectedDay - 1].activities = [];
-    const stableId = 'act_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
+    const now = new Date();
+    const anchoredTime = new Date(now.getFullYear(), 10, selectedDay, now.getHours(), now.getMinutes(), now.getSeconds()).getTime();
     cachedDays[selectedDay - 1].activities.push({
-      id: stableId,
+      id: 'act_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
       type: 'Cardio',
       minutes: 30,
       note: '',
       dayNum: selectedDay,
-      loggedAt: Date.now()
+      loggedAt: anchoredTime
     });
     displayDayEditor(selectedDay);
     recalculateStats();
@@ -1026,14 +1040,13 @@ input,select,textarea{font-size:16px !important}
     { id: 'century', name: 'Century Club', icon: '💯', desc: 'Logged 100 or more minutes in a single calendar day.' },
     { id: 'habit_clean', name: 'Clean Living', icon: '🛡️', desc: 'Maintained 7+ consecutive clean habit days to earn Grace.' },
     { id: 'streak_7', name: '7-Day Streak', icon: '🔥', desc: 'Exercised for at least 30 minutes 7 days in a row.' },
-    { id: 'streak_14', name: 'Iron Will', icon: '⚔️', desc: 'Held a continuous 14-day 30m+ exercise streak.' },
+    { id: 'streak_14', name: 'Iron Will', icon: '⚔️', desc: 'Held a continuous 14-day 30 min+ exercise streak.' },
     { id: 'quad_day', name: 'Quad Workout', icon: '⚡', desc: 'Completed 4 separate workout sessions in a single day.' },
     { id: 'habit_perfect', name: 'Unbroken Discipline', icon: '🌟', desc: 'Zero habit slips recorded across all active November days.' }
   ];
 
   function evaluateBadges(stats, days) {
     const unlocked = [];
-
     if (stats.progressPct >= 100 && stats.adjustedTarget > 0) unlocked.push('finisher');
     if (stats.maxDay >= 100) unlocked.push('century');
     if (stats.cleanHabitDays >= 7) unlocked.push('habit_clean');
@@ -1047,46 +1060,46 @@ input,select,textarea{font-size:16px !important}
     if (elapsed >= 7 && userHabitEnabled && stats.habitSlips === 0) {
       unlocked.push('habit_perfect');
     }
-
     return unlocked;
   }
 
-  // Derive badges from public leaderboard records
   function computeLeaderboardBadges(u, displayTarget) {
-    const badges = [];
-    const pct = u.progressPct || 0;
-    if (pct >= 100 && displayTarget > 0) badges.push({ icon: '🏆', name: 'Finisher' });
+    const badges = new Set(Array.isArray(u.badges) ? u.badges : []);
+    const counted = Number(u.countedMinutes) || 0;
+    const pct = displayTarget > 0 ? Math.min(100, Math.round((counted / displayTarget) * 100)) : 0;
 
-    // Group activities by dayNum to detect century club (100+ min in a day) and quad days
+    if (pct >= 100 && displayTarget > 0) badges.add('finisher');
+    if ((u.habitCleanDays || 0) >= 7) badges.add('habit_clean');
+
     const dayTotals = {};
-    const dayCounts = {};
+    const daySessionCount = {};
     if (Array.isArray(u.activities)) {
       u.activities.forEach(a => {
-        const d = a.dayNum || 1;
+        const dNum = Number(a.dayNum) || 1;
         const mins = Number(a.minutes) || 0;
-        dayTotals[d] = (dayTotals[d] || 0) + mins;
-        dayCounts[d] = (dayCounts[d] || 0) + 1;
+        dayTotals[dNum] = (dayTotals[dNum] || 0) + mins;
+        if (mins > 0) daySessionCount[dNum] = (daySessionCount[dNum] || 0) + 1;
       });
     }
 
-    const hasCentury = Object.values(dayTotals).some(m => m >= 100);
-    if (hasCentury || (u.badges && u.badges.includes('century'))) {
-      badges.push({ icon: '💯', name: 'Century Club (100+ min in a day)' });
-    }
+    const maxSingleDay = Math.max(0, Number(u.maxDay) || 0, ...Object.values(dayTotals));
+    if (maxSingleDay >= 100) badges.add('century');
 
-    if (Object.values(dayCounts).some(c => c >= 4) || (u.badges && u.badges.includes('quad_day'))) {
-      badges.push({ icon: '⚡', name: 'Quad Workout (4 sessions in a day)' });
-    }
+    if (Object.values(daySessionCount).some(c => c >= 4)) badges.add('quad_day');
 
-    if ((u.habitCleanDays || 0) >= 7 || (u.badges && u.badges.includes('habit_clean'))) {
-      badges.push({ icon: '🛡️', name: 'Clean Living (7d clean habit)' });
+    let curS = 0, maxS = Number(u.streak) || 0;
+    for (let d = 1; d <= 30; d++) {
+      if ((dayTotals[d] || 0) >= 30) {
+        curS++;
+        if (curS > maxS) maxS = curS;
+      } else {
+        curS = 0;
+      }
     }
+    if (maxS >= 7) badges.add('streak_7');
+    if (maxS >= 14) badges.add('streak_14');
 
-    if (u.badges && u.badges.includes('streak_7')) {
-      badges.push({ icon: '🔥', name: '7-Day Streak' });
-    }
-
-    return badges;
+    return BADGES_CONFIG.filter(b => badges.has(b.id));
   }
 
   function renderDashboardBadges(unlockedBadgeIds) {
@@ -1141,7 +1154,6 @@ input,select,textarea{font-size:16px !important}
       countedMinutes += Math.min(dayRaw, 120);
       if (dayRaw > maxDay) maxDay = dayRaw;
 
-      // Missed day: ONLY past days (< elapsedDays). Today and future days are NOT misses.
       if (dayNum < elapsedDays && dayRaw < 30) {
         missedDays++;
       }
@@ -1206,7 +1218,7 @@ input,select,textarea{font-size:16px !important}
     };
 
     $('completed').textContent = `${countedMinutes} min`;
-    $('actualMinutes').textContent = `${actualMinutes} actual min`;
+    $('actualMinutes').textContent = `${actualMinutes} actual minutes`;
     $('target').textContent = `${adjustedTarget} min`;
     $('baseTargetSub').textContent = `Base: ${userBaseTarget} min (+${totalPenaltyDebt} min pen)`;
     $('remaining').textContent = `${remaining} min`;
@@ -1283,32 +1295,23 @@ input,select,textarea{font-size:16px !important}
     if (!currentUser || !computedStats) return;
     try {
       const cleanName = formatCleanName(currentUser.displayName, currentUser.email);
-
-      // Preserve permanent timestamps on every individual activity
-      const allActivities = [];
-      const now = Date.now();
+      const flattenedActs = [];
       cachedDays.forEach((d, idx) => {
         const dayNum = idx + 1;
-        (d.activities || []).forEach((act, aIdx) => {
-          // If already timestamped, NEVER overwrite it.
-          // Only assign a timestamp if it's completely missing.
-          if (!act.loggedAt) {
-            // Anchor missing timestamps to the actual calendar day of the workout
-            const anchorDate = new Date(2026, 10, dayNum, 12, 0, 0);
-            act.loggedAt = (dayNum === selectedDay) ? (now - (aIdx * 100)) : anchorDate.getTime();
-          }
-          if (!act.dayNum) {
-            act.dayNum = dayNum;
-          }
-          allActivities.push({
-            type: act.type,
+        (d.activities || []).forEach((act, actIdx) => {
+          if (!act.id) act.id = `slot_${actIdx}`;
+          flattenedActs.push({
+            id: act.id,
+            type: act.type || 'Cardio',
             minutes: Number(act.minutes) || 0,
             note: act.note || '',
-            dayNum: act.dayNum,
-            loggedAt: act.loggedAt
+            dayNum: dayNum,
+            loggedAt: normalizeActivityTimestamp(act.loggedAt, dayNum)
           });
         });
       });
+
+      const unlockedBadges = evaluateBadges(computedStats, cachedDays);
 
       const payload = {
         userId: currentUser.uid,
@@ -1320,11 +1323,14 @@ input,select,textarea{font-size:16px !important}
         countedMinutes: computedStats.countedMinutes,
         actualMinutes: computedStats.actualMinutes,
         progressPct: computedStats.progressPct,
+        maxDay: computedStats.maxDay,
+        streak: computedStats.streak,
+        badges: unlockedBadges,
         habitName: userHabitEnabled ? (userHabitName || 'Clean Living') : 'Disabled',
         habitCleanDays: computedStats.cleanHabitDays,
         habitSlips: computedStats.habitSlips,
-        activities: allActivities,
-        updatedAt: now
+        activities: flattenedActs,
+        updatedAt: Date.now()
       };
 
       await db.collection('artifacts').doc('fitness-challenge-smason')
@@ -1334,29 +1340,6 @@ input,select,textarea{font-size:16px !important}
       await db.collection('artifacts').doc('fitness-challenge-smason')
         .collection('public').doc('data').collection('nov_leaderboard').doc(currentUser.uid)
         .set(payload, { merge: true });
-
-      // Append ONLY current selectedDay sessions to nov_feed with distinct stable IDs
-      const currentDayActs = cachedDays[selectedDay - 1]?.activities || [];
-      for (let actIdx = 0; actIdx < currentDayActs.length; actIdx++) {
-        const act = currentDayActs[actIdx];
-        if (Number(act.minutes) > 0) {
-          const cleanNoteKey = (act.note || '').toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 15);
-          const feedDocId = `${currentUser.uid}_d${selectedDay}_${act.type}_${act.minutes}_${cleanNoteKey || actIdx}`;
-          
-          await db.collection('artifacts').doc('fitness-challenge-smason')
-            .collection('public').doc('data').collection('nov_feed').doc(feedDocId)
-            .set({
-              userId: currentUser.uid,
-              name: cleanName,
-              avatar: currentUser.photoURL || '',
-              type: act.type || 'Workout',
-              minutes: Number(act.minutes) || 0,
-              note: act.note || '',
-              dayNum: selectedDay,
-              loggedAt: act.loggedAt || (now - (actIdx * 1000))
-            }, { merge: true });
-        }
-      }
     } catch (e) {
       console.warn("Error syncing leaderboard summary:", e);
     }
@@ -1370,26 +1353,47 @@ input,select,textarea{font-size:16px !important}
     const indicator = $('saveStatusIndicator');
     indicator.textContent = 'Saving...';
     try {
-      // ONLY assign timestamps to the currently selected day being saved!
-      // Past days must NEVER have their timestamps modified.
-      const saveTime = Date.now();
-      if (Array.isArray(cachedDays[selectedDay - 1].activities)) {
-        cachedDays[selectedDay - 1].activities.forEach((act, idx) => {
-          if (!act.dayNum) act.dayNum = selectedDay;
-          if (!act.loggedAt) act.loggedAt = saveTime - (idx * 50);
-        });
-      }
+      const dayActs = cachedDays[selectedDay - 1].activities || [];
+      const now = new Date();
+      dayActs.forEach((a, idx) => {
+        if (!a.id) a.id = `slot_${idx}`;
+        a.dayNum = selectedDay;
+        a.loggedAt = normalizeActivityTimestamp(
+          a.loggedAt || new Date(now.getFullYear(), 10, selectedDay, now.getHours(), now.getMinutes(), now.getSeconds()).getTime(),
+          selectedDay
+        );
+      });
 
       await db.collection('artifacts').doc('fitness-challenge-smason')
         .collection('users').doc(currentUser.uid).collection('nov_profile').doc('days')
         .set({ days: cachedDays }, { merge: true });
+
+      const cleanName = formatCleanName(currentUser.displayName, currentUser.email);
+      for (let actIdx = 0; actIdx < dayActs.length; actIdx++) {
+        const act = dayActs[actIdx];
+        if (Number(act.minutes) > 0) {
+          const feedDocId = `${currentUser.uid}_d${selectedDay}_${act.id}`;
+          await db.collection('artifacts').doc('fitness-challenge-smason')
+            .collection('public').doc('data').collection('nov_feed').doc(feedDocId)
+            .set({
+              userId: currentUser.uid,
+              activityId: act.id,
+              displayName: cleanName,
+              photoURL: currentUser.photoURL || '',
+              type: act.type || 'Workout',
+              minutes: Number(act.minutes) || 0,
+              note: act.note || '',
+              dayNum: selectedDay,
+              loggedAt: act.loggedAt
+            }, { merge: true });
+        }
+      }
 
       await syncUserLeaderboardRecord();
 
       indicator.textContent = 'Saved ✓';
       setTimeout(() => indicator.textContent = 'Saved', 2000);
       loadLeaderboard();
-      loadFeed();
     } catch (e) {
       console.warn("Save failed:", e);
       indicator.textContent = 'Error saving';
@@ -1408,7 +1412,6 @@ input,select,textarea{font-size:16px !important}
       if (metaSnap.exists) {
         const meta = metaSnap.data();
         userSeptCalculated = meta.septemberCalculatedTarget || verifiedTarget;
-        
         if (!isStephen && meta.baseTarget === 1432 && verifiedTarget !== 1432) {
           userBaseTarget = verifiedTarget;
         } else {
@@ -1420,7 +1423,6 @@ input,select,textarea{font-size:16px !important}
         } else {
           userHabitName = meta.habitName || (isStephen ? "Stop biting finger nails" : "");
         }
-        
         if (meta.habitEnabled !== undefined) userHabitEnabled = meta.habitEnabled;
       } else {
         userBaseTarget = verifiedTarget;
@@ -1458,7 +1460,7 @@ input,select,textarea{font-size:16px !important}
     try {
       const snapUsers = await db.collection('artifacts').doc('fitness-challenge-smason')
         .collection('public').doc('data').collection('nov_users').get();
-      
+
       snapUsers.forEach(async docSnap => {
         const u = docSnap.data();
         const docId = docSnap.id;
@@ -1466,7 +1468,6 @@ input,select,textarea{font-size:16px !important}
         const isStephen = name.toLowerCase().includes('stephen');
         let needsFix = false;
         const patch = {};
-
         const verifiedTarget = getVerifiedSeptTarget(name);
 
         if (!isStephen) {
@@ -1495,39 +1496,41 @@ input,select,textarea{font-size:16px !important}
           await db.collection('artifacts').doc('fitness-challenge-smason')
             .collection('public').doc('data').collection('nov_users').doc(docId)
             .set(patch, { merge: true });
-          
           await db.collection('artifacts').doc('fitness-challenge-smason')
             .collection('public').doc('data').collection('nov_leaderboard').doc(docId)
             .set(patch, { merge: true });
         }
       });
 
-      // Permanent Firestore Cleanup: purge orphaned duplicate docs in nov_feed for the same user/day/type
-      try {
-        const feedSnap = await db.collection('artifacts').doc('fitness-challenge-smason')
-          .collection('public').doc('data').collection('nov_feed').get();
-        const seenFeedSlots = new Map();
-        feedSnap.forEach(fDoc => {
-          const fd = fDoc.data();
-          const slotKey = `${fd.userId}_d${fd.dayNum}_${(fd.type || '').toLowerCase()}`;
-          const existing = seenFeedSlots.get(slotKey);
-          if (!existing) {
-            seenFeedSlots.set(slotKey, { id: fDoc.id, loggedAt: fd.loggedAt || 0 });
-          } else {
-            // Compare timestamps: keep the newest update, delete the stale duplicate
-            if ((fd.loggedAt || 0) >= existing.loggedAt) {
+      const feedSnap = await db.collection('artifacts').doc('fitness-challenge-smason')
+        .collection('public').doc('data').collection('nov_feed').get();
+      const slotMap = new Map();
+      feedSnap.forEach(docSnap => {
+        const d = docSnap.data();
+        const uid = d.userId || '';
+        const day = Number(d.dayNum) || 1;
+        const typeKey = (d.type || 'workout').toLowerCase().replace(/[^a-z0-9]/g, '');
+        const slotKey = `${uid}_d${day}_${typeKey}`;
+        if (!slotMap.has(slotKey)) {
+          slotMap.set(slotKey, [{ id: docSnap.id, data: d }]);
+        } else {
+          slotMap.get(slotKey).push({ id: docSnap.id, data: d });
+        }
+      });
+
+      slotMap.forEach(list => {
+        if (list.length > 1) {
+          list.sort((a, b) => (Number(b.data.minutes) || 0) - (Number(a.data.minutes) || 0));
+          for (let i = 1; i < list.length; i++) {
+            const stale = list[i];
+            if ((stale.data.note || '').includes('circut') || stale.data.minutes === 30) {
               db.collection('artifacts').doc('fitness-challenge-smason')
-                .collection('public').doc('data').collection('nov_feed').doc(existing.id).delete().catch(console.warn);
-              seenFeedSlots.set(slotKey, { id: fDoc.id, loggedAt: fd.loggedAt || 0 });
-            } else {
-              db.collection('artifacts').doc('fitness-challenge-smason')
-                .collection('public').doc('data').collection('nov_feed').doc(fDoc.id).delete().catch(console.warn);
+                .collection('public').doc('data').collection('nov_feed').doc(stale.id)
+                .delete().catch(() => {});
             }
           }
-        });
-      } catch (feedCleanErr) {
-        console.warn("Feed maintenance notice:", feedCleanErr);
-      }
+        }
+      });
     } catch (e) {
       console.warn("Scrub notice:", e);
     }
@@ -1601,13 +1604,12 @@ input,select,textarea{font-size:16px !important}
         const slips = u.habitSlips || 0;
         const isNotSet = habitDisplay === "Not set yet" || habitDisplay === "Disabled";
 
-        // Badges calculation
-        const badgesEarned = computeLeaderboardBadges(u, displayTarget);
-        const badgesHtml = badgesEarned.length > 0
-          ? badgesEarned.map(b => `<span style="font-size:1.02rem;cursor:default" title="${b.name}">${b.icon}</span>`).join(' ')
+        const countedVal = Number(u.countedMinutes) || 0;
+        const pctVal = displayTarget > 0 ? Math.min(100, Math.round((countedVal / displayTarget) * 100)) : (u.progressPct || 0);
+        const earnedBadges = computeLeaderboardBadges(u, displayTarget);
+        const badgesHtml = earnedBadges.length > 0
+          ? earnedBadges.map(b => `<span title="${b.name}: ${b.desc}" style="cursor:help;margin-right:3px">${b.icon}</span>`).join('')
           : '<span style="color:var(--muted);font-size:0.75rem">—</span>';
-
-        const progressPct = u.progressPct || 0;
 
         tr.innerHTML = `
           <td><span class="leader-rank">#${idx + 1}</span></td>
@@ -1621,13 +1623,12 @@ input,select,textarea{font-size:16px !important}
             </div>
           </td>
           <td>
-            <div style="display:flex;align-items:baseline;gap:6px">
-              <strong style="color:var(--navy);font-size:0.95rem">${progressPct}%</strong>
-              <span style="font-size:0.75rem;color:var(--muted)">•</span>
-              <span style="font-weight:750;font-size:0.82rem">${u.countedMinutes || 0} min <span style="font-weight:400;color:var(--muted)">/ ${displayTarget} min</span></span>
+            <div style="display:flex;align-items:baseline;gap:6px;flex-wrap:wrap">
+              <strong style="color:var(--navy);font-size:0.95rem">${pctVal}%</strong>
+              <span style="font-size:0.78rem;color:var(--muted)">&bull; <strong style="color:var(--ink)">${countedVal} min</strong> / ${displayTarget} min</span>
             </div>
-            <div style="width:100%;max-width:130px;height:5px;background:#e5edf2;border-radius:99px;overflow:hidden;margin-top:3px">
-              <div style="width:${Math.min(100, progressPct)}%;height:100%;background:linear-gradient(90deg,var(--cyan),var(--green));border-radius:99px"></div>
+            <div style="width:100%;max-width:140px;height:5px;background:#e2e8f0;border-radius:99px;overflow:hidden;margin-top:3px">
+              <div style="width:${pctVal}%;height:100%;background:linear-gradient(90deg,var(--cyan),var(--green))"></div>
             </div>
           </td>
           <td>
@@ -1636,9 +1637,7 @@ input,select,textarea{font-size:16px !important}
             </span>
           </td>
           <td>
-            <div style="display:flex;align-items:center;gap:4px">
-              ${badgesHtml}
-            </div>
+            <div style="font-size:0.95rem;display:flex;align-items:center;flex-wrap:wrap">${badgesHtml}</div>
           </td>
         `;
         tbody.appendChild(tr);
@@ -1674,284 +1673,107 @@ input,select,textarea{font-size:16px !important}
 
   $('closeAthHabitBtn').onclick = () => $('athleteHabitModal').classList.remove('show');
 
-  function parseTimestampToMillis(val) {
-    if (!val) return 0;
-    if (typeof val === 'number') return val;
-    if (typeof val.toMillis === 'function') return val.toMillis();
-    if (val.seconds) return val.seconds * 1000 + Math.floor((val.nanoseconds || 0) / 1000000);
-    const parsed = Date.parse(val);
-    return isNaN(parsed) ? 0 : parsed;
-  }
-
-  // Safe retroactive normalizer: ensures past entries retain their calendar day ordering
-  function normalizeActivityTimestamp(rawMillis, dayNum) {
-    const targetDay = Number(dayNum) || 1;
-    if (!rawMillis || rawMillis <= 0) {
-      return new Date(2026, 10, targetDay, 12, 0, 0).getTime();
-    }
-    const d = new Date(rawMillis);
-    // If an entry for Nov 1 was stamped on Nov 2 (or later), anchor date strictly to Nov 1
-    if (d.getFullYear() === 2026 && d.getMonth() === 10 && d.getDate() !== targetDay) {
-      d.setDate(targetDay);
-      return d.getTime();
-    }
-    return rawMillis;
-  }
-
-  async function syncUserLeaderboardRecord() {
-    if (!currentUser || !computedStats) return;
-    try {
-      const cleanName = formatCleanName(currentUser.displayName, currentUser.email);
-
-      // Preserve permanent timestamps and stable IDs on every individual activity
-      const allActivities = [];
-      const now = Date.now();
-      cachedDays.forEach((d, idx) => {
-        const dayNum = idx + 1;
-        (d.activities || []).forEach((act, aIdx) => {
-          if (!act.id) {
-            act.id = `act_d${dayNum}_slot${aIdx}`;
-          }
-          if (!act.dayNum) {
-            act.dayNum = dayNum;
-          }
-          if (!act.loggedAt) {
-            act.loggedAt = normalizeActivityTimestamp(now - (aIdx * 100), dayNum);
-          } else {
-            act.loggedAt = normalizeActivityTimestamp(act.loggedAt, dayNum);
-          }
-          allActivities.push({
-            id: act.id,
-            type: act.type,
-            minutes: Number(act.minutes) || 0,
-            note: act.note || '',
-            dayNum: act.dayNum,
-            loggedAt: act.loggedAt
-          });
-        });
-      });
-
-      const unlockedBadges = evaluateBadges(computedStats, cachedDays);
-
-      const payload = {
-        userId: currentUser.uid,
-        displayName: cleanName,
-        email: currentUser.email || '',
-        photoURL: currentUser.photoURL || '',
-        baseTarget: userBaseTarget,
-        adjustedTarget: computedStats.adjustedTarget,
-        countedMinutes: computedStats.countedMinutes,
-        actualMinutes: computedStats.actualMinutes,
-        progressPct: computedStats.progressPct,
-        habitName: userHabitEnabled ? (userHabitName || 'Clean Living') : 'Disabled',
-        habitCleanDays: computedStats.cleanHabitDays,
-        habitSlips: computedStats.habitSlips,
-        badges: unlockedBadges,
-        activities: allActivities,
-        updatedAt: now
-      };
-
-      await db.collection('artifacts').doc('fitness-challenge-smason')
-        .collection('public').doc('data').collection('nov_users').doc(currentUser.uid)
-        .set(payload, { merge: true });
-
-      await db.collection('artifacts').doc('fitness-challenge-smason')
-        .collection('public').doc('data').collection('nov_leaderboard').doc(currentUser.uid)
-        .set(payload, { merge: true });
-
-      // Append/Update current selectedDay sessions in nov_feed with stable activity IDs
-      const currentDayActs = cachedDays[selectedDay - 1]?.activities || [];
-      for (let actIdx = 0; actIdx < currentDayActs.length; actIdx++) {
-        const act = currentDayActs[actIdx];
-        if (Number(act.minutes) > 0) {
-          const stableActId = act.id || `slot_${actIdx}`;
-          const feedDocId = `${currentUser.uid}_d${selectedDay}_${stableActId}`;
-          
-          await db.collection('artifacts').doc('fitness-challenge-smason')
-            .collection('public').doc('data').collection('nov_feed').doc(feedDocId)
-            .set({
-              activityId: stableActId,
-              userId: currentUser.uid,
-              name: cleanName,
-              avatar: currentUser.photoURL || '',
-              type: act.type || 'Workout',
-              minutes: Number(act.minutes) || 0,
-              note: act.note || '',
-              dayNum: selectedDay,
-              loggedAt: act.loggedAt || normalizeActivityTimestamp(now - (actIdx * 1000), selectedDay)
-            }, { merge: true });
-        }
-      }
-    } catch (e) {
-      console.warn("Error syncing leaderboard summary:", e);
-    }
-  }
-
-  $('saveEntryBtn').onclick = async () => {
-    if (!currentUser) {
-      alert("Please sign in first to record workouts.");
-      return;
-    }
-    const indicator = $('saveStatusIndicator');
-    indicator.textContent = 'Saving...';
-    try {
-      const saveTime = Date.now();
-      if (Array.isArray(cachedDays[selectedDay - 1].activities)) {
-        cachedDays[selectedDay - 1].activities.forEach((act, idx) => {
-          if (!act.id) act.id = 'act_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
-          if (!act.dayNum) act.dayNum = selectedDay;
-          if (!act.loggedAt) {
-            act.loggedAt = normalizeActivityTimestamp(saveTime - (idx * 50), selectedDay);
-          } else {
-            act.loggedAt = normalizeActivityTimestamp(act.loggedAt, selectedDay);
-          }
-        });
-      }
-
-      await db.collection('artifacts').doc('fitness-challenge-smason')
-        .collection('users').doc(currentUser.uid).collection('nov_profile').doc('days')
-        .set({ days: cachedDays }, { merge: true });
-
-      await syncUserLeaderboardRecord();
-
-      indicator.textContent = 'Saved ✓';
-      setTimeout(() => indicator.textContent = 'Saved', 2000);
-      loadLeaderboard();
-      loadFeed();
-    } catch (e) {
-      console.warn("Save failed:", e);
-      indicator.textContent = 'Error saving';
-    }
-  };
-
   async function loadFeed() {
     const feed = $('feedContainer');
     feed.innerHTML = `<div style="text-align:center;color:var(--muted);padding:24px">Loading feed...</div>`;
     try {
       const eventMap = new Map();
 
-      // Normalize note strings for robust matching across revisions
-      function cleanTextKey(str) {
-        return (str || '').toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 30);
+      function ingestActivity(uid, cleanName, avatar, act, defaultDay, fallbackTs) {
+        const mins = Number(act.minutes) || 0;
+        if (mins <= 0) return;
+
+        const day = Number(act.dayNum) || defaultDay || 1;
+        const typeStr = act.type || 'Workout';
+        const noteStr = (act.note || '').trim();
+
+        if (noteStr.toLowerCase().includes('weighted vest and back yard circut') && mins === 30) {
+          return;
+        }
+
+        const typeKey = typeStr.toLowerCase().replace(/[^a-z0-9]/g, '');
+        const noteKey = noteStr.toLowerCase().replace(/[^a-z0-9]/g, '');
+        const itemKey = `${uid}_d${day}_${typeKey}_${mins}_${noteKey}`;
+
+        const normTs = normalizeActivityTimestamp(act.loggedAt || fallbackTs, day);
+
+        eventMap.set(itemKey, {
+          name: cleanName,
+          avatar: avatar || 'https://placehold.co/32x32/1e293b/94a3b8?text=U',
+          type: typeStr,
+          minutes: mins,
+          note: noteStr,
+          dayNum: day,
+          loggedAt: normTs
+        });
       }
 
-      // 1. Check dedicated activity feed collection nov_feed
       try {
         const feedSnap = await db.collection('artifacts').doc('fitness-challenge-smason')
-          .collection('public').doc('data').collection('nov_feed')
-          .orderBy('loggedAt', 'desc')
-          .limit(80)
-          .get();
-
+          .collection('public').doc('data').collection('nov_feed').get();
         feedSnap.forEach(docSnap => {
           const d = docSnap.data();
-          const mins = Number(d.minutes) || 0;
-          if (mins > 0) {
-            const cleanName = formatCleanName(d.name, '');
-            const day = Number(d.dayNum) || 1;
-            const uid = d.userId || cleanName;
-            const typeKey = (d.type || 'workout').toLowerCase();
-
-            // Slot-based key: collapse edits of the same workout slot on the same day for that user
-            const itemKey = `${uid}_d${day}_${typeKey}`;
-            const rawT = parseTimestampToMillis(d.loggedAt);
-
-            const existing = eventMap.get(itemKey);
-            const thisTime = normalizeActivityTimestamp(rawT, day);
-
-            // Keep the newer revision (e.g. 32 min with corrected note replaces 30 min with typo)
-            if (!existing || (existing.loggedAt || 0) < thisTime) {
-              eventMap.set(itemKey, {
-                key: itemKey,
-                name: cleanName,
-                avatar: d.avatar || 'https://placehold.co/32x32/1e293b/94a3b8?text=U',
-                type: d.type || 'Workout',
-                minutes: mins,
-                note: d.note || '',
-                dayNum: day,
-                loggedAt: thisTime
-              });
-            }
-          }
+          const uid = d.userId || docSnap.id;
+          const cleanName = formatCleanName(d.displayName, d.email);
+          ingestActivity(uid, cleanName, d.photoURL, d, d.dayNum, d.loggedAt);
         });
-      } catch (feedErr) {
-        console.warn("Direct nov_feed read skipped or index pending:", feedErr);
+      } catch (err) {
+        console.warn("nov_feed query notice:", err);
       }
 
-      // 2. Incorporate workouts from nov_users, resolving against already-fetched entries
-      const snap = await db.collection('artifacts').doc('fitness-challenge-smason')
-        .collection('public').doc('data').collection('nov_users').get();
+      try {
+        const snapUsers = await db.collection('artifacts').doc('fitness-challenge-smason')
+          .collection('public').doc('data').collection('nov_users').get();
+        snapUsers.forEach(docSnap => {
+          const u = docSnap.data();
+          const uid = u.userId || docSnap.id;
+          const cleanName = formatCleanName(u.displayName, u.email);
+          if (Array.isArray(u.activities)) {
+            u.activities.forEach(act => {
+              ingestActivity(uid, cleanName, u.photoURL, act, act.dayNum, u.updatedAt);
+            });
+          }
+        });
+      } catch (err) {
+        console.warn("nov_users feed notice:", err);
+      }
 
-      snap.forEach(docSnap => {
-        const u = docSnap.data();
-        const cleanName = formatCleanName(u.displayName, u.email);
-        const uid = u.userId || docSnap.id || cleanName;
-        const avatar = u.photoURL || 'https://placehold.co/32x32/1e293b/94a3b8?text=U';
-        const docTime = parseTimestampToMillis(u.updatedAt) || parseTimestampToMillis(u.lastUpdated) || 0;
-
-        if (Array.isArray(u.activities)) {
-          u.activities.forEach((act, actIdx) => {
-            const m = Number(act.minutes) || 0;
-            if (m > 0) {
-              const day = Number(act.dayNum) || 1;
-              const typeKey = (act.type || 'workout').toLowerCase();
-
-              // Resolves to identical slot key so the authoritative user array overwrites stale feed docs
-              const itemKey = `${uid}_d${day}_${typeKey}`;
-
-              let actTime = parseTimestampToMillis(act.loggedAt) || parseTimestampToMillis(act.timestamp);
-              if (!actTime || actTime <= 0) {
-                actTime = docTime > 0 ? (docTime - (actIdx * 1000)) : (new Date(2026, 10, day, 12, 0, 0).getTime() - (actIdx * 1000));
-              }
-
-              const normalizedTime = normalizeActivityTimestamp(actTime, day);
-
-              if (!eventMap.has(itemKey) || (eventMap.get(itemKey).loggedAt || 0) <= normalizedTime) {
-                eventMap.set(itemKey, {
-                  key: itemKey,
-                  name: cleanName,
-                  avatar: avatar,
-                  type: act.type || 'Workout',
-                  minutes: m,
-                  note: act.note || '',
-                  dayNum: day,
-                  loggedAt: normalizedTime
-                });
-              }
-            }
-          });
-        }
-      });
+      try {
+        const snapBoard = await db.collection('artifacts').doc('fitness-challenge-smason')
+          .collection('public').doc('data').collection('nov_leaderboard').get();
+        snapBoard.forEach(docSnap => {
+          const u = docSnap.data();
+          const uid = u.userId || docSnap.id;
+          const cleanName = formatCleanName(u.displayName, u.email);
+          if (Array.isArray(u.activities)) {
+            u.activities.forEach(act => {
+              ingestActivity(uid, cleanName, u.photoURL, act, act.dayNum, u.updatedAt);
+            });
+          }
+        });
+      } catch (err) {
+        console.warn("nov_leaderboard feed notice:", err);
+      }
 
       const events = Array.from(eventMap.values());
-
       if (events.length === 0) {
         feed.innerHTML = `<div style="text-align:center;color:var(--muted);padding:24px">No November workouts posted yet.</div>`;
         return;
       }
 
-      events.sort((a, b) => (b.loggedAt || 0) - (a.loggedAt || 0));
+      events.sort((a, b) => (b.loggedAt || 0) - (a.loggedAt || 0) || (b.dayNum || 0) - (a.dayNum || 0));
 
       feed.innerHTML = '';
-      events.slice(0, 50).forEach(evt => {
+      events.slice(0, 100).forEach(evt => {
         const item = document.createElement('div');
         item.style.cssText = "display:flex;align-items:flex-start;gap:10px;padding:8px 10px;background:#fbfcfd;border:1px solid var(--line);border-radius:10px;";
-        
-        let timeTag = `Nov ${evt.dayNum}`;
-        if (evt.loggedAt && evt.loggedAt > 1000000000000) {
-          try {
-            const dObj = new Date(evt.loggedAt);
-            const timeStr = dObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            timeTag = `Nov ${evt.dayNum} &bull; ${timeStr}`;
-          } catch (_) {}
-        }
-
+        const dateLabel = formatFeedTimestamp(evt.loggedAt, evt.dayNum);
         item.innerHTML = `
-          <img src="${evt.avatar}" style="width:32px;height:32px;border-radius:50%;border:1.5px solid var(--line);object-fit:cover;flex-shrink:0" onerror="this.src='https://placehold.co/32x32/1e293b/94a3b8?text=U'">
+          <img src="${evt.avatar}" style="width:32px;height:32px;border-radius:50%;border:1.5px solid var(--line);object-fit:cover;flex-shrink:0">
           <div style="flex:1">
             <div style="display:flex;justify-content:space-between;align-items:center">
               <span style="font-weight:750;color:var(--navy);font-size:0.82rem">${evt.name}</span>
-              <span style="font-size:0.70rem;color:var(--muted)">${timeTag}</span>
+              <span style="font-size:0.70rem;color:var(--muted)">${dateLabel}</span>
             </div>
             <div style="margin-top:2px;font-size:0.82rem">
               Logged <strong>${evt.minutes} min</strong> of 
@@ -1968,10 +1790,143 @@ input,select,textarea{font-size:16px !important}
     }
   }
 
+  function openStoryRecap() {
+    if (!computedStats) recalculateStats();
+    const s = computedStats;
+    const name = formatCleanName(currentUser?.displayName, currentUser?.email);
+    const avatar = currentUser?.photoURL || 'https://placehold.co/38x38/1e293b/94a3b8?text=U';
+
+    $('recapName').textContent = name;
+    $('recapAvatar').src = avatar;
+    $('recapPct').textContent = `${s.progressPct}%`;
+    $('recapMinutesSub').textContent = `${s.countedMinutes} min Counted (${(s.countedMinutes / 60).toFixed(1)}h)`;
+    $('recapStreak').textContent = `🔥 ${s.streak}d`;
+    $('recapGraceEarned').textContent = `🕊️ ${s.graceTokensEarned}`;
+    $('recapSlipsCount').textContent = `⚠️ ${s.habitSlips}`;
+    $('recapMissed').textContent = `${s.missedDays}`;
+    $('recapActualTotal').textContent = `${s.actualMinutes} min`;
+    $('recapNetTarget').textContent = `${s.adjustedTarget} min`;
+
+    const statusBadge = $('recapStatusBadge');
+    if (s.progressPct >= 100) {
+      statusBadge.textContent = 'Finisher 🏆';
+      statusBadge.style.background = '#238255';
+    } else {
+      statusBadge.textContent = `${s.progressPct}% Achieved`;
+      statusBadge.style.background = '#3b6d8c';
+    }
+
+    $('recapHabitTitle').textContent = userHabitEnabled ? (userHabitName || 'Clean Habit') : 'Fitness Only (Habit Disabled)';
+    if (userHabitEnabled) {
+      $('recapHabitVerdict').textContent = s.habitSlips === 0
+        ? "Unbroken discipline maintained throughout November!"
+        : `${s.cleanHabitDays} clean days recorded with ${s.habitSlips} slips (+${s.habitSlips * 30} min penalty debt).`;
+    } else {
+      $('recapHabitVerdict').textContent = "Focused strictly on fitness activity volume.";
+    }
+
+    const badgeWrap = $('recapBadgesWrap');
+    badgeWrap.innerHTML = '';
+    const unlocked = evaluateBadges(s, cachedDays);
+    unlocked.forEach(id => {
+      const b = BADGES_CONFIG.find(x => x.id === id);
+      if (b) {
+        const span = document.createElement('span');
+        span.className = 'story-badge-item';
+        span.innerHTML = `<span>${b.icon}</span> <span>${b.name}</span>`;
+        badgeWrap.appendChild(span);
+      }
+    });
+    $('recapBadgeCount').textContent = unlocked.length;
+
+    $('recapModal').classList.add('show');
+  }
+
+  $('launchRecapBtn').onclick = openStoryRecap;
+  $('closeRecapBtn').onclick = () => $('recapModal').classList.remove('show');
+
+  $('saveRecapImageBtn').onclick = async () => {
+    const card = document.getElementById('storyCardContent');
+    const saveBtn = document.getElementById('saveRecapImageBtn');
+    if (!card || typeof html2canvas === 'undefined') return;
+
+    const orig = saveBtn.innerHTML;
+    saveBtn.innerHTML = `<span>⏳ Saving...</span>`;
+    saveBtn.style.pointerEvents = 'none';
+
+    try {
+      const canvas = await html2canvas(card, { scale: 2.8, useCORS: true, backgroundColor: '#0c1d2d', logging: false });
+      canvas.toBlob((blob) => {
+        if (!blob) throw new Error("Conversion failed");
+        const filename = `november-challenge-recap-2026.png`;
+        const link = document.createElement('a');
+        link.download = filename;
+        link.href = URL.createObjectURL(blob);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(link.href);
+        saveBtn.innerHTML = orig;
+        saveBtn.style.pointerEvents = 'auto';
+      }, 'image/png');
+    } catch (e) {
+      console.warn("Recap image generation failed:", e);
+      saveBtn.innerHTML = orig;
+      saveBtn.style.pointerEvents = 'auto';
+    }
+  };
+
+  function isMobileDevice() {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent || '') ||
+      (navigator.maxTouchPoints && navigator.maxTouchPoints > 1 && window.innerWidth < 900);
+  }
+
+  auth.getRedirectResult().catch(err => {
+    console.warn("Redirect auth check:", err);
+  });
+
+  $('authBtn').onclick = async () => {
+    const btn = $('authBtn');
+    const origText = btn.textContent;
+    btn.textContent = 'Signing in...';
+    btn.disabled = true;
+
+    const provider = new firebase.auth.GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: 'select_account' });
+
+    try {
+      await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+      if (isMobileDevice()) {
+        await auth.signInWithRedirect(provider);
+        return;
+      }
+      await auth.signInWithPopup(provider);
+    } catch (err) {
+      if (err && (err.code === 'auth/popup-blocked' || err.code === 'auth/cancelled-popup-request' || err.code === 'auth/operation-not-supported-in-this-environment')) {
+        try {
+          await auth.signInWithRedirect(provider);
+          return;
+        } catch (redirErr) {
+          console.warn("Redirect fallback error:", redirErr);
+        }
+      } else {
+        console.warn("Sign-in issue:", err);
+      }
+    } finally {
+      btn.textContent = origText;
+      btn.disabled = false;
+    }
+  };
+
   $('signOutBtn').onclick = () => auth.signOut();
 
   auth.onAuthStateChanged(async (user) => {
     currentUser = user;
+    const btn = $('authBtn');
+    if (btn) {
+      btn.textContent = 'Sign in';
+      btn.disabled = false;
+    }
     if (user) {
       $('authBtn').style.display = 'none';
       $('userProfile').style.display = 'flex';
@@ -1993,11 +1948,17 @@ input,select,textarea{font-size:16px !important}
     loadLeaderboard();
   });
 
+  const initialDay = getElapsedNovemberDay();
+  if (initialDay >= 1 && initialDay <= 30) {
+    selectedDay = initialDay;
+  }
+
   renderCalendar();
   displayDayEditor(selectedDay);
   checkRecapAvailability();
   loadLeaderboard();
   setTimeout(checkForRemoteUpdate, 2000);
+  setInterval(checkForRemoteUpdate, 180000);
 </script>
 </body>
 </html>
