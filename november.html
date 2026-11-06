@@ -7,7 +7,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>November Fitness &amp; Habit Challenge - v13.6</title>
+<title>November Fitness &amp; Habit Challenge - v13.7</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -207,7 +207,7 @@ input,select,textarea{font-size:16px !important}
       </div>
       <div class="hero-actions">
         <div class="hero-actions-top">
-          <div class="hero-version-pill">v13.6 &bull; 2026</div>
+          <div class="hero-version-pill">v13.7 &bull; 2026</div>
           <a href="index.html" class="btn-hub-nav">← Hub</a>
           <button id="launchRecapBtn" class="btn-recap-launch">
             <span>📜</span> <span>Story Recap</span>
@@ -482,7 +482,7 @@ input,select,textarea{font-size:16px !important}
       <span>👥 Enrolled Athletes:</span>
       <strong id="uniqueUsersCount">-- enrolled</strong>
     </div>
-    <div>November Fitness &amp; Habit Challenge &bull; v13.6</div>
+    <div>November Fitness &amp; Habit Challenge &bull; v13.7</div>
   </footer>
 </div>
 
@@ -619,7 +619,7 @@ input,select,textarea{font-size:16px !important}
 </div>
 
 <script>
-  const APP_VERSION = "13.6";
+  const APP_VERSION = "13.7";
 
   const firebaseConfig = {
     apiKey: "AIzaSyCbxoN1DLvMqxZb7FD4qu8p7k6lnD5ENP4",
@@ -1683,7 +1683,6 @@ input,select,textarea{font-size:16px !important}
         const mins = Number(act.minutes) || 0;
         if (mins <= 0) return;
 
-        const day = Number(act.dayNum) || defaultDay || 1;
         const typeStr = act.type || 'Workout';
         const noteStr = (act.note || '').trim();
 
@@ -1691,11 +1690,25 @@ input,select,textarea{font-size:16px !important}
           return;
         }
 
+        const rawTs = Number(act.loggedAt) || Number(fallbackTs) || 0;
+        let explicitDay = Number(act.dayNum) || Number(defaultDay) || 0;
+        let day = explicitDay;
+
+        if (!day && rawTs > 1000000000000) {
+          const dt = new Date(rawTs);
+          if (!isNaN(dt.getTime()) && dt.getMonth() === 10) {
+            day = dt.getDate();
+          }
+        }
+        if (!day) day = 1;
+
+        const normTs = explicitDay
+          ? normalizeActivityTimestamp(rawTs, day)
+          : (rawTs > 1000000000000 ? rawTs : normalizeActivityTimestamp(0, day));
+
         const typeKey = typeStr.toLowerCase().replace(/[^a-z0-9]/g, '');
         const noteKey = noteStr.toLowerCase().replace(/[^a-z0-9]/g, '');
         const itemKey = `${uid}_d${day}_${typeKey}_${mins}_${noteKey}`;
-
-        const normTs = normalizeActivityTimestamp(act.loggedAt || fallbackTs, day);
 
         eventMap.set(itemKey, {
           name: cleanName,
