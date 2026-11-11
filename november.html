@@ -7,7 +7,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>November Fitness &amp; Habit Challenge - v13.9</title>
+<title>November Fitness &amp; Habit Challenge - v14.0</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -106,7 +106,9 @@ input,select,textarea{font-size:16px !important}
 .streak-pill.streak-zero{background:#f4f6f8;border-color:var(--line);color:var(--muted)}
 
 .dashboard-badges{display:inline-flex;align-items:center;gap:5px;flex-wrap:wrap}
-.badge-chip{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;background:#f4f7f9;border:1px solid var(--line);border-radius:50%;font-size:0.86rem;cursor:pointer}
+.badge-chip{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;background:#f4f7f9;border:1px solid var(--line);border-radius:50%;font-size:0.86rem;cursor:pointer;transition:transform 0.15s ease,box-shadow 0.15s ease}
+.badge-chip:hover{transform:scale(1.18);box-shadow:0 3px 8px rgba(24,48,66,0.14)}
+.badge-chip-lg{width:32px;height:32px;font-size:1.15rem;background:#fffdf6;border:1.5px solid #ecd38c;box-shadow:0 2px 8px rgba(24,48,66,0.12)}
 
 .calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
 .dow{text-align:center;color:var(--muted);font-size:.68rem;font-weight:800;padding-bottom:2px}
@@ -130,13 +132,76 @@ input,select,textarea{font-size:16px !important}
 .btn-habit-choice.active-clean{background:#e6f7ec;border-color:#2b9a66;color:#18633e}
 .btn-habit-choice.active-slip{background:#fdecec;border-color:#c94d4d;color:#9b2424}
 
+/* Leaderboard & Finishers Circle */
 .table-wrap{overflow-x:auto}
 .leader-table{width:100%;border-collapse:collapse;text-align:left;font-size:.84rem}
-.leader-table th{background:#f4f7f9;color:var(--muted);font-size:.72rem;font-weight:750;text-transform:uppercase;padding:8px 10px;border-bottom:1px solid var(--line)}
-.leader-table td{padding:8px 10px;border-bottom:1px solid #edf2f5;vertical-align:middle}
-.leader-user{display:flex;align-items:center;gap:8px}
-.leader-rank{font-weight:800;font-size:0.92rem;color:var(--muted);width:22px}
-.habit-clickable-pill{display:inline-flex;align-items:center;gap:4px;background:#fff8eb;border:1px solid #fedbc0;color:#9a3412;padding:3px 8px;border-radius:99px;font-size:0.72rem;font-weight:750;cursor:pointer;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.leader-table th{background:#f4f7f9;color:var(--muted);font-size:.70rem;font-weight:750;text-transform:uppercase;padding:8px 9px;border-bottom:1px solid var(--line);white-space:nowrap}
+.leader-table td{padding:8px 9px;border-bottom:1px solid #edf2f5;vertical-align:middle}
+.leader-user{display:flex;align-items:center;gap:8px;min-width:0;max-width:170px}
+.leader-user strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block}
+.leader-rank{font-weight:800;font-size:0.94rem;color:var(--muted);width:24px}
+.rank-1{color:#d99521}.rank-2{color:#8b9ba5}.rank-3{color:#b37648}
+
+.finishers-panel{border:2px solid #ecd38c;background:linear-gradient(180deg,#fffdf7,#ffffff);position:relative;overflow:hidden}
+.finishers-banner{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.finishers-badge-pill{background:#fdf5de;border:1px solid #f6df9d;color:#9b6e14;padding:4px 10px;border-radius:99px;font-size:0.78rem;font-weight:800;display:inline-flex;align-items:center;gap:5px}
+.bonus-min-pill{background:#ecf7ed;border:1px solid #c2e9c7;color:#207842;padding:2px 7px;border-radius:7px;font-size:0.80rem;font-weight:800;display:inline-flex;align-items:center;gap:4px}
+
+.movement-cell{width:36px;text-align:center;padding-left:4px;padding-right:4px}
+.movement-indicator{display:inline-flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:800;border-radius:6px;padding:2px 5px;min-width:26px}
+.move-up{color:#238255;background:#e7f7ed}
+.move-down{color:#c94d4d;background:#feecec}
+.move-same{color:var(--muted);background:#f2f5f7}
+
+.streak-tag{display:inline-flex;align-items:center;gap:3px;padding:3px 7px;border-radius:6px;font-size:.75rem;font-weight:800;background:#fff5eb;color:#c84f10;border:1px solid #fedbc0;white-space:nowrap}
+.streak-tag-zero{background:#f4f6f8;color:var(--muted);border:1px solid var(--line)}
+
+.badges-cell{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+
+.leader-charts{display:flex;align-items:center;gap:8px}
+.mini-donut-wrap{display:flex;flex-direction:column;align-items:center;gap:2px}
+.mini-donut-sub{font-size:0.60rem;color:var(--muted);font-weight:750;text-transform:uppercase;letter-spacing:0.03em}
+.mini-donut{
+  width:34px;
+  height:34px;
+  border-radius:50%;
+  position:relative;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  box-shadow:0 2px 5px rgba(24,48,66,0.12);
+  flex-shrink:0;
+  transition:transform 0.12s ease;
+}
+.mini-donut:hover{transform:scale(1.1)}
+.mini-donut::after{
+  content:"";
+  position:absolute;
+  width:18px;
+  height:18px;
+  border-radius:50%;
+  background:var(--paper);
+}
+
+.chart-custom-tooltip{
+  position:fixed;
+  pointer-events:none;
+  background:#173b57;
+  color:white;
+  padding:9px 13px;
+  border-radius:10px;
+  font-size:0.80rem;
+  font-weight:550;
+  box-shadow:0 10px 28px rgba(23,59,87,0.36);
+  z-index:99999;
+  white-space:nowrap;
+  transform:translate(-50%, -115%);
+  transition:opacity 0.15s ease;
+  min-width:130px;
+}
+
+.habit-clickable-pill{display:inline-flex;align-items:center;gap:4px;background:#fff8eb;border:1px solid #fedbc0;color:#9a3412;padding:3px 8px;border-radius:99px;font-size:0.72rem;font-weight:750;cursor:pointer;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .habit-clickable-pill:hover{background:#ffeedb}
 .habit-clickable-pill.habit-none{background:#f4f6f8;border-color:var(--line);color:var(--muted)}
 
@@ -207,7 +272,7 @@ input,select,textarea{font-size:16px !important}
       </div>
       <div class="hero-actions">
         <div class="hero-actions-top">
-          <div class="hero-version-pill">v13.9 &bull; 2026</div>
+          <div class="hero-version-pill">v14.0 &bull; 2026</div>
           <a href="index.html" class="btn-hub-nav">← Hub</a>
           <button id="launchRecapBtn" class="btn-recap-launch">
             <span>📜</span> <span>Story Recap</span>
@@ -387,11 +452,47 @@ input,select,textarea{font-size:16px !important}
     </div>
   </div>
 
-  <!-- LEADERBOARD VIEW -->
+  <!-- LEADERBOARD VIEW (TWO-TIER SPLIT: FINISHERS CIRCLE + CHASE TO 100%) -->
   <div id="leaderboardView" class="hidden">
-    <section class="panel">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-        <h2 style="margin:0">🏆 November Standings (% Complete)</h2>
+    <!-- Finishers Circle (Hidden until >= 1 person hits 100%) -->
+    <section id="finishersPanel" class="panel finishers-panel hidden" style="margin-top:0">
+      <div class="finishers-banner">
+        <div>
+          <h2 style="margin:0;color:#855c0c;display:flex;align-items:center;gap:8px">
+            <span>🏆</span> Finishers Circle (100% Target Met)
+          </h2>
+          <p style="margin:2px 0 0;color:#8a6d2b;font-size:0.76rem">Athletes who conquered their November target! Ranked by bonus minutes beyond 100%.</p>
+        </div>
+        <span class="finishers-badge-pill" id="finishersCountBadge">🎖️ 0 Finishers</span>
+      </div>
+
+      <div class="table-wrap" id="finishersTableWrap">
+        <table class="leader-table">
+          <thead>
+            <tr>
+              <th style="width:28px">Rank</th>
+              <th style="width:36px;text-align:center" title="Rank movement since yesterday">+/-</th>
+              <th>Participant</th>
+              <th>Progress &amp; Volume</th>
+              <th>Bonus Minutes</th>
+              <th>Streak</th>
+              <th>Sessions / Minutes</th>
+              <th>Habit</th>
+              <th>Badges</th>
+            </tr>
+          </thead>
+          <tbody id="finishersLeaderboardBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Main Chase Table -->
+    <section class="panel" style="margin-top:0">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px">
+        <div>
+          <h2 style="margin:0">🏃 The Chase to 100% (% Complete)</h2>
+          <p style="margin:2px 0 0;color:var(--muted);font-size:0.76rem">Challengers closing the gap toward the 100% finish line.</p>
+        </div>
         <button id="refreshBoardBtn" class="tab-btn" style="flex:0 0 auto;padding:4px 10px;font-size:0.76rem">🔄 Refresh</button>
       </div>
       <div class="table-wrap">
@@ -399,14 +500,17 @@ input,select,textarea{font-size:16px !important}
           <thead>
             <tr>
               <th style="width:28px">Rank</th>
+              <th style="width:36px;text-align:center" title="Rank change compared to yesterday">+/-</th>
               <th>Participant</th>
               <th>Progress &amp; Volume</th>
+              <th>Streak</th>
+              <th>Sessions / Minutes</th>
               <th>Habit</th>
               <th>Badges</th>
             </tr>
           </thead>
           <tbody id="leaderboardBody">
-            <tr><td colspan="5" style="text-align:center;color:var(--muted);padding:24px">Loading November standings...</td></tr>
+            <tr><td colspan="8" style="text-align:center;color:var(--muted);padding:24px">Loading November standings...</td></tr>
           </tbody>
         </table>
       </div>
@@ -469,8 +573,8 @@ input,select,textarea{font-size:16px !important}
             <div>Maintaining a consecutive 7-day clean habit streak unlocks a <strong>Grace Token</strong> that cancels out one 30-minute penalty from your monthly total!</div>
           </div>
           <div style="background:#f8fafb;border-left:4px solid var(--purple);padding:10px 12px;border-radius:6px">
-            <strong>5. Baseline Target &amp; 7-Day Window:</strong>
-            <div>Standard baseline is strictly 900 minutes. During November 1–7, athletes who achieved &ge;900 min in September can scale their baseline to their September actual volume.</div>
+            <strong>5. 🏆 Finishers Circle &amp; World #1 Crown:</strong>
+            <div>Athletes reaching 100% move into the Finishers Circle with podium medals (🥇🥈🥉). Holding #1 at the close of any day after Nov 3 awards the 👑 World #1 Crown badge!</div>
           </div>
         </div>
       </section>
@@ -482,7 +586,7 @@ input,select,textarea{font-size:16px !important}
       <strong>👥 Enrolled Athletes:</strong>
       <strong id="uniqueUsersCount">-- enrolled</strong>
     </div>
-    <div>November Fitness &amp; Habit Challenge &bull; v13.9</div>
+    <div>November Fitness &amp; Habit Challenge &bull; v14.0</div>
   </footer>
 </div>
 
@@ -619,7 +723,7 @@ input,select,textarea{font-size:16px !important}
 </div>
 
 <script>
-  const APP_VERSION = "13.9";
+  const APP_VERSION = "14.0";
 
   const firebaseConfig = {
     apiKey: "AIzaSyCbxoN1DLvMqxZb7FD4qu8p7k6lnD5ENP4",
@@ -642,6 +746,7 @@ input,select,textarea{font-size:16px !important}
   const $ = id => document.getElementById(id);
   const DAYS = 30;
   const ACTIVITY_TYPES = ['Bootcamp', 'Cardio', 'Cross Fit', 'Weights', 'Resistance Training', 'Stretching', 'Yoga'];
+  const PALETTE = ['#d95b32', '#2674a8', '#d99521', '#2b9a66', '#8352b2', '#0ea5e9', '#209699'];
 
   let currentUser = null;
   let selectedDay = 1;
@@ -651,6 +756,8 @@ input,select,textarea{font-size:16px !important}
   let userHabitName = "";
   let userHabitEnabled = true;
   let computedStats = null;
+  let cachedWorldNumberOneUids = new Set();
+  let cachedPodiumBadges = {};
 
   const VERIFIED_SEPT_BASELINES = {
     "tpasquill": 1602,
@@ -720,6 +827,103 @@ input,select,textarea{font-size:16px !important}
       }
     }
     return new Date(nowYear, 10, validDay, 12, 0, 0).getTime();
+  }
+
+  // Donut Chart & Tooltip Helpers (Restored from September App)
+  let customTooltipEl = null;
+  function getOrCreateTooltip() {
+    if (!customTooltipEl) {
+      customTooltipEl = document.createElement('div');
+      customTooltipEl.className = 'chart-custom-tooltip';
+      customTooltipEl.style.opacity = '0';
+      document.body.appendChild(customTooltipEl);
+    }
+    return customTooltipEl;
+  }
+
+  window.addEventListener('scroll', () => {
+    if (customTooltipEl) customTooltipEl.style.opacity = '0';
+  }, { passive: true });
+
+  document.addEventListener('click', (e) => {
+    if (customTooltipEl && !e.target.closest('.mini-donut') && !e.target.closest('.badge-chip')) {
+      customTooltipEl.style.opacity = '0';
+    }
+  });
+
+  function buildConicGradient(valMap) {
+    const total = ACTIVITY_TYPES.reduce((sum, t) => sum + (valMap[t] || 0), 0);
+    if (total === 0) return '#e7eef1';
+
+    let cur = 0;
+    const slices = [];
+    ACTIVITY_TYPES.forEach((t, i) => {
+      const val = valMap[t] || 0;
+      if (val > 0) {
+        const pct = (val / total) * 100;
+        const start = cur;
+        const end = cur + pct;
+        slices.push(`${PALETTE[i % PALETTE.length]} ${start.toFixed(2)}% ${end.toFixed(2)}%`);
+        cur = end;
+      }
+    });
+
+    if (slices.length === 0) return '#e7eef1';
+    return `conic-gradient(${slices.join(', ')})`;
+  }
+
+  function attachDonutTooltip(el, title, valMap, unit) {
+    const total = ACTIVITY_TYPES.reduce((sum, t) => sum + (valMap[t] || 0), 0);
+    const show = () => {
+      const tt = getOrCreateTooltip();
+      if (total === 0) {
+        tt.innerHTML = `<div><strong>${title}:</strong> No activity yet</div>`;
+      } else {
+        let rows = `<div style="font-weight:750;margin-bottom:5px;border-bottom:1px solid rgba(255,255,255,0.22);padding-bottom:3px">${title} (${total} ${unit})</div>`;
+        ACTIVITY_TYPES.forEach((t, i) => {
+          const v = valMap[t] || 0;
+          if (v > 0) {
+            rows += `
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:2px;">
+                <span style="display:flex;align-items:center;gap:6px">
+                  <span style="width:8px;height:8px;border-radius:50%;background:${PALETTE[i % PALETTE.length]}"></span>
+                  <span>${t}</span>
+                </span>
+                <strong>${v}${unit === 'min' ? 'm' : ''}</strong>
+              </div>`;
+          }
+        });
+        tt.innerHTML = rows;
+      }
+      tt.style.opacity = '1';
+      const rect = el.getBoundingClientRect();
+      tt.style.left = `${rect.left + rect.width / 2}px`;
+      tt.style.top = `${rect.top - 6}px`;
+    };
+    const hide = () => { if (customTooltipEl) customTooltipEl.style.opacity = '0'; };
+    el.addEventListener('mouseenter', show);
+    el.addEventListener('mouseleave', hide);
+    el.addEventListener('click', (e) => { e.stopPropagation(); show(); });
+  }
+
+  function attachBadgeTooltip(el, badge) {
+    const show = () => {
+      const tt = getOrCreateTooltip();
+      tt.innerHTML = `
+        <div style="display:flex;align-items:center;gap:6px;font-weight:800;font-size:0.85rem">
+          <span>${badge.icon}</span> <span>${badge.name}</span>
+        </div>
+        <div style="font-size:0.75rem;opacity:0.9;margin-top:2px">${badge.desc}</div>
+      `;
+      tt.style.opacity = '1';
+      const rect = el.getBoundingClientRect();
+      tt.style.left = `${rect.left + rect.width / 2}px`;
+      tt.style.top = `${rect.top - 6}px`;
+    };
+    const hide = () => { if (customTooltipEl) customTooltipEl.style.opacity = '0'; };
+    el.addEventListener('mouseenter', show);
+    el.addEventListener('mouseleave', hide);
+    el.addEventListener('click', (e) => { e.stopPropagation(); show(); });
   }
 
   function checkRecapAvailability() {
@@ -1063,48 +1267,190 @@ input,select,textarea{font-size:16px !important}
     return unlocked;
   }
 
-  function computeLeaderboardBadges(u, displayTarget) {
-    const badges = new Set(Array.isArray(u.badges) ? u.badges : []);
-    const counted = Number(u.countedMinutes) || 0;
-    const pct = displayTarget > 0 ? Math.min(100, Math.round((counted / displayTarget) * 100)) : 0;
+  function calculateAthleteHistoricalSnapshot(u, asOfDayLimit = 30) {
+    const participantName = formatCleanName(u, u.email);
+    const isStephen = participantName.toLowerCase().includes('stephen');
+    const verifiedTarget = getVerifiedSeptTarget(participantName);
 
-    if (pct >= 100 && displayTarget > 0) badges.add('finisher');
-    if ((u.habitCleanDays || 0) >= 7) badges.add('habit_clean');
+    let baseTarget = Number(u.baseTarget) || verifiedTarget;
+    if (!isStephen && baseTarget === 1432 && verifiedTarget !== 1432) {
+      baseTarget = verifiedTarget;
+    }
 
-    const dayTotals = {};
+    const elapsed = getElapsedNovemberDay();
+    const effectiveElapsed = Math.min(elapsed, asOfDayLimit);
+
+    const dayRawMap = {};
     const daySessionCount = {};
-    if (Array.isArray(u.activities)) {
-      u.activities.forEach(a => {
-        const dNum = Number(a.dayNum) || 1;
-        const mins = Number(a.minutes) || 0;
-        dayTotals[dNum] = (dayTotals[dNum] || 0) + mins;
-        if (mins > 0) daySessionCount[dNum] = (daySessionCount[dNum] || 0) + 1;
+    const counts = {};
+    const minutes = {};
+    ACTIVITY_TYPES.forEach(t => { counts[t] = 0; minutes[t] = 0; });
+
+    const acts = Array.isArray(u.activities) ? u.activities : [];
+    const hasExplicitDayNums = acts.some(a => Number(a.dayNum) >= 1);
+
+    acts.forEach((a, idx) => {
+      const m = Number(a.minutes) || 0;
+      if (m <= 0) return;
+      let dNum = Number(a.dayNum);
+      if (!hasExplicitDayNums) {
+        dNum = Math.min(elapsed, idx + 1);
+      }
+      if (dNum > asOfDayLimit) return;
+
+      dayRawMap[dNum] = (dayRawMap[dNum] || 0) + m;
+      daySessionCount[dNum] = (daySessionCount[dNum] || 0) + 1;
+
+      const t = ACTIVITY_TYPES.includes(a.type) ? a.type : 'Cardio';
+      counts[t] = (counts[t] || 0) + 1;
+      minutes[t] = (minutes[t] || 0) + m;
+    });
+
+    let counted = 0;
+    let actual = 0;
+    Object.values(dayRawMap).forEach(raw => {
+      actual += raw;
+      counted += Math.min(raw, 120);
+    });
+
+    if (acts.length === 0 && asOfDayLimit >= elapsed) {
+      counted = Number(u.countedMinutes) || 0;
+      actual = Number(u.actualMinutes) || counted;
+    }
+
+    let missed = 0;
+    if (acts.length > 0) {
+      for (let d = 1; d < effectiveElapsed; d++) {
+        if ((dayRawMap[d] || 0) < 30) missed++;
+      }
+    }
+
+    const slips = Number(u.habitSlips) || 0;
+    const cleanDays = Number(u.habitCleanDays) || 0;
+    const graceTokens = Math.floor(cleanDays / 7);
+    const penaltyDebt = Math.max(0, (slips * 30) + (missed * 30) - (graceTokens * 30));
+
+    let target = (asOfDayLimit >= elapsed && u.adjustedTarget && acts.length === 0)
+      ? Number(u.adjustedTarget)
+      : (baseTarget + penaltyDebt);
+
+    if (!isStephen && target === 1432 && verifiedTarget !== 1432) {
+      target = verifiedTarget;
+    }
+
+    const pct = target > 0 ? Math.min(100, (counted / target) * 100) : 0;
+
+    // Active consecutive 30+ min streak
+    let activeStreak = 0;
+    let checkDay = effectiveElapsed;
+    if ((dayRawMap[checkDay] || 0) < 30 && checkDay === elapsed) {
+      checkDay--;
+    }
+    while (checkDay >= 1) {
+      if ((dayRawMap[checkDay] || 0) >= 30) {
+        activeStreak++;
+        checkDay--;
+      } else {
+        break;
+      }
+    }
+    if (acts.length === 0 && Number(u.streak) > 0) {
+      activeStreak = Number(u.streak);
+    }
+
+    return {
+      counted,
+      actual,
+      target,
+      pct,
+      activeStreak,
+      dayRawMap,
+      daySessionCount,
+      counts,
+      minutes,
+      bonusMinutes: Math.max(0, counted - target),
+      isFinished: counted >= target && target > 0
+    };
+  }
+
+  function computeLeaderboardBadges(u, snapshot, uid) {
+    const badgesMap = new Map();
+    const addBadge = (b) => { if (b && !badgesMap.has(b.id)) badgesMap.set(b.id, b); };
+
+    if (cachedPodiumBadges[uid]) {
+      addBadge(cachedPodiumBadges[uid]);
+    }
+    if (cachedWorldNumberOneUids.has(uid)) {
+      addBadge({
+        id: 'world1',
+        icon: '👑',
+        name: 'World #1',
+        desc: 'Held 1st place on the leaderboard at the close of a day (after Nov 3rd)'
       });
     }
 
-    const maxSingleDay = Math.max(0, Number(u.maxDay) || 0, ...Object.values(dayTotals));
-    if (maxSingleDay >= 100) badges.add('century');
+    const savedIds = Array.isArray(u.badges) ? u.badges : [];
+    savedIds.forEach(id => {
+      const cfg = BADGES_CONFIG.find(x => x.id === id);
+      if (cfg) addBadge(cfg);
+    });
 
-    if (Object.values(daySessionCount).some(c => c >= 4)) badges.add('quad_day');
+    if (snapshot.pct >= 100 && snapshot.target > 0) {
+      addBadge(BADGES_CONFIG.find(x => x.id === 'finisher'));
+    }
+    if ((u.habitCleanDays || 0) >= 7) {
+      addBadge(BADGES_CONFIG.find(x => x.id === 'habit_clean'));
+    }
+
+    const maxSingleDay = Math.max(0, Number(u.maxDay) || 0, ...Object.values(snapshot.dayRawMap || {}));
+    if (maxSingleDay >= 100) {
+      addBadge(BADGES_CONFIG.find(x => x.id === 'century'));
+    }
+    if (Object.values(snapshot.daySessionCount || {}).some(c => c >= 4)) {
+      addBadge(BADGES_CONFIG.find(x => x.id === 'quad_day'));
+    }
 
     let curS = 0, maxS = Number(u.streak) || 0;
     for (let d = 1; d <= 30; d++) {
-      if ((dayTotals[d] || 0) >= 30) {
+      if ((snapshot.dayRawMap[d] || 0) >= 30) {
         curS++;
         if (curS > maxS) maxS = curS;
       } else {
         curS = 0;
       }
     }
-    if (maxS >= 7) badges.add('streak_7');
-    if (maxS >= 14) badges.add('streak_14');
+    if (maxS >= 7) addBadge(BADGES_CONFIG.find(x => x.id === 'streak_7'));
+    if (maxS >= 14) addBadge(BADGES_CONFIG.find(x => x.id === 'streak_14'));
 
-    return BADGES_CONFIG.filter(b => badges.has(b.id));
+    return Array.from(badgesMap.values());
   }
 
   function renderDashboardBadges(unlockedBadgeIds) {
     const container = $('dashboardBadges');
     container.innerHTML = '';
+
+    const specialBadges = [];
+    if (currentUser && cachedPodiumBadges[currentUser.uid]) {
+      specialBadges.push(cachedPodiumBadges[currentUser.uid]);
+    }
+    if (currentUser && cachedWorldNumberOneUids.has(currentUser.uid)) {
+      specialBadges.push({
+        id: 'world1',
+        icon: '👑',
+        name: 'World #1',
+        desc: 'Held 1st place on the leaderboard at the close of a day (after Nov 3rd)'
+      });
+    }
+
+    specialBadges.forEach(sb => {
+      const chip = document.createElement('span');
+      chip.className = sb.id.startsWith('finisher_') ? 'badge-chip badge-chip-lg' : 'badge-chip';
+      chip.textContent = sb.icon;
+      attachBadgeTooltip(chip, sb);
+      chip.onclick = () => openBadgeModal(sb, true);
+      container.appendChild(chip);
+    });
+
     BADGES_CONFIG.forEach(b => {
       const isUnlocked = unlockedBadgeIds.includes(b.id);
       const chip = document.createElement('span');
@@ -1112,7 +1458,7 @@ input,select,textarea{font-size:16px !important}
       chip.style.opacity = isUnlocked ? '1' : '0.28';
       chip.style.filter = isUnlocked ? 'none' : 'grayscale(100%)';
       chip.textContent = b.icon;
-      chip.title = `${b.name} (${isUnlocked ? 'Unlocked' : 'Locked'})`;
+      attachBadgeTooltip(chip, b);
       chip.onclick = () => openBadgeModal(b, isUnlocked);
       container.appendChild(chip);
     });
@@ -1291,9 +1637,20 @@ input,select,textarea{font-size:16px !important}
     });
   }
 
-  async function syncUserLeaderboardRecord() {
+  async function syncUserLeaderboardRecord(allowZeroOverwrite = false) {
     if (!currentUser || !computedStats) return;
     try {
+      const docRefUsers = db.collection('artifacts').doc('fitness-challenge-smason')
+        .collection('public').doc('data').collection('nov_users').doc(currentUser.uid);
+
+      // Anti-wipe guard: never overwrite existing leaderboard minutes with 0 unless explicitly saved by user
+      if (!allowZeroOverwrite && computedStats.actualMinutes === 0) {
+        const existingSnap = await docRefUsers.get();
+        if (existingSnap.exists && (Number(existingSnap.data().actualMinutes) || 0) > 0) {
+          return;
+        }
+      }
+
       const cleanName = formatCleanName(currentUser.displayName, currentUser.email);
       const flattenedActs = [];
       cachedDays.forEach((d, idx) => {
@@ -1333,9 +1690,7 @@ input,select,textarea{font-size:16px !important}
         updatedAt: Date.now()
       };
 
-      await db.collection('artifacts').doc('fitness-challenge-smason')
-        .collection('public').doc('data').collection('nov_users').doc(currentUser.uid)
-        .set(payload, { merge: true });
+      await docRefUsers.set(payload, { merge: true });
 
       await db.collection('artifacts').doc('fitness-challenge-smason')
         .collection('public').doc('data').collection('nov_leaderboard').doc(currentUser.uid)
@@ -1389,7 +1744,7 @@ input,select,textarea{font-size:16px !important}
         }
       }
 
-      await syncUserLeaderboardRecord();
+      await syncUserLeaderboardRecord(true);
 
       indicator.textContent = 'Saved ✓';
       setTimeout(() => indicator.textContent = 'Saved', 2000);
@@ -1399,6 +1754,72 @@ input,select,textarea{font-size:16px !important}
       indicator.textContent = 'Error saving';
     }
   };
+
+  async function recoverUserDaysIfEmpty(uid, displayName) {
+    const recoveredDays = Array.from({ length: DAYS }, () => ({ habitClean: true, activities: [] }));
+    let foundCount = 0;
+
+    try {
+      const feedSnap = await db.collection('artifacts').doc('fitness-challenge-smason')
+        .collection('public').doc('data').collection('nov_feed').get();
+      feedSnap.forEach(docSnap => {
+        const d = docSnap.data();
+        const docUid = d.userId || (docSnap.id.includes('_d') ? docSnap.id.split('_d')[0] : '');
+        const docName = (d.displayName || '').toLowerCase();
+        const isMatch = (docUid === uid) || (displayName && displayName !== 'Athlete' && docName === displayName.toLowerCase());
+        if (isMatch && Number(d.minutes) > 0) {
+          const dayIdx = Math.max(0, Math.min(29, (Number(d.dayNum) || 1) - 1));
+          const actId = d.activityId || docSnap.id;
+          if (!recoveredDays[dayIdx].activities.some(a => a.id === actId)) {
+            recoveredDays[dayIdx].activities.push({
+              id: actId,
+              type: d.type || 'Cardio',
+              minutes: Number(d.minutes) || 0,
+              note: d.note || '',
+              dayNum: dayIdx + 1,
+              loggedAt: d.loggedAt || Date.now()
+            });
+            foundCount++;
+          }
+        }
+      });
+
+      if (foundCount === 0) {
+        const sources = ['nov_leaderboard', 'nov_users'];
+        for (const colName of sources) {
+          const snap = await db.collection('artifacts').doc('fitness-challenge-smason')
+            .collection('public').doc('data').collection(colName).get();
+          snap.forEach(docSnap => {
+            const u = docSnap.data();
+            const uName = formatCleanName(u, u.email).toLowerCase();
+            const isMatch = (docSnap.id === uid || u.userId === uid) ||
+              (displayName && displayName !== 'Athlete' && uName === displayName.toLowerCase());
+            if (isMatch && Array.isArray(u.activities) && u.activities.length > 0 && foundCount === 0) {
+              u.activities.forEach((a, i) => {
+                if (Number(a.minutes) > 0) {
+                  const dayIdx = Math.max(0, Math.min(29, (Number(a.dayNum) || (i + 1)) - 1));
+                  recoveredDays[dayIdx].activities.push({
+                    id: a.id || `rec_${i}`,
+                    type: a.type || 'Cardio',
+                    minutes: Number(a.minutes) || 0,
+                    note: a.note || '',
+                    dayNum: dayIdx + 1,
+                    loggedAt: a.loggedAt || Date.now()
+                  });
+                  foundCount++;
+                }
+              });
+            }
+          });
+          if (foundCount > 0) break;
+        }
+      }
+    } catch (err) {
+      console.warn("Recovery check notice:", err);
+    }
+
+    return foundCount > 0 ? recoveredDays : null;
+  }
 
   async function loadUserData(uid) {
     try {
@@ -1439,14 +1860,36 @@ input,select,textarea{font-size:16px !important}
 
       const daysSnap = await db.collection('artifacts').doc('fitness-challenge-smason')
         .collection('users').doc(uid).collection('nov_profile').doc('days').get();
+
+      let loadedDays = null;
       if (daysSnap.exists && Array.isArray(daysSnap.data().days)) {
-        cachedDays = daysSnap.data().days.slice(0, DAYS);
+        const arr = daysSnap.data().days.slice(0, DAYS);
+        const totalLogged = arr.reduce((sum, d) => sum + (Array.isArray(d.activities) ? d.activities.reduce((s, a) => s + (Number(a.minutes) || 0), 0) : 0), 0);
+        if (totalLogged > 0) {
+          loadedDays = arr;
+        }
+      }
+
+      if (!loadedDays) {
+        const recovered = await recoverUserDaysIfEmpty(uid, cleanName);
+        if (recovered) {
+          loadedDays = recovered;
+          await db.collection('artifacts').doc('fitness-challenge-smason')
+            .collection('users').doc(uid).collection('nov_profile').doc('days')
+            .set({ days: loadedDays }, { merge: true });
+        } else if (daysSnap.exists && Array.isArray(daysSnap.data().days)) {
+          loadedDays = daysSnap.data().days.slice(0, DAYS);
+        }
+      }
+
+      if (loadedDays) {
+        cachedDays = loadedDays;
         while (cachedDays.length < DAYS) cachedDays.push({ habitClean: true, activities: [] });
       }
 
       recalculateStats();
       displayDayEditor(selectedDay);
-      await syncUserLeaderboardRecord();
+      await syncUserLeaderboardRecord(false);
 
       if (isStephen) {
         scrubCorruptedPublicRecords();
@@ -1461,6 +1904,26 @@ input,select,textarea{font-size:16px !important}
       const snapUsers = await db.collection('artifacts').doc('fitness-challenge-smason')
         .collection('public').doc('data').collection('nov_users').get();
 
+      // Check if Peter Mason has recoverable entries in nov_feed or nov_leaderboard
+      const feedSnap = await db.collection('artifacts').doc('fitness-challenge-smason')
+        .collection('public').doc('data').collection('nov_feed').get();
+
+      const peterFeedActs = [];
+      feedSnap.forEach(docSnap => {
+        const d = docSnap.data();
+        const nm = (d.displayName || '').toLowerCase();
+        if (nm.includes('peter') && Number(d.minutes) > 0) {
+          peterFeedActs.push({
+            id: d.activityId || docSnap.id,
+            type: d.type || 'Cardio',
+            minutes: Number(d.minutes) || 0,
+            note: d.note || '',
+            dayNum: Number(d.dayNum) || 1,
+            loggedAt: d.loggedAt || Date.now()
+          });
+        }
+      });
+
       snapUsers.forEach(async docSnap => {
         const u = docSnap.data();
         const docId = docSnap.id;
@@ -1469,6 +1932,21 @@ input,select,textarea{font-size:16px !important}
         let needsFix = false;
         const patch = {};
         const verifiedTarget = getVerifiedSeptTarget(name);
+
+        if (name.toLowerCase().includes('peter') && (Number(u.actualMinutes) || 0) === 0 && peterFeedActs.length > 0) {
+          const dayTots = {};
+          let actSum = 0;
+          peterFeedActs.forEach(a => {
+            actSum += a.minutes;
+            dayTots[a.dayNum] = (dayTots[a.dayNum] || 0) + a.minutes;
+          });
+          const cntSum = Object.values(dayTots).reduce((s, m) => s + Math.min(m, 120), 0);
+          patch.activities = peterFeedActs;
+          patch.actualMinutes = actSum;
+          patch.countedMinutes = cntSum;
+          patch.progressPct = Math.min(100, Math.round((cntSum / (u.adjustedTarget || verifiedTarget)) * 100));
+          needsFix = true;
+        }
 
         if (!isStephen) {
           if ((u.baseTarget === 1432 || !u.baseTarget) && verifiedTarget !== 1432) {
@@ -1481,17 +1959,6 @@ input,select,textarea{font-size:16px !important}
           }
         }
 
-        const elapsed = getElapsedNovemberDay();
-        const expectedBase = patch.baseTarget || u.baseTarget || verifiedTarget;
-        if (elapsed <= 1) {
-          if ((!u.habitSlips || u.habitSlips === 0) && (!u.actualMinutes || u.actualMinutes === 0)) {
-            if (u.adjustedTarget !== expectedBase) {
-              patch.adjustedTarget = expectedBase;
-              needsFix = true;
-            }
-          }
-        }
-
         if (needsFix) {
           await db.collection('artifacts').doc('fitness-challenge-smason')
             .collection('public').doc('data').collection('nov_users').doc(docId)
@@ -1501,36 +1968,6 @@ input,select,textarea{font-size:16px !important}
             .set(patch, { merge: true });
         }
       });
-
-      const feedSnap = await db.collection('artifacts').doc('fitness-challenge-smason')
-        .collection('public').doc('data').collection('nov_feed').get();
-      const slotMap = new Map();
-      feedSnap.forEach(docSnap => {
-        const d = docSnap.data();
-        const uid = d.userId || '';
-        const day = Number(d.dayNum) || 1;
-        const typeKey = (d.type || 'workout').toLowerCase().replace(/[^a-z0-9]/g, '');
-        const slotKey = `${uid}_d${day}_${typeKey}`;
-        if (!slotMap.has(slotKey)) {
-          slotMap.set(slotKey, [{ id: docSnap.id, data: d }]);
-        } else {
-          slotMap.get(slotKey).push({ id: docSnap.id, data: d });
-        }
-      });
-
-      slotMap.forEach(list => {
-        if (list.length > 1) {
-          list.sort((a, b) => (Number(b.data.minutes) || 0) - (Number(a.data.minutes) || 0));
-          for (let i = 1; i < list.length; i++) {
-            const stale = list[i];
-            if ((stale.data.note || '').includes('circut') || stale.data.minutes === 30) {
-              db.collection('artifacts').doc('fitness-challenge-smason')
-                .collection('public').doc('data').collection('nov_feed').doc(stale.id)
-                .delete().catch(() => {});
-            }
-          }
-        }
-      });
     } catch (e) {
       console.warn("Scrub notice:", e);
     }
@@ -1538,7 +1975,10 @@ input,select,textarea{font-size:16px !important}
 
   async function loadLeaderboard() {
     const tbody = $('leaderboardBody');
-    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:24px">Loading November standings...</td></tr>`;
+    const finishersPanel = $('finishersPanel');
+    const finishersTbody = $('finishersLeaderboardBody');
+
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:24px">Loading November standings...</td></tr>`;
 
     try {
       const userMap = new Map();
@@ -1556,95 +1996,362 @@ input,select,textarea{font-size:16px !important}
         snapBoard.forEach(docSnap => {
           const data = docSnap.data();
           const uid = data.userId || docSnap.id;
-          if (!userMap.has(uid) || (data.updatedAt && (!userMap.get(uid).updatedAt || data.updatedAt > userMap.get(uid).updatedAt))) {
+          const prev = userMap.get(uid);
+          if (!prev) {
             userMap.set(uid, data);
+          } else {
+            // Keep whichever record has non-zero activities/minutes if the newer one was accidentally zeroed
+            const prevMins = Number(prev.actualMinutes) || 0;
+            const curMins = Number(data.actualMinutes) || 0;
+            if (curMins > 0 && prevMins === 0) {
+              userMap.set(uid, data);
+            } else if (curMins > 0 && prevMins > 0 && data.updatedAt && (!prev.updatedAt || data.updatedAt > prev.updatedAt)) {
+              userMap.set(uid, data);
+            }
           }
         });
       } catch (_) {}
 
-      const users = Array.from(userMap.values());
-      users.sort((a, b) => (b.progressPct || 0) - (a.progressPct || 0) || (b.countedMinutes || 0) - (a.countedMinutes || 0));
-      $('uniqueUsersCount').textContent = `${users.length} enrolled`;
+      const allRawUsers = Array.from(userMap.entries()).map(([uid, u]) => ({ uid, ...u }));
+      $('uniqueUsersCount').textContent = `${allRawUsers.length} enrolled`;
 
-      if (users.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:24px">No November logs recorded yet. Be the first!</td></tr>`;
+      if (allRawUsers.length === 0) {
+        if (finishersPanel) finishersPanel.classList.add('hidden');
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:24px">No November logs recorded yet. Be the first!</td></tr>`;
         return;
       }
 
-      tbody.innerHTML = '';
-      users.forEach((u, idx) => {
-        const tr = document.createElement('tr');
-        if (currentUser && currentUser.uid === u.userId) tr.style.background = '#eaf2f8';
+      const elapsed = getElapsedNovemberDay();
+      const yesterdayLimit = Math.max(0, elapsed - 1);
 
+      const rows = [];
+      const yesterdayRows = [];
+      const finishersList = [];
+
+      allRawUsers.forEach(u => {
+        const uid = u.uid;
         const participantName = formatCleanName(u, u.email);
-        const isStephen = participantName.toLowerCase().includes('stephen');
-        const verifiedTarget = getVerifiedSeptTarget(participantName);
+        const snapToday = calculateAthleteHistoricalSnapshot(u, elapsed);
 
-        let displayTarget = u.adjustedTarget || verifiedTarget;
-        if (!isStephen && displayTarget === 1432 && verifiedTarget !== 1432) {
-          displayTarget = verifiedTarget;
-        }
-
-        const elapsed = getElapsedNovemberDay();
-        if (elapsed <= 1 && (!u.habitSlips || u.habitSlips === 0)) {
-          const expectedBase = u.baseTarget || verifiedTarget;
-          if (displayTarget === expectedBase + 30) {
-            displayTarget = expectedBase;
+        // Determine finish day & podium order for anyone at >= 100%
+        let finishDay = null;
+        let finishTime = Infinity;
+        if (snapToday.isFinished) {
+          let cum = 0;
+          for (let d = 1; d <= 30; d++) {
+            const dRaw = snapToday.dayRawMap[d] || 0;
+            cum += Math.min(dRaw, 120);
+            if (cum >= snapToday.target) {
+              finishDay = d;
+              finishTime = d * 86400000;
+              break;
+            }
           }
+          finishersList.push({ uid, finishDay: finishDay || elapsed, finishTime });
         }
 
         let habitDisplay = u.habitName || '';
+        const isStephen = participantName.toLowerCase().includes('stephen');
         if (!isStephen && habitDisplay === "Stop biting finger nails") {
           habitDisplay = "Not set yet";
         }
         if (habitDisplay === 'Disabled') habitDisplay = 'Disabled';
         else if (!habitDisplay) habitDisplay = "Not set yet";
 
-        const cleanDays = u.habitCleanDays || 0;
-        const slips = u.habitSlips || 0;
-        const isNotSet = habitDisplay === "Not set yet" || habitDisplay === "Disabled";
+        rows.push({
+          uid,
+          rawUser: u,
+          name: participantName,
+          photoURL: u.photoURL || 'https://placehold.co/28x28/1e293b/94a3b8?text=U',
+          habitDisplay,
+          cleanDays: u.habitCleanDays || 0,
+          slips: u.habitSlips || 0,
+          finishDay,
+          ...snapToday
+        });
 
-        const countedVal = Number(u.countedMinutes) || 0;
-        const pctVal = displayTarget > 0 ? Math.min(100, Math.round((countedVal / displayTarget) * 100)) : (u.progressPct || 0);
-        const earnedBadges = computeLeaderboardBadges(u, displayTarget);
-        const badgesHtml = earnedBadges.length > 0
-          ? earnedBadges.map(b => `<span title="${b.name}: ${b.desc}" style="cursor:help;margin-right:3px">${b.icon}</span>`).join('')
-          : '<span style="color:var(--muted);font-size:0.75rem">—</span>';
+        if (yesterdayLimit >= 1) {
+          const snapYesterday = calculateAthleteHistoricalSnapshot(u, yesterdayLimit);
+          yesterdayRows.push({
+            uid,
+            pct: snapYesterday.pct,
+            counted: snapYesterday.counted
+          });
+        }
+      });
+
+      // Compute Podium Badges (1st, 2nd, 3rd to Finish)
+      finishersList.sort((a, b) => a.finishDay - b.finishDay || a.finishTime - b.finishTime);
+      const podiumBadges = {};
+      if (finishersList.length >= 1) {
+        podiumBadges[finishersList[0].uid] = {
+          id: 'finisher_1st',
+          icon: '🥇',
+          name: 'First to Finish',
+          desc: `1st challenger to enter the Finishers Circle (Nov ${finishersList[0].finishDay})`
+        };
+      }
+      if (finishersList.length >= 2) {
+        podiumBadges[finishersList[1].uid] = {
+          id: 'finisher_2nd',
+          icon: '🥈',
+          name: 'Second to Finish',
+          desc: `2nd challenger to enter the Finishers Circle (Nov ${finishersList[1].finishDay})`
+        };
+      }
+      if (finishersList.length >= 3) {
+        podiumBadges[finishersList[2].uid] = {
+          id: 'finisher_3rd',
+          icon: '🥉',
+          name: 'Third to Finish',
+          desc: `3rd challenger to enter the Finishers Circle (Nov ${finishersList[2].finishDay})`
+        };
+      }
+      cachedPodiumBadges = podiumBadges;
+
+      // Compute World #1 Crown Badge (held 1st place at close of any concluded day after Nov 3)
+      const pastDaysConcluded = Math.max(0, elapsed - 1);
+      const worldNumberOneUids = new Set();
+      if (pastDaysConcluded >= 4 && allRawUsers.length > 0) {
+        for (let d = 4; d <= pastDaysConcluded; d++) {
+          let dayTopUid = null;
+          let bestPct = -1;
+          let bestCounted = -1;
+
+          allRawUsers.forEach(u => {
+            const histSnap = calculateAthleteHistoricalSnapshot(u, d);
+            if (histSnap.pct > bestPct || (histSnap.pct === bestPct && histSnap.counted > bestCounted)) {
+              bestPct = histSnap.pct;
+              bestCounted = histSnap.counted;
+              dayTopUid = u.uid;
+            }
+          });
+
+          if (dayTopUid && bestPct > 0) {
+            worldNumberOneUids.add(dayTopUid);
+          }
+        }
+      }
+      cachedWorldNumberOneUids = worldNumberOneUids;
+
+      // Separate Finishers Circle vs Chase to 100%
+      const finishersRows = rows.filter(r => r.isFinished);
+      const chaserRows = rows.filter(r => !r.isFinished);
+
+      finishersRows.sort((a, b) => b.bonusMinutes - a.bonusMinutes || b.counted - a.counted || (a.finishDay || 99) - (b.finishDay || 99));
+      chaserRows.sort((a, b) => b.pct - a.pct || b.counted - a.counted);
+
+      // Build Yesterday Rank Map across combined standings for +/- comparison
+      const yesterdayRankMap = {};
+      if (yesterdayLimit >= 1 && yesterdayRows.length > 0) {
+        yesterdayRows.sort((a, b) => b.pct - a.pct || b.counted - a.counted);
+        yesterdayRows.forEach((item, idx) => {
+          yesterdayRankMap[item.uid] = idx + 1;
+        });
+      }
+
+      const overallRankMap = {};
+      [...finishersRows, ...chaserRows].forEach((r, idx) => {
+        overallRankMap[r.uid] = idx + 1;
+      });
+
+      // Render Finishers Circle (stays hidden until >= 1 finisher)
+      $('finishersCountBadge').textContent = `🎖️ ${finishersRows.length} Finisher${finishersRows.length === 1 ? '' : 's'}`;
+      if (finishersRows.length === 0) {
+        finishersPanel.classList.add('hidden');
+        finishersTbody.innerHTML = '';
+      } else {
+        finishersPanel.classList.remove('hidden');
+        finishersTbody.innerHTML = '';
+
+        finishersRows.forEach((r, idx) => {
+          const tr = document.createElement('tr');
+          if (currentUser && currentUser.uid === r.uid) tr.style.background = '#fef9e7';
+          const tierRank = idx + 1;
+          const overallRank = overallRankMap[r.uid];
+
+          let movementHTML = `<span class="movement-indicator move-same" title="Holding steady">—</span>`;
+          if (yesterdayLimit >= 1 && yesterdayRankMap[r.uid] !== undefined) {
+            const prevRank = yesterdayRankMap[r.uid];
+            const diff = prevRank - overallRank;
+            if (diff > 0) movementHTML = `<span class="movement-indicator move-up" title="Climbed ${diff} spot${diff > 1 ? 's' : ''} since yesterday">▲ ${diff}</span>`;
+            else if (diff < 0) movementHTML = `<span class="movement-indicator move-down" title="Dropped ${Math.abs(diff)} spot${Math.abs(diff) > 1 ? 's' : ''} since yesterday">▼ ${Math.abs(diff)}</span>`;
+          }
+
+          const countGradient = buildConicGradient(r.counts);
+          const minGradient = buildConicGradient(r.minutes);
+          const streakBadge = r.activeStreak > 0
+            ? `<span class="streak-tag" title="${r.activeStreak} consecutive days meeting 30m goal">🔥 ${r.activeStreak}d</span>`
+            : `<span class="streak-tag streak-tag-zero" title="No active streak">0d</span>`;
+
+          const isNotSet = r.habitDisplay === "Not set yet" || r.habitDisplay === "Disabled";
+          const earnedBadges = computeLeaderboardBadges(r.rawUser, r, r.uid);
+
+          tr.innerHTML = `
+            <td><span class="leader-rank" style="color:#855c0c">#${tierRank}</span></td>
+            <td class="movement-cell">${movementHTML}</td>
+            <td>
+              <div class="leader-user">
+                <img class="user-avatar" src="${r.photoURL}" alt="">
+                <div>
+                  <strong>${r.name}</strong>
+                  <div style="font-size:0.68rem;color:var(--muted)">${r.actual} actual min</div>
+                </div>
+              </div>
+            </td>
+            <td>
+              <div style="display:flex;align-items:baseline;gap:5px;flex-wrap:wrap">
+                <strong style="color:#238255;font-size:0.95rem">100%</strong>
+                <span style="font-size:0.76rem;color:var(--muted)">&bull; <strong style="color:var(--ink)">${r.counted} min</strong> / ${r.target} min</span>
+              </div>
+              <div style="font-size:0.68rem;color:#238255;font-weight:750">Target Completed 🎉</div>
+            </td>
+            <td>
+              <span class="bonus-min-pill">+${r.bonusMinutes} min</span>
+            </td>
+            <td>${streakBadge}</td>
+            <td>
+              <div class="leader-charts">
+                <div class="mini-donut-wrap">
+                  <div class="mini-donut donut-sessions" style="background:${countGradient}"></div>
+                  <span class="mini-donut-sub">Sessions</span>
+                </div>
+                <div class="mini-donut-wrap">
+                  <div class="mini-donut donut-minutes" style="background:${minGradient}"></div>
+                  <span class="mini-donut-sub">Minutes</span>
+                </div>
+              </div>
+            </td>
+            <td>
+              <span class="habit-clickable-pill ${isNotSet ? 'habit-none' : ''}" onclick="showAthleteHabitDetails('${encodeURIComponent(r.name)}', '${encodeURIComponent(r.habitDisplay)}', ${r.cleanDays}, ${r.slips})">
+                ${isNotSet ? '⚪' : '⚡'} ${r.habitDisplay}
+              </span>
+            </td>
+            <td><div class="badges-cell"></div></td>
+          `;
+
+          attachDonutTooltip(tr.querySelector('.donut-sessions'), `${r.name}'s Sessions`, r.counts, 'sessions');
+          attachDonutTooltip(tr.querySelector('.donut-minutes'), `${r.name}'s Minutes`, r.minutes, 'min');
+
+          const badgesCell = tr.querySelector('.badges-cell');
+          if (earnedBadges.length > 0) {
+            earnedBadges.forEach(b => {
+              const span = document.createElement('span');
+              span.className = b.id.startsWith('finisher_') ? 'badge-chip badge-chip-lg' : 'badge-chip';
+              span.textContent = b.icon;
+              attachBadgeTooltip(span, b);
+              badgesCell.appendChild(span);
+            });
+          } else {
+            badgesCell.innerHTML = `<span style="color:var(--muted);font-size:0.75rem">—</span>`;
+          }
+
+          finishersTbody.appendChild(tr);
+        });
+      }
+
+      // Render Chase to 100% Table
+      if (chaserRows.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:24px">🎉 Every enrolled challenger has completed the challenge and entered the Finishers Circle!</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = '';
+      chaserRows.forEach((r, idx) => {
+        const tr = document.createElement('tr');
+        if (currentUser && currentUser.uid === r.uid) tr.style.background = '#eaf2f8';
+
+        const tierRank = idx + 1;
+        const overallRank = overallRankMap[r.uid];
+        const rankClass = (finishersRows.length === 0 && idx === 0) ? 'rank-1'
+          : (finishersRows.length === 0 && idx === 1) ? 'rank-2'
+          : (finishersRows.length === 0 && idx === 2) ? 'rank-3' : '';
+
+        let movementHTML = `<span class="movement-indicator move-same" title="Holding steady">—</span>`;
+        if (yesterdayLimit >= 1 && yesterdayRankMap[r.uid] !== undefined) {
+          const prevRank = yesterdayRankMap[r.uid];
+          const diff = prevRank - overallRank;
+          if (diff > 0) movementHTML = `<span class="movement-indicator move-up" title="Climbed ${diff} spot${diff > 1 ? 's' : ''} since yesterday">▲ ${diff}</span>`;
+          else if (diff < 0) movementHTML = `<span class="movement-indicator move-down" title="Dropped ${Math.abs(diff)} spot${Math.abs(diff) > 1 ? 's' : ''} since yesterday">▼ ${Math.abs(diff)}</span>`;
+        }
+
+        const pctRounded = Math.round(r.pct);
+        const countGradient = buildConicGradient(r.counts);
+        const minGradient = buildConicGradient(r.minutes);
+        const streakBadge = r.activeStreak > 0
+          ? `<span class="streak-tag" title="${r.activeStreak} consecutive days meeting 30m goal">🔥 ${r.activeStreak}d</span>`
+          : `<span class="streak-tag streak-tag-zero" title="No active streak">0d</span>`;
+
+        const isNotSet = r.habitDisplay === "Not set yet" || r.habitDisplay === "Disabled";
+        const earnedBadges = computeLeaderboardBadges(r.rawUser, r, r.uid);
 
         tr.innerHTML = `
-          <td><span class="leader-rank">#${idx + 1}</span></td>
+          <td><span class="leader-rank ${rankClass}">#${tierRank}</span></td>
+          <td class="movement-cell">${movementHTML}</td>
           <td>
             <div class="leader-user">
-              <img class="user-avatar" src="${u.photoURL || 'https://placehold.co/28x28/1e293b/94a3b8?text=U'}" alt="">
+              <img class="user-avatar" src="${r.photoURL}" alt="">
               <div>
-                <strong>${participantName}</strong>
-                <div style="font-size:0.68rem;color:var(--muted)">${u.actualMinutes || 0} actual min</div>
+                <strong>${r.name}</strong>
+                <div style="font-size:0.68rem;color:var(--muted)">${r.actual} actual min</div>
               </div>
             </div>
           </td>
           <td>
-            <div style="display:flex;align-items:baseline;gap:6px;flex-wrap:wrap">
-              <strong style="color:var(--navy);font-size:0.95rem">${pctVal}%</strong>
-              <span style="font-size:0.78rem;color:var(--muted)">&bull; <strong style="color:var(--ink)">${countedVal} min</strong> / ${displayTarget} min</span>
+            <div style="display:flex;align-items:baseline;gap:5px;flex-wrap:wrap">
+              <strong style="color:var(--navy);font-size:0.95rem">${pctRounded}%</strong>
+              <span style="font-size:0.76rem;color:var(--muted)">&bull; <strong style="color:var(--ink)">${r.counted} min</strong> / ${r.target} min</span>
             </div>
-            <div style="width:100%;max-width:140px;height:5px;background:#e2e8f0;border-radius:99px;overflow:hidden;margin-top:3px">
-              <div style="width:${pctVal}%;height:100%;background:linear-gradient(90deg,var(--cyan),var(--green))"></div>
+            <div style="width:100%;max-width:130px;height:5px;background:#e2e8f0;border-radius:99px;overflow:hidden;margin-top:3px">
+              <div style="width:${pctRounded}%;height:100%;background:linear-gradient(90deg,var(--cyan),var(--green))"></div>
+            </div>
+          </td>
+          <td>${streakBadge}</td>
+          <td>
+            <div class="leader-charts">
+              <div class="mini-donut-wrap">
+                <div class="mini-donut donut-sessions" style="background:${countGradient}"></div>
+                <span class="mini-donut-sub">Sessions</span>
+              </div>
+              <div class="mini-donut-wrap">
+                <div class="mini-donut donut-minutes" style="background:${minGradient}"></div>
+                <span class="mini-donut-sub">Minutes</span>
+              </div>
             </div>
           </td>
           <td>
-            <span class="habit-clickable-pill ${isNotSet ? 'habit-none' : ''}" onclick="showAthleteHabitDetails('${encodeURIComponent(participantName)}', '${encodeURIComponent(habitDisplay)}', ${cleanDays}, ${slips})">
-              ${isNotSet ? '⚪' : '⚡'} ${habitDisplay}
+            <span class="habit-clickable-pill ${isNotSet ? 'habit-none' : ''}" onclick="showAthleteHabitDetails('${encodeURIComponent(r.name)}', '${encodeURIComponent(r.habitDisplay)}', ${r.cleanDays}, ${r.slips})">
+              ${isNotSet ? '⚪' : '⚡'} ${r.habitDisplay}
             </span>
           </td>
-          <td>
-            <div style="font-size:0.95rem;display:flex;align-items:center;flex-wrap:wrap">${badgesHtml}</div>
-          </td>
+          <td><div class="badges-cell"></div></td>
         `;
+
+        attachDonutTooltip(tr.querySelector('.donut-sessions'), `${r.name}'s Sessions`, r.counts, 'sessions');
+        attachDonutTooltip(tr.querySelector('.donut-minutes'), `${r.name}'s Minutes`, r.minutes, 'min');
+
+        const badgesCell = tr.querySelector('.badges-cell');
+        if (earnedBadges.length > 0) {
+          earnedBadges.forEach(b => {
+            const span = document.createElement('span');
+            span.className = b.id.startsWith('finisher_') ? 'badge-chip badge-chip-lg' : 'badge-chip';
+            span.textContent = b.icon;
+            attachBadgeTooltip(span, b);
+            badgesCell.appendChild(span);
+          });
+        } else {
+          badgesCell.innerHTML = `<span style="color:var(--muted);font-size:0.75rem">—</span>`;
+        }
+
         tbody.appendChild(tr);
       });
+
+      if (currentUser) {
+        renderDashboardBadges(evaluateBadges(computedStats, cachedDays));
+      }
     } catch (e) {
       console.warn("Leaderboard fetch error:", e);
-      tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:24px">Failed to load standings.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:24px">Failed to load standings.</td></tr>`;
     }
   }
 
